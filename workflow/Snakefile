@@ -122,7 +122,9 @@ gamspath = config["paths"]["gams"]
 gamspath = str(gamspath)
 
 # Absolute path to the input data that is the same across all versions
+
 shared_input_path = pathlib.Path(config["paths"]["shared_input"])
+
 
 # Relative path the model code that is the same across all versions
 shared_code_path = "resources/4_model_code_shared/"
@@ -411,7 +413,7 @@ rule compress_hydrores_inflow:
 
 rule link_hydrores_inflow:
     input:
-        rules.compress_hydrores_inflow.output.compressdone,
+ #       rules.compress_hydrores_inflow.output.compressdone,
         rules.build_hydrores_inflow.output.inflowgdx,
     output:
         inflowgdx=modelpath / "hydro_res_inflow_{year}.gdx",
@@ -419,7 +421,7 @@ rule link_hydrores_inflow:
         # copy instead of link due to missing privileges on windows
         import shutil
 
-        shutil.copy2(input[1], output[0])
+        shutil.copy2(input[0], output[0])
 
 
 rule build_vre_file:
@@ -470,7 +472,7 @@ rule build_vre_gdx:
     input:
         rules.build_vre_csv.output.csvgdx,
     output:
-        bigvregdx=temp(modelpath / "vre_{year}_.gdx"),
+        bigvregdx= modelpath / "vre_{year}_.gdx",
     shell:
         # TODO platform independence
         gamspath + (
@@ -493,7 +495,7 @@ rule compress_vre_gdx:
     returndict['temporalfile'] = modelpath / "{year}_temporal.dd"
     returndict['vreareafile'] = modelpath / "vre_areas_{year}_.dd"
     returndict['demandfile'] = modelpath / "BASE_demand_{year}.dd"
-    returndict['capfacfilecompressed'] = modelpath / "vre_gdx.compressed"
+#    returndict['capfacfilecompressed'] = modelpath / "vre_gdx.compressed"
     returndict['capfacfile'] = modelpath / "vre_{year}_.gdx"
     returndict['hydroresinflowfile'] = modelpath / "hydro_res_inflow_{year}.gdx"
     returndict['co2budgetfile'] = modelpath / "BASE_co2_budget.dd"
@@ -511,7 +513,7 @@ rule build_inputs:
         modelpath / "{year}_temporal.dd",
         modelpath / "vre_areas_{year}_.dd",
         modelpath / "BASE_demand_{year}.dd",
-        modelpath / "vre_gdx.compressed",
+#        modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
         modelpath / "BASE_co2_budget.dd",
