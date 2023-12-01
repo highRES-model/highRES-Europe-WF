@@ -2,8 +2,8 @@
 
 To run the full workflow, two datapackages are needed they can be downloaded from:
 
-1. (~80MB compressed, ~300MB uncompressed) <link>.
-2. (~10GB) <link>
+1. (~80MB compressed, ~300MB uncompressed) <https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1>.
+2. (~10GB) <https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1>
 
 ## Windows
 1. Clone the repository
@@ -15,7 +15,7 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 4. Navigate to the repository in your snakemake conda environment shell
 4. Get the required input files
     ```
-   curl -o shared_input.tar -L -b cookies.txt "link" -o resources.tar.zst -L -b cookies.txt "link"
+   curl -o shared_input.tar -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1" -o resources.tar.zst -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1"
    ```
 5. Extract the required input files
     ```
