@@ -1,6 +1,6 @@
 target: inputs.finished
 paths:
   gams: C:\GAMS\win64\27.2\
-  shared_input: C:\science\models\highRES\model_versions\highRES-model-james\shared_input\
+  shared_input: shared_input\
   abs_shared_code: ../../../../resources/4_model_code_shared
-  results: C:\science\models\highRES\model_versions\highRES-model-james\work
+  results: work\

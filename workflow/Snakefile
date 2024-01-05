@@ -19,6 +19,9 @@ import itertools
 import pandas as pd
 import pathlib
 
+date_range=["2010-01-01","2010-01-07"]
+
+
 inputyears = [
     # "1995",
     "2010"
@@ -27,35 +30,37 @@ inputyears = [
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = [
-    "AT",
+#    "AT",
     "BE",
-    "BG",
-    "CH",
-    "CZ",
+#    "BG",
+#    "CH",
+#    "CZ",
     "DE",
-    "DK",
-    "EE",
-    "ES",
-    "FI",
+#    "DK",
+#    "EE",
+#    "ES",
+#    "FI",
     "FR",
     "UK",
-    "GR",
-    "HR",
-    "HU",
+#    "GR",
+#    "HR",
+#    "HU",
     "IE",
-    "IT",
-    "LT",
-    "LU",
-    "LV",
+#    "IT",
+#    "LT",
+#    "LU",
+#    "LV",
     "NL",
-    "NO",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SI",
-    "SK",
+#    "NO",
+#    "PL",
+#    "PT",
+#    "RO",
+#    "SE",
+#    "SI",
+#    "SK",
 ]
+
+
 
 # TODO: worry about zones vs regions later this only works for all aggregated
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
@@ -117,14 +122,17 @@ co2target = round(0, 1)
 # gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
 gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
 
+# Get current working directory
+
+cwd = pathlib.Path().resolve()
+
 # Absolute path to your GAMS installation
 gamspath = config["paths"]["gams"]
 gamspath = str(gamspath)
 
 # Absolute path to the input data that is the same across all versions
 
-shared_input_path = pathlib.Path(config["paths"]["shared_input"])
-
+shared_input_path = cwd / pathlib.Path(config["paths"]["shared_input"])
 
 # Relative path the model code that is the same across all versions
 shared_code_path = "resources/4_model_code_shared/"
@@ -138,7 +146,7 @@ scenario_exclusions_path = "resources/scenario_exclusions/"
 # Relative path to the results
 # TODO: Vetle: --directory, flag for å sette results directory?
 # resultspath = "results/"
-resultspath = pathlib.Path(config["paths"]["results"])
+resultspath = cwd / pathlib.Path(config["paths"]["results"])
 pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 
 # Write scenarios to file, so results analysis script can check if they are all
@@ -311,6 +319,7 @@ rule build_weather:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         cutoffs=cutoff_values,
+	    date_range=date_range,
     notebook:
         "notebooks/highRES-build_weather.py.ipynb"
 
