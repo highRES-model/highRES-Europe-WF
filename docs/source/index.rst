@@ -22,3 +22,4 @@ Contents
    Introduction
    Getting started
    Workflow
+   Deprecated
