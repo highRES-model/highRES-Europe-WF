@@ -30,34 +30,34 @@ inputyears = [
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = [
-#    "AT",
+   "AT",
     "BE",
-#    "BG",
-#    "CH",
-#    "CZ",
+   "BG",
+   "CH",
+   "CZ",
     "DE",
-#    "DK",
-#    "EE",
-#    "ES",
-#    "FI",
+   "DK",
+   "EE",
+   "ES",
+   "FI",
     "FR",
     "UK",
-#    "GR",
-#    "HR",
-#    "HU",
+   "GR",
+   "HR",
+   "HU",
     "IE",
-#    "IT",
-#    "LT",
-#    "LU",
-#    "LV",
+    "IT",
+   "LT",
+   "LU",
+   "LV",
     "NL",
-#    "NO",
-#    "PL",
-#    "PT",
-#    "RO",
-#    "SE",
-#    "SI",
-#    "SK",
+   "NO",
+   "PL",
+   "PT",
+   "RO",
+   "SE",
+   "SI",
+   "SK",
 ]
 
 
@@ -367,9 +367,9 @@ rule build_vre_land_avail:
 		cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
 		cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
 		indreg=temp(modelpath / "indices_region.csv"),
-		grid_areassolar = temp(modelpath / "grid_areas_solar.csv"),
-		grid_areaswindonshore=temp(modelpath / "grid_areas_wind_onshore.csv"),
-		grid_areaswindoffshore=temp(modelpath / "grid_areas_wind_offshore.csv"),
+		grid_areassolar = modelpath / "grid_areas_solar.csv",
+		grid_areaswindonshore=modelpath / "grid_areas_wind_onshore.csv",
+		grid_areaswindoffshore=modelpath / "grid_areas_wind_offshore.csv",
 	resources:
 		mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -400,22 +400,23 @@ rule build_vre_cf_inputs:
 
 
 rule build_hydro_capfac:
-    input:
-        eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
-        hydroinstalledcap="resources/hydro_installed_cap.tsv",
-        euroshape=shared_input_path
-        / "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
-        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-    output:
-        hydrororcapfac=temp(modelpathyearonly / "capacity-factors_hydro_{year}.csv"),
-        hydroresinfl=temp(modelpathyearonly / "inflow_hydro-res_{year}.csv"),
-    conda:
-        "envs/build_hydro_capfac.yml"
-    params:
-        sharedinputpath=shared_input_path,
-        aggregated_regions=aggregated_regions,
-    notebook:
-        "notebooks/highRES_build_hydro.py.ipynb"
+	input:
+		eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
+		hydroinstalledcap="resources/hydro_installed_cap.tsv",
+		euroshape=shared_input_path
+		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+	output:
+		hydrororcapfac=temp(modelpathyearonly / "capacity-factors_hydro_{year}.csv"),
+		hydroresinfl=temp(modelpathyearonly / "inflow_hydro-res_{year}.csv"),
+	conda:
+		"envs/build_hydro_capfac.yml"
+	params:
+		sharedinputpath=shared_input_path,
+		aggregated_regions=aggregated_regions,
+		date_range=date_range,
+	notebook:
+		"notebooks/highRES_build_hydro.py.ipynb"
 
 
 def regionsonlyforgrid(wildcards):
