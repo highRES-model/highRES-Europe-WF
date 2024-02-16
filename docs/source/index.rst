@@ -13,6 +13,7 @@ Check out the :doc:`Getting started` section for further information on how to g
 
 To inspect the results files produced (.db or .parquet), we recommend the
 program "tadviewer" https://www.tadviewer.com/ .
+
 Contents
 --------
 
