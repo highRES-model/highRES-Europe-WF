@@ -1,10 +1,10 @@
 User guide
-======
+============
 
 highRES-Europe consists of two modules, a GAMS module and a workflow (WF) module.  
 
 GAMS
--------
+------------
 
 The general algebraic modeling system (GAMS) is the modelling system which highRES-Europe is written in. The main GAMS file of highRES-Europe is **highres.gms**. Here, the essential variables and equations are declared and defined. 
 

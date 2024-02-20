@@ -29,7 +29,7 @@ Demand time series are originally based on historical data from the `European Ne
 - Exclusion data
 
 highRES-model publications
--------------
+----------------------------
 highRES has been used in a number of publications. An occasionally updated list is provided below, sorted by newest first. 
 
 Viole, I., Shen, L., Camargo, L. R., Zeyringer, M., & Sartori, S. (2023). Sustainable Astronomy: A comparative Life Cycle Assessment of Off-grid Hybrid Energy Systems to supply large Telescopes [Preprint]. In Review. https://doi.org/10.21203/rs.3.rs-3281965/v2
