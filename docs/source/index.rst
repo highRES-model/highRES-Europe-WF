@@ -22,4 +22,5 @@ Contents
    Introduction
    Getting started
    User guide
+   publications
 
