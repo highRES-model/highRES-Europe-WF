@@ -23,5 +23,5 @@ Contents
    Introduction 
    Getting started
    User guide
-   publications <Publications>
+   Publications <publications>
 
