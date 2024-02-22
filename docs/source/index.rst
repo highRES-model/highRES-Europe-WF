@@ -18,9 +18,10 @@ Contents
 --------
 
 .. toctree::
+   :titlesonly:
 
-   Introduction
+   Introduction 
    Getting started
    User guide
-   publications
+   publications <Publications>
 
