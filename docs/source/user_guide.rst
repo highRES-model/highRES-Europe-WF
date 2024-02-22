@@ -1,5 +1,5 @@
 Detailed user guide
-============
+====================
 
 highRES-Europe consists of two modules, a GAMS module and a workflow (WF) module.  
 
