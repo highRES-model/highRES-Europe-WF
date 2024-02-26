@@ -404,13 +404,15 @@ rule build_hydrores_inflow:
             "Index='(1,2,3)' Value='(4)' UseHeader=True StoreZero=True"
         )
 
+
 rule compress_hydrores_inflow:
     input:
-        rules.build_hydrores_inflow.output.inflowgdx
+        rules.build_hydrores_inflow.output.inflowgdx,
     output:
         compressdone=touch(modelpathyearonly / "hydrores_inflow_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
+
 
 rule link_hydrores_inflow:
     input:
@@ -449,25 +451,28 @@ rule build_vre_file:
                     #     )
 
 
+
 rule build_vre_parquet:
     input:
-        rules.build_vre_file.output.vrefile
+        rules.build_vre_file.output.vrefile,
     output:
-        modelpath / "vre_{year}_.parquet"
+        modelpath / "vre_{year}_.parquet",
     conda:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/build_vre_parquet.py"
 
+
 rule build_vre_csv:
     input:
-        modelpath / "vre_{year}_.parquet"
+        modelpath / "vre_{year}_.parquet",
     output:
-        csvgdx=temp(modelpath/"vre_{year}_tmp.csv")
+        csvgdx=temp(modelpath / "vre_{year}_tmp.csv"),
     conda:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/build_vre_csv.py"
+
 
 rule build_vre_gdx:
     input:
@@ -481,13 +486,15 @@ rule build_vre_gdx:
             " Value='(4)' UseHeader=True StoreZero=True"
         )
 
+
 rule compress_vre_gdx:
     input:
-        rules.build_vre_gdx.output.bigvregdx
+        rules.build_vre_gdx.output.bigvregdx,
     output:
-        touch(modelpath / "vre_gdx.compressed")
+        touch(modelpath / "vre_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
+
 
 """ def inputfilelist(wildcards):
     returndict = {}
@@ -573,4 +580,3 @@ rule convert_results_db_parquet:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
-
