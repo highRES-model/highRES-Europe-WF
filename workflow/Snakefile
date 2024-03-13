@@ -115,7 +115,8 @@ co2target = round(0, 1)
 # gamsfilesha256 = "9b1b86c582b18822fcf9c65045f9c68605e951957cd934cc1713f8cf00a5f375"
 # gamsfilesha256 = "7c58219c0ab4320c806c0460ebba547c10838313c6a1f10f6e6640aab90a4838"
 # gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
-gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
+# gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
+gamsfilesha256 = "434c96a4d8a80151d5a331892ebd0ccc330eca7394273149df570a595606d3d0"
 
 # Absolute path to your GAMS installation
 gamspath = config["paths"]["gams"]
@@ -184,7 +185,7 @@ rule all:
 
 rule ensure_gams_template:
     input:
-        "resources/highresraw.gms",
+        "resources/highRES-Europe-GAMS/highres.gms",
     output:
         gamsfile=ensure(resultspath / "highres.gms", sha256=gamsfilesha256),
     run:
