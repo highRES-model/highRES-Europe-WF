@@ -8,7 +8,7 @@ cd ${snakemake_params[modelpath]}
 pwd -P
 
 ${snakemake_params[gamspath]}gams \
-${snakemake_input[gamsfile]} \
+${snakemake_params[sharedcodepath]}/highres.gms \
 gdxCompress=1 \
 --weather_yr "${snakemake_wildcards[year]}" \
 --dem_yr "${snakemake_wildcards[year]}" \

@@ -125,7 +125,7 @@ gamspath = str(gamspath)
 shared_input_path = cwd / pathlib.Path(config["paths"]["shared_input"])
 
 # Relative path the model code that is the same across all versions
-shared_code_path = "resources/4_model_code_shared/"
+shared_code_path = "resources/highRES-Europe-GAMS/"
 abs_shared_code_path = config["paths"]["abs_shared_code"]
 # abs_shared_code_path = workflow.source_path("../resources/4_model_code_shared/")
 # TODO: Get this to work, maybe with Pathlib
@@ -533,7 +533,7 @@ rule run_model:
         shared_code_path + "highres_uc_setup.gms",
         modelpath / "inputs.finished",
         modelpath / "vre_{year}_.gdx",
-        gamsfile=workflow.source_path("../resources/highresraw.gms"),
+        gamsfile="resources/highRES-Europe-GAMS/highres.gms",
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),

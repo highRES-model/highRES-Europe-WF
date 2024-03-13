@@ -15,6 +15,11 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 
 ## Windows
 1. Clone the repository
+    - To also get the submodule, go into the cloned foder and run these two commands
+        ```
+        git submodule init
+        git submodule update
+        ```
 2. Install snakemake
     - Download miniforge windows exe <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>
     - Install Miniforge
