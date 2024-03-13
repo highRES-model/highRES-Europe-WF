@@ -1,3 +1,3 @@
 [submodule "resources/highRES-Europe-GAMS"]
 	path = resources/highRES-Europe-GAMS
-	url = git@github.com:highRES-model/highRES-Europe-GAMS.git
+	url = https://github.com/highRES-model/highRES-Europe-GAMS.git
