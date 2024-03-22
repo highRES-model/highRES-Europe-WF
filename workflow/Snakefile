@@ -95,8 +95,8 @@ pd.DataFrame(aggregated_regions).assign(
 
 spatials = [
     # "grid",
-     "region",
-	#"nuts2"
+    # "region",
+	"nuts2"
 ]
 
 cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
@@ -407,8 +407,8 @@ rule build_hydro_capfac:
 		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
 		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 	output:
-		hydrororcapfac=temp(modelpathyearonly / "capacity-factors_hydro_{year}.csv"),
-		hydroresinfl=temp(modelpathyearonly / "inflow_hydro-res_{year}.csv"),
+		hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
+		hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
 	conda:
 		"envs/build_hydro_capfac.yml"
 	params:
