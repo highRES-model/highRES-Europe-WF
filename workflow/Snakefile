@@ -265,61 +265,7 @@ rule rename_demand_file:
         import shutil
 
         shutil.copy2(input[0], output[0])
-
-
-# rule build_hydro_areas:
-#    input:
-#        "resources/zones.csv",
-#    output:
-#        areashydro=temp(allyearpath / "available_area.txt"),
-#    script:
-#        "scripts/build_hydro_areas.py"
-
-
-# rule build_weather:
-    # input:
-        # WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
-        # WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
-        # WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
-        # WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
-        # WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
-        # elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
-        # slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
-        # euroshape=shared_input_path
-        # / "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
-        # eurooffshoreshape=shared_input_path
-        # / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
-        # weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-        # corine=shared_input_path / "geodata/onshore/corine.tif",
-    # output:
-        # # FIXME the file indreg is only necessary when we run on grid cell
-        # # currently when we run with region, we create an empty file
-        # # the cleaner solution might be to outsource the creation of that file
-        # # to an extra rule and have an input function conditional on the
-        # # wildcard spatial for that rule
-        # cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
-        # cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
-        # cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
-        # indreg=temp(modelpath / "indices_region.csv"),
-        # areassolar=temp(modelpath / "areas_solar.csv"),
-        # areaswindonshore=temp(modelpath / "areas_wind_onshore.csv"),
-        # areaswindoffshore=temp(modelpath / "areas_wind_offshore.csv"),
-        # capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
-    # conda:
-        # "envs/build_weather.yml"
-    # log:
-        # notebook="logs/notebooks/" + logpath + "highRES-build_weather.py.ipynb",
-    # resources:
-        # mem_mb=50000,  # TODO: Find out how much this rule needs,
-        # # should be constant (regional/grid)
-    # threads: workflow.cores * 0.75
-    # params:
-        # sharedinputpath=shared_input_path,
-        # aggregated_regions=aggregated_regions,
-        # cutoffs=cutoff_values,
-	    # date_range=date_range,
-    # notebook:
-        # "notebooks/highRES-build_weather.py.ipynb"
+        
 
 rule build_vre_cf_grid:
 	input:
