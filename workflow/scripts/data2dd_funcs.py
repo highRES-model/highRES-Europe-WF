@@ -240,7 +240,8 @@ def getrlims(lim,techs,zones):
     
     # TODO capcity units are fixed to GW here, need to add flexibility
     
-    lim=lim.loc[(lim["Year"]==2050) & (lim["Technology"].isin(techs)),:]
+    lim=lim.loc[(lim["Year"]==2050) & (lim["Technology"].isin(techs))
+                & (lim["zone"].isin(zones)),:]
     
     if lim.empty:
         return np.array([])
@@ -252,10 +253,10 @@ def getrlims(lim,techs,zones):
     outlims=[]
     
     for p_lim in para_lim:     
-        lim.loc[(lim["parameter"]==p_lim) & (lim["zone"].isin(zones)),:]
+        limval=lim.loc[(lim["parameter"]==p_lim),:]
         
-        nl=data2dd(lim["value"]/1E3,[lim["Technology"],
-                lim["zone"],lim["region"],lim["limtype"]])
+        nl=data2dd(limval["value"]/1E3,[limval["Technology"],
+                limval["zone"],limval["region"],limval["limtype"]])
         
         outlims.append(wrapdd(nl,p_lim,"parameter"))
         
