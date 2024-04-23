@@ -43,7 +43,7 @@ $offdigit
 * outname = output name of GDX file
 
 $setglobal datafolderpath "."
-$setglobal codefolderpath "../../../../resources/4_model_code_shared"
+* $setglobal codefolderpath "../../../../resources/4_model_code_shared"
 
 $setglobal log "test_log"
 $setglobal gdx2sql "ON"
@@ -68,8 +68,8 @@ $setglobal psys_scen "BASE"
 $setglobal RPS "optimal"
 $setglobal vre_restrict ""
 $setglobal model_yr "2050"
-$setglobal weather_yr "2010"
-$setglobal dem_yr "2010"
+* $setglobal weather_yr "2010"
+* $setglobal dem_yr "2010"
 $setglobal fx_trans "NO"
 $setglobal fx_natcap "NO"
 
@@ -78,6 +78,7 @@ $set pen_gen "OFF"
 $setglobal fx_caps_to ""
 
 $setglobal outname "results"
+* $setglobal co2intensity "2"
 
 
 
@@ -634,7 +635,7 @@ eq_trans_bidirect(trans_links(z,z_alias,trans)) ..  var_trans_pcap(z,z_alias,tra
 
 eq_co2_budget(yr) .. sum((gen_lim(z,non_vre),h)$(hr2yr_map(yr,h)),var_gen(h,z,non_vre)*gen_emisfac(non_vre))*1E3 =L=
 
-sum((z,h)$(hr2yr_map(yr,h)),demand(z,h))*2.
+sum((z,h)$(hr2yr_map(yr,h)),demand(z,h))*%co2intensity%
 
 
 * Capacity Margin
