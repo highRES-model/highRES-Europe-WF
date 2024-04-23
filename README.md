@@ -17,9 +17,10 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 1. Clone the repository
 2. Install snakemake
     - Download miniforge windows exe <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>
-    - Install Minforge
+    - Install Miniforge
+    - Open Miniforge Prompt from the start menu
     - Run the minimal install of the snakemake environment `mamba create -c bioconda -c conda-forge -n snakemake snakemake-minimal pandas zstd`
-3. Activate the snakemake environment
+3. Activate the snakemake environment `mamba activate snakemake`
 4. Navigate to the repository in your snakemake conda environment shell
 4. Get the required input files
     ```
@@ -33,4 +34,4 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
     mkdir shared_input
     tar xf shared_input.tar -C shared_input
     ```
-5. Run snakemake -c --use-conda
+5. Run `snakemake -c all --use-conda`
