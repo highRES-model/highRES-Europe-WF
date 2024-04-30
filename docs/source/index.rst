@@ -30,4 +30,3 @@ Contents
    :hidden:
 
    Deprecated
-   workflow
