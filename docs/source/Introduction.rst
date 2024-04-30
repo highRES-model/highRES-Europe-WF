@@ -5,7 +5,7 @@ The high spatial and temporal resolution electricity system model, highRES, is u
 highRES is written in GAMS and its objective is to minimise power system investment and operational costs to meet hourly demand, subject to a number of unit and system constraints. It can model a variety of technical characteristics of thermal generators (e.g. ramping restrictions, minimum stable generation, startup costs, minimum up and down times) depending on the requirements of the research question, their CO2 emissions, and the technical characteristics of a variety of energy storage options. The transmission grid is represented using a linear transport model.
 
 .. image:: docs/figures/SoftwareX_fig1.jpg
-   :alt: The highRES modelling framework, as described in `Price & Zeyringer (2022) <https://doi.org/10.1016/j.softx.2022.101003>`_.
+   :alt: The highRES modelling framework.
 
 
 highRES-Europe is further described in `Price & Zeyringer (2022) <https://doi.org/10.1016/j.softx.2022.101003>`_.
