@@ -20,8 +20,8 @@ Contents
 .. toctree::
    :titlesonly:
 
-   Introduction 
-   Getting started
-   User guide
+   Introduction <introduction>
+   Getting started <getting_started>
+   User guide <user_guide>
    Publications <publications>
 
