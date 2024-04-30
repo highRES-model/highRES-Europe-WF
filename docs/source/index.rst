@@ -18,10 +18,16 @@ Contents
 ---------
 
 .. toctree::
-   :titlesonly:
+   :maxdepth: 2
 
    Introduction <introduction>
    Getting started <getting_started>
    User guide <user_guide>
    Publications <publications>
 
+
+.. toctree::
+   :hidden:
+
+   Deprecated
+   workflow
