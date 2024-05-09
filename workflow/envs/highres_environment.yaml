@@ -20,8 +20,8 @@ dependencies:
   - snakemake-minimal
   - zstd
   - pycountry
-  - atlite=0.2.4
-  - numpy=1.23.2
-  - xarray=0.18.2
-  - pandas=1.2.5
-  - shapely<2.0.0
+  - atlite=0.2.12
+  - numpy
+  - xarray=2024.3.0
+  - pandas
+  - shapely

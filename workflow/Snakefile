@@ -309,7 +309,7 @@ rule build_vre_land_avail:
 		slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
 		euroshape=rules.build_shapes.output.onshoreshape,
 		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
-		weatherdata=shared_input_path / "weatherdata/europe_2010.nc",
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		cfdata=rules.build_vre_cf_grid.output.cf_file,
 		corine=shared_input_path / "geodata/onshore/corine.tif",
 	output:
