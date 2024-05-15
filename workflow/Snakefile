@@ -19,6 +19,9 @@ import itertools
 import pandas as pd
 import pathlib
 
+date_range = ["01-01", "12-31"]
+
+
 inputyears = [
     # "1995",
     "2010"
@@ -246,6 +249,7 @@ rule build_technoeconomic_inputs:
         demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
     params:
         aggregated_regions=aggregated_regions,
+        date_range=date_range,
     script:
         "scripts/gb_ext_data2dd.py"
 
@@ -312,6 +316,7 @@ rule build_weather:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         cutoffs=cutoff_values,
+        date_range=date_range,
     notebook:
         "notebooks/highRES-build_weather.py.ipynb"
 
@@ -331,6 +336,7 @@ rule build_hydro_capfac:
     params:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
+        date_range=date_range,
     notebook:
         "notebooks/highRES_build_hydro.py.ipynb"
 
