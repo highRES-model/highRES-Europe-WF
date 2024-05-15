@@ -99,12 +99,16 @@ for psys in pscens:
 
 
 years = [snakemake.wildcards.year]
+date_range = snakemake.params.date_range
 
 for yr in years:
+    date_range = [yr + "-" + date for date in date_range]
     yr = int(yr)
 
-    dstart = datetime.datetime(yr, 1, 1, 0)
-    dstop = datetime.datetime(yr, 12, 31, 23)
+    dstart = datetime.datetime.fromisoformat(date_range[0])
+    dstop = datetime.datetime.fromisoformat(date_range[1]) + datetime.timedelta(
+        hours=23
+    )
 
     if calendar.isleap(yr):
         rleap = False
