@@ -19,7 +19,7 @@ import itertools
 import pandas as pd
 import pathlib
 
-date_range=["01-01","06-30"]
+date_range=["01-01","12-31"]
 
 
 inputyears = [
@@ -263,17 +263,29 @@ rule rename_demand_file:
         import shutil
 
         shutil.copy2(input[0], output[0])
-        
-
-rule build_vre_cf_grid:
+		
+rule build_shapes:
 	input:
-		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		euroshape=shared_input_path
 		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
 		eurooffshoreshape=shared_input_path
 		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
 	output:
-		cf_file=shared_input_path / "intermediate_data/europe_cf_{year}.nc",
+		onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
+		offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
+	params:
+		aggregated_regions=aggregated_regions,
+	notebook:
+		"notebooks/highRES-build_shapes.ipynb"
+        
+
+rule build_vre_cf_grid:
+	input:
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+		euroshape=rules.build_shapes.output.onshoreshape,
+		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+	output:
+		cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
 	resources:
 		mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -293,10 +305,8 @@ rule build_vre_land_avail:
 		WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
 		elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
 		slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
-		euroshape=shared_input_path
-		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
-		eurooffshoreshape=shared_input_path
-		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+		euroshape=rules.build_shapes.output.onshoreshape,
+		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		cfdata=rules.build_vre_cf_grid.output.cf_file,
 		corine=shared_input_path / "geodata/onshore/corine.tif",
@@ -326,7 +336,7 @@ rule build_vre_land_avail:
 		
 rule build_vre_cf_inputs:
 	input:
-		cf_file=shared_input_path / "intermediate_data/europe_cf_{year}.nc",
+		cf_file=rules.build_vre_cf_grid.output.cf_file,
 		grid_areassolar = rules.build_vre_land_avail.output.grid_areassolar,
 		grid_areaswindonshore = rules.build_vre_land_avail.output.grid_areaswindonshore,
 		grid_areaswindoffshore = rules.build_vre_land_avail.output.grid_areaswindoffshore,
@@ -346,8 +356,7 @@ rule build_hydro_capfac:
 	input:
 		eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
 		hydroinstalledcap="resources/hydro_installed_cap.tsv",
-		euroshape=shared_input_path
-		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
+		euroshape=rules.build_shapes.output.onshoreshape,
 		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 	output:
 		hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
@@ -410,7 +419,7 @@ rule build_hydrores_inflow:
     input:
         rules.build_hydro_capfac.output.hydroresinfl,
     output:
-        inflowgdx=modelpathyearonly / "hydro_res_inflow_{year}.gdx",
+        inflowgdx=modelpath / "hydro_res_inflow_{year}.gdx",
     shell:
         gamspath + (
             "csv2gdx {input} output={output} ID=hydro_inflow "
