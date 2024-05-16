@@ -119,7 +119,7 @@ co2target = round(0, 1)
 # gamsfilesha256 = "9b1b86c582b18822fcf9c65045f9c68605e951957cd934cc1713f8cf00a5f375"
 # gamsfilesha256 = "7c58219c0ab4320c806c0460ebba547c10838313c6a1f10f6e6640aab90a4838"
 # gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
-gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
+gamsfilesha256 = "0e8a55bad6b66243e5af8defd6279a2ce985ed6cf19244b097f08a75d1215c85"
 # Get current working directory
 
 cwd = pathlib.Path().resolve()
@@ -307,7 +307,7 @@ rule build_vre_land_avail:
 		slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
 		euroshape=rules.build_shapes.output.onshoreshape,
 		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
-        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		cfdata=rules.build_vre_cf_grid.output.cf_file,
 		corine=shared_input_path / "geodata/onshore/corine.tif",
 	output:
