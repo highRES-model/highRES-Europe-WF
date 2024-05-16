@@ -93,7 +93,7 @@ pd.DataFrame(aggregated_regions).assign(
 
 spatials = [
     # "grid",
-     "region",
+    "region",
 	#"nuts2"
 ]
 
@@ -167,7 +167,6 @@ localrules:
     rename_demand_file,
     build_regions_file,
     build_zones_file,
-    build_hydro_areas,
     build_vre_areas_file,
     build_vre_file,
     build_vre_gdx,
@@ -267,13 +266,13 @@ rule rename_demand_file:
         shutil.copy2(input[0], output[0])
 
 
-rule build_hydro_areas:
-    input:
-        "resources/zones.csv",
-    output:
-        areashydro=temp(allyearpath / "available_area.txt"),
-    script:
-        "scripts/build_hydro_areas.py"
+# rule build_hydro_areas:
+#    input:
+#        "resources/zones.csv",
+#    output:
+#        areashydro=temp(allyearpath / "available_area.txt"),
+#    script:
+#        "scripts/build_hydro_areas.py"
 
 
 rule build_vre_cf_grid:
@@ -363,6 +362,7 @@ rule build_hydro_capfac:
 	output:
 		hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
 		hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
+		areashydro=temp(modelpath / "hydro_ror_area.csv"),
 	conda:
 		"envs/build_hydro_capfac.yml"
 	params:
@@ -402,7 +402,7 @@ rule build_regions_file:
 rule build_vre_areas_file:
     input:
         #        unpack(build_vre_areas_file_func),
-        areashydro=rules.build_hydro_areas.output.areashydro,
+        areashydro=rules.build_hydro_capfac.output.areashydro,
         areassolar=rules.build_vre_cf_inputs.output.areassolar,
         areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
         areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
