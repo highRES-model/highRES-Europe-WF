@@ -19,7 +19,7 @@ import itertools
 import pandas as pd
 import pathlib
 
-date_range=["2010-01-01","2010-12-31"]
+date_range=["01-01","06-30"]
 
 
 inputyears = [
@@ -231,27 +231,27 @@ rule build_zones_file:
 
 
 rule build_technoeconomic_inputs:
-    input:
-        "resources/zones.csv",
-        "resources/gb_ext_scenarios.xls",
-        "resources/highres_gb_ext_database.ods",
-        europecountriescsvlocation="resources/europe_countries.csv",
-        europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
-        data2dd="workflow/scripts/data2dd_funcs.py",
-    conda:
-        "envs/build_technoeconomic.yml"
-    output:
-        modelpath / "{year}_temporal.dd",
-        modelpath / "BASE_co2_budget.dd",
-        modelpath / "BASE_gen.dd",
-        modelpath / "BASE_store.dd",
-        modelpath / "trans.dd",
-        demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
-    params:
-        aggregated_regions=aggregated_regions,
-        date_range=date_range,
-    script:
-        "scripts/gb_ext_data2dd.py"
+	input:
+		"resources/zones.csv",
+		"resources/gb_ext_scenarios.xls",
+		"resources/highres_gb_ext_database.ods",
+		europecountriescsvlocation="resources/europe_countries.csv",
+		europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
+		data2dd="workflow/scripts/data2dd_funcs.py",
+	conda:
+		"envs/build_technoeconomic.yml"
+	output:
+		modelpath / "{year}_temporal.dd",
+		modelpath / "BASE_co2_budget.dd",
+		modelpath / "BASE_gen.dd",
+		modelpath / "BASE_store.dd",
+		modelpath / "trans.dd",
+		demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
+	params:
+		aggregated_regions=aggregated_regions,
+		date_range=date_range,
+	script:
+		"scripts/gb_ext_data2dd.py"
 
 
 rule rename_demand_file:
