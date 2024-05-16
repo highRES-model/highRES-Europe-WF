@@ -1,0 +1,27 @@
+name: highres
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python
+  - jupyter
+  - jupyterlab_code_formatter
+  - black
+  - isort
+  - odfpy
+  - numpy
+  - pandas
+  - pyarrow
+  - rioxarray
+  - xlrd
+  - odfpy
+  - numpy-financial
+  - fastparquet
+  - snakemake-minimal
+  - zstd
+  - pycountry
+  - atlite=0.2.12
+  - numpy
+  - xarray=2024.3.0
+  - pandas
+  - shapely
