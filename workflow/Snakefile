@@ -263,16 +263,7 @@ rule rename_demand_file:
         import shutil
 
         shutil.copy2(input[0], output[0])
-
-
-# rule build_hydro_areas:
-#    input:
-#        "resources/zones.csv",
-#    output:
-#        areashydro=temp(allyearpath / "available_area.txt"),
-#    script:
-#        "scripts/build_hydro_areas.py"
-
+        
 
 rule build_vre_cf_grid:
 	input:
