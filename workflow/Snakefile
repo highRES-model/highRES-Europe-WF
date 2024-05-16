@@ -119,13 +119,16 @@ co2target = round(0, 1)
 # gamsfilesha256 = "7c58219c0ab4320c806c0460ebba547c10838313c6a1f10f6e6640aab90a4838"
 # gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
 gamsfilesha256 = "686cc7b751384f1f0401289c1da84f8454221b7eb146bf1b65eb5dae2d08c22a"
+# Get current working directory
+
+cwd = pathlib.Path().resolve()
 
 # Absolute path to your GAMS installation
 gamspath = config["paths"]["gams"]
 gamspath = str(gamspath)
 
 # Absolute path to the input data that is the same across all versions
-shared_input_path = pathlib.Path(config["paths"]["shared_input"])
+shared_input_path = cwd / pathlib.Path(config["paths"]["shared_input"])
 
 # Relative path the model code that is the same across all versions
 shared_code_path = "resources/4_model_code_shared/"
@@ -139,7 +142,7 @@ scenario_exclusions_path = "resources/scenario_exclusions/"
 # Relative path to the results
 # TODO: Vetle: --directory, flag for å sette results directory?
 # resultspath = "results/"
-resultspath = pathlib.Path(config["paths"]["results"])
+resultspath = cwd / pathlib.Path(config["paths"]["results"])
 pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 
 # Write scenarios to file, so results analysis script can check if they are all
