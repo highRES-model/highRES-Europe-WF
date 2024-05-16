@@ -165,7 +165,6 @@ localrules:
     build_technoeconomic_inputs,
     ensure_gams_template,
     rename_demand_file,
-    build_regions_file,
     build_zones_file,
     build_vre_areas_file,
     build_vre_file,
@@ -380,18 +379,6 @@ def regionsonlyforgrid(wildcards):
     return returndict
 
 
-rule build_regions_file:
-    input:
-        "workflow/scripts/build_regions.py",
-        unpack(regionsonlyforgrid),
-        zonescsv="resources/zones.csv",
-        #rules.build_weather.output.indreg,
-    output:
-        regionsdd=modelpath / "_regions.dd",
-    script:
-        "scripts/build_regions.py"
-
-
 # def build_vre_areas_file_func(wildcards):
 #    returndict = {}
 #    if wildcards.neigh != "Extreme":
@@ -401,19 +388,16 @@ rule build_regions_file:
 
 rule build_vre_areas_file:
     input:
-        #        unpack(build_vre_areas_file_func),
         areashydro=rules.build_hydro_capfac.output.areashydro,
         areassolar=rules.build_vre_cf_inputs.output.areassolar,
         areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
         areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
-        vreareaheader="resources/vre_areas_header.txt",
-        genericfooter="resources/generic_footer.txt",
+        data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
         modelpath / "vre_areas_{year}_.dd",
-        unsorted=temp(modelpath / "vre_areas_unsorted.txt"),
-        areassorted=temp(modelpath / "vre_areas_sorted.txt"),
-    script:
-        "scripts/build_vre_areas_file.py"
+        regionsdd=modelpath / "_regions.dd",
+    notebook:
+        "notebooks/highRES_build_vre_areas_file.ipynb"
 
 
 # shell:
