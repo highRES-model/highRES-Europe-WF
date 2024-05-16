@@ -236,6 +236,31 @@ def getzlims(lim, techs, zones):
 
     return np.concatenate(outlims, axis=0)
 
+def getrlims(lim,techs,zones):
+    
+    # TODO capcity units are fixed to GW here, need to add flexibility
+    
+    lim=lim.loc[(lim["Year"]==2050) & (lim["Technology"].isin(techs)),:]
+    
+    if lim.empty:
+        return np.array([])
+    
+    have_lim=~lim.loc[:,"limtype"].isnull()
+    lim=lim.loc[have_lim,:]
+    para_lim=lim["parameter"].drop_duplicates()
+    
+    outlims=[]
+    
+    for p_lim in para_lim:     
+        lim.loc[(lim["parameter"]==p_lim) & (lim["zone"].isin(zones)),:]
+        
+        nl=data2dd(lim["value"]/1E3,[lim["Technology"],
+                lim["zone"],lim["region"],lim["limtype"]])
+        
+        outlims.append(wrapdd(nl,p_lim,"parameter"))
+        
+    return np.concatenate(outlims,axis=0)
+
 
 def scen2dd(
     co2budgetddlocation,
@@ -283,22 +308,39 @@ def scen2dd(
         )
 
         if exist_cap:
-            lims = getzlims(
-                pd.read_excel(fin, sheet_name=tech_type + "_exist_z", skiprows=0),
-                techs,
-                zones,
-            )
+            zlims=getzlims(
+                pd.read_excel(fin,sheet_name=tech_type+"_exist_z",skiprows=0),
+                techs,zones)
+            
+            if zlims.size!=0:
+                param_outdd.append(zlims)
+                
+            if tech_type=="gen":
+                rlims=getrlims(
+                    pd.read_excel(fin,sheet_name=tech_type+"_exist_r",skiprows=0),
+                    techs,zones)
+                
+                if rlims.size!=0:
+                    param_outdd.append(rlims)
 
-            if lims.size != 0:
-                param_outdd.append(
-                    getzlims(
-                        pd.read_excel(
-                            fin, sheet_name=tech_type + "_exist_z", skiprows=0
-                        ),
-                        techs,
-                        zones,
-                    )
-                )
+
+        # if exist_cap:
+        #     lims = getzlims(
+        #         pd.read_excel(fin, sheet_name=tech_type + "_exist_z", skiprows=0),
+        #         techs,
+        #         zones,
+        #     )
+
+        #     if lims.size != 0:
+        #         param_outdd.append(
+        #             getzlims(
+        #                 pd.read_excel(
+        #                     fin, sheet_name=tech_type + "_exist_z", skiprows=0
+        #                 ),
+        #                 techs,
+        #                 zones,
+        #             )
+        #         )
 
         if esys_cap:
             dout = params.loc[
