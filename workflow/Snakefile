@@ -363,7 +363,6 @@ rule build_hydro_capfac:
 	output:
 		hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
 		hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
-		areashydro=temp(modelpath / "hydro_ror_area.csv"),
 	conda:
 		"envs/build_hydro_capfac.yml"
 	params:
