@@ -19,7 +19,7 @@ import itertools
 import pandas as pd
 import pathlib
 
-date_range = ["01-01", "12-31"]
+date_range=["2010-01-01","2010-12-31"]
 
 
 inputyears = [
@@ -168,7 +168,6 @@ localrules:
     build_regions_file,
     build_zones_file,
     build_hydro_areas,
-    build_weather,
     build_vre_areas_file,
     build_vre_file,
     build_vre_gdx,
@@ -277,51 +276,81 @@ rule build_hydro_areas:
         "scripts/build_hydro_areas.py"
 
 
-rule build_weather:
-    input:
-        WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
-        WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
-        WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
-        WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
-        WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
-        elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
-        slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
-        euroshape=shared_input_path
-        / "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
-        eurooffshoreshape=shared_input_path
-        / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+rule build_vre_cf_grid:
+	input:
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+		euroshape=shared_input_path
+		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
+		eurooffshoreshape=shared_input_path
+		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+	output:
+		cf_file=shared_input_path / "intermediate_data/europe_cf_{year}.nc",
+	resources:
+		mem_mb=50000,  # TODO: Find out how much this rule needs,
+        # should be constant (regional/grid)
+	threads: workflow.cores * 0.75
+	params:
+		sharedinputpath=shared_input_path,
+		aggregated_regions=aggregated_regions,
+	notebook:
+		"notebooks/highRES-build_vre_cf_grid.ipynb"
+		
+rule build_vre_land_avail:
+	input:
+		WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
+		WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
+		WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
+		WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
+		WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+		elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
+		slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
+		euroshape=shared_input_path
+		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
+		eurooffshoreshape=shared_input_path
+		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-        corine=shared_input_path / "geodata/onshore/corine.tif",
-    output:
-        # FIXME the files indreg and cf_exclusion_{solar,windon,windoff} are
-        # only necessary under some conditions currently when those are not met,
-        # we create an empty file
+		cfdata=rules.build_vre_cf_grid.output.cf_file,
+		corine=shared_input_path / "geodata/onshore/corine.tif",
+	output:
+        # FIXME the file indreg is only necessary when we run on grid cell
+        # currently when we run with region, we create an empty file
         # the cleaner solution might be to outsource the creation of that file
         # to an extra rule and have an input function conditional on the
         # wildcard spatial for that rule
-        cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
-        cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
-        cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
-        indreg=temp(modelpath / "indices_region.csv"),
-        areassolar=temp(modelpath / "areas_solar.csv"),
-        areaswindonshore=temp(modelpath / "areas_wind_onshore.csv"),
-        areaswindoffshore=temp(modelpath / "areas_wind_offshore.csv"),
-        capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
-    conda:
-        "envs/build_weather.yml"
-    log:
-        notebook="logs/notebooks/" + logpath + "highRES-build_weather.py.ipynb",
-    resources:
-        mem_mb=50000,  # TODO: Find out how much this rule needs,
+		cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
+		cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
+		cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
+		indreg=temp(modelpath / "indices_region.csv"),
+		grid_areassolar = temp(modelpath / "grid_areas_solar.csv"),
+		grid_areaswindonshore=temp(modelpath / "grid_areas_wind_onshore.csv"),
+		grid_areaswindoffshore=temp(modelpath / "grid_areas_wind_offshore.csv"),
+	resources:
+		mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
-    threads: workflow.cores * 0.75
-    params:
-        sharedinputpath=shared_input_path,
-        aggregated_regions=aggregated_regions,
-        cutoffs=cutoff_values,
-        date_range=date_range,
-    notebook:
-        "notebooks/highRES-build_weather.py.ipynb"
+	threads: workflow.cores * 0.75
+	params:
+		sharedinputpath=shared_input_path,
+		aggregated_regions=aggregated_regions,
+		cutoffs=cutoff_values,
+	notebook:
+		"notebooks/highRES-build_vre_land_avail.ipynb"
+		
+rule build_vre_cf_inputs:
+	input:
+		cf_file=shared_input_path / "intermediate_data/europe_cf_{year}.nc",
+		grid_areassolar = rules.build_vre_land_avail.output.grid_areassolar,
+		grid_areaswindonshore = rules.build_vre_land_avail.output.grid_areaswindonshore,
+		grid_areaswindoffshore = rules.build_vre_land_avail.output.grid_areaswindoffshore,
+	output:
+		capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
+		areassolar=temp(modelpath / "areas_solar.csv"),
+		areaswindonshore=temp(modelpath / "areas_wind_onshore.csv"),
+		areaswindoffshore=temp(modelpath / "areas_wind_offshore.csv"),
+	params:
+		date_range=date_range,
+	notebook:
+		"notebooks/highRES-build_vre_cf_inputs.ipynb"
+
 
 
 rule build_hydro_capfac:
@@ -347,7 +376,7 @@ rule build_hydro_capfac:
 def regionsonlyforgrid(wildcards):
     returndict = {}
     if wildcards.spatial == "grid":
-        returndict["indreg"] = rules.build_weather.output.indreg
+        returndict["indreg"] = rules.build_vre_land_avail.output.indreg
     return returndict
 
 
@@ -374,9 +403,9 @@ rule build_vre_areas_file:
     input:
         #        unpack(build_vre_areas_file_func),
         areashydro=rules.build_hydro_areas.output.areashydro,
-        areassolar=rules.build_weather.output.areassolar,
-        areaswindon=rules.build_weather.output.areaswindonshore,
-        areaswindoff=rules.build_weather.output.areaswindoffshore,
+        areassolar=rules.build_vre_cf_inputs.output.areassolar,
+        areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
+        areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
         vreareaheader="resources/vre_areas_header.txt",
         genericfooter="resources/generic_footer.txt",
     output:
@@ -438,7 +467,7 @@ rule link_hydrores_inflow:
 
 rule build_vre_file:
     input:
-        cfwsng=rules.build_weather.output.capfacfile,
+        cfwsng=rules.build_vre_cf_inputs.output.capfacfile,
         cfhn3=rules.build_hydro_capfac.output.hydrororcapfac,
     output:
         vrefile=temp(modelpath / "vre_{year}_.csv"),
