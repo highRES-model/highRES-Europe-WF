@@ -24,6 +24,7 @@ Contents
    Getting started <getting_started>
    User guide <user_guide>
    Basic examples <basic_examples.rst>
+   Advanced examples <advanced_examples.rst>
    Publications <publications>
 
 
@@ -32,4 +33,4 @@ Contents
 
    Deprecated
    
-   advanced_examples.rst
+   
