@@ -70,10 +70,10 @@ The storage balance equation (**eq_store_balance(h,s_lim(z,s))**) models the sto
 
 The storage level is constrained (**eq_store_level(s_lim(z,s),h)**) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (**eq_store_end_level**), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
 
-Module for hydropower
-~~~~~~~~~~~~~~~~~~~~~~~~
+Module for reservoir hydropower
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally, the main model file loads submodules, such as **highres_hydro.gms** for hydropower and **highres_storage_setup.gms** for storage, if those features should be included in the model. This is typically controlled through switches
+Whereas run-off-river hydropower functions the same as other VREs, reservoir hydropower functions differently. Again, the $setglobal controls whether it is activated or not, and the IF statement loads the submodule (**highres_hydro.gms**).
 
 .. code-block:: gams
     
