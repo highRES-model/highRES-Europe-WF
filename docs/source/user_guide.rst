@@ -27,6 +27,7 @@ The general algebraic modeling system (GAMS) is the modelling system which highR
 * Additional **miscellaneous equations** 
 
 **Objective equation**
+
 The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but in the case of Modelling to Generate Alternatives (MGA), this might be different. 
 
 .. math::
@@ -37,7 +38,8 @@ The objective equation of the model governs the central objective of the model. 
 The objective equation (eq_obj) is composed of generation, storage and transmission costs and, depending on the setup, start up costs (if UC is on) as well as penalty generation (value of lost load). The generation costs 
 
 **Miscellaneous equations**
-One important miscellanneous equation is the CO\textsubscript{2} constraint **eq_co2_budget**. It limits the total CO\textsubscript{2} emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO\textsubscript{2}/kWh.   
+
+One important miscellanneous equation is the CO__2__ constraint **eq_co2_budget**. It limits the total CO__2__ emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCOCO__2__/kWh.   
 
 Module for hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~
