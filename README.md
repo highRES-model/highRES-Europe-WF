@@ -1,5 +1,7 @@
 # highRES-model
 
+[![Documentation Status](https://highres-europe-wf.readthedocs.io/en/latest/)](https://highres-europe-wf.readthedocs.io/en/latest/?badge=latest)
+
 ## What is highRES?
 
 Welcome to the repository for the European version of the high temporal and spatial resolution electricity system model (highRES-Europe). The model is used to plan least-cost electricity systems for Europe and specifically designed to analyse the effects of high shares of variable renewables and explore integration/flexibility options. It does this by comparing and trading off potential options to integrate renewables into the system including the extension of the transmission grid, interconnection with other countries, building flexible generation (e.g. gas power stations), renewable curtailment and energy storage.
