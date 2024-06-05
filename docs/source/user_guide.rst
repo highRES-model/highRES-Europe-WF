@@ -45,7 +45,7 @@ The objective equation (eq_obj) is composed of generation, storage and transmiss
 
 **Miscellaneous equations**
 
-One important miscellanneous equation is the CO:sub:`2` constraint **eq_co2_budget**. It limits the total CO:sub:`2` emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO:sub:`2`/kWh.   
+One important miscellanneous equation is the CO:subscript:`2` constraint **eq_co2_budget**. It limits the total CO:subscript:`2` emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO:subscript:`2`/kWh.   
 
 Module for hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~
