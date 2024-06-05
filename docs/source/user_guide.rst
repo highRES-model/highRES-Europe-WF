@@ -19,7 +19,7 @@ highRES-Europe consists of two modules, a GAMS module and a workflow (WF) module
 
 Workflow
 ------------
-
+Work-in-progress
 
 GAMS
 ------------
@@ -39,13 +39,15 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
    \text{min} \sum_z{placeholder}
 
 
-The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM included for transmission. 
+The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
 
 | **Demand balance equation**
 | The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-region electricity generation, imported electricity from neighbouring regions through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
 
 | **Transmission equations**
-| The flow of electricity is constrained to not exceed the transmission capacity (``eq_trans_flow``) and bidirectionality is required (``eq_trans_bidirect``).  
+| The electricity transmission of highRES is represented using a computationally efficient linear transshipment formulation, where electricity flows similarly to fuel transport in pipelines. The benefit with a transshipment formulation compared to e.g. an *direct current optimal flow model* is that it is simpler `(Matar and Elshurafa, 2019 <https://doi.org/10.1016/j.egyr.2018.04.004>)`_. 
+
+The flow of electricity is constrained to not exceed the transmission capacity (``eq_trans_flow``) and bidirectionality is required (``eq_trans_bidirect``).  
 
 | **Miscellaneous equations**
 | One important miscellaneous equation is the CO₂ constraint (``eq_co2_budget``). It limits the total CO₂ emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO₂/kWh. 
@@ -172,3 +174,8 @@ Module for EV flexibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Upcoming work.
+
+References
+-------------
+
+Matar, W., & Elshurafa, A. M. (2018). Electricity transmission formulations in multi-sector national planning models: An illustration using the KAPSARC energy model. Energy Reports, 4, 328–340. https://doi.org/10.1016/j.egyr.2018.04.004
