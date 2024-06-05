@@ -5,6 +5,8 @@ Nomenclature
 -------------
 * Zone | A higher spatial level, typically countries
 * Region | A lower spatial level, for example NUTS2 or NUTS3 regions. 
+* .gms files | .gms files are the primary file format used in GAMS. They contain the modeling code written in the GAMS language. A .gms file typically includes the model definition, sets, parameters, variables, equations, objective functions, and any additional GAMS-specific syntax required to structure the model.
+* .dd files | .dd files contain data input which is used in the model. 
 
 Abbreviations
 --------------
@@ -79,7 +81,7 @@ Whereas **highres.gms** contains the essential variables and equations, the data
 
    $INCLUDE highres_data_input.gms
 
-Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated in the :ref:`workflow <workflow-label>`. 
+Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data as well as the demand data. These are generated in the :ref:`workflow <workflow-label>`. 
 
 The files are loaded through the following code:
 
@@ -102,7 +104,7 @@ The files are loaded through the following code:
        $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
 
 
-Note that ``%datafolderpath%``, and other % enclosed variables are defined through Snakemake (see REF for further details). 
+Note that ``%datafolderpath%``, and other % enclosed variables are defined through Snakemake (see :ref:`workflow <workflow-label>` for further details). 
 
 Before we go through the contents of those files, we need to introduce an important set, namely *lt*. 
 
@@ -150,6 +152,8 @@ There are a few additional parameters, such as emission factors (``gen_emisfac``
 
    $INCLUDE %datafolderpath%/trans.dd
 
+The trans.dd file contains the ``set trans`` which includes the types of transmission technologies (typically HVAC400KV and HVDCSubsea) as well as the transmission links available to the model ``set trans_links`` and their associated distance ``parameter trans_links_dist`` and capacity limit ``parameter trans_links_cap``. 
+
 .. code-block:: gams
 
       $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
@@ -185,6 +189,12 @@ Whereas run-off-river hydropower functions the same as other VREs, reservoir hyd
    $setglobal hydrores "ON"
 
     $IF "%hydrores%" == ON $INCLUDE highres_hydro.gms
+
+Reservoir hydropower functions similar to a storage technology, but with a natural inflow of energy (electricity) ``parameter hydro_inflow(h,z,hydro_res)``, as opposed to charging electricity from the grid. The storage level ``var_hydro_level`` at any given hour is the storage level in the previous hour, plus the inflow of water (in energy units), minus the electricity generated and water which is "spilled" if it is necessary to e.g. not overflow the reservoir. The inflow is loaded as an input, and generated in the :ref:`workflow <workflow-label>`. 
+
+Additional equations ensure that the level of the reservoir does not exceed the maximum storage level ``eq_hydro_level(h,gen_lim(z,hydro_res))`` and not generate more electricity than the maximum power capacity ``eq_hydro_gen_max(h,gen_lim(z,hydro_res))``.
+
+highRES does not include any cascading effects, meaning that the outflow of one reservoir is not the inflow of another. Rather, the model sees one large reservoir at the zonal or regional level, depending on the setup. However, the hydro power inflow is normalised, based on historical production data, to ensure that the total electricity available corresponds with reality. See the :ref:`workflow <workflow-label>` for more details. 
 
 Module for EV flexibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
