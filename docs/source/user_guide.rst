@@ -15,6 +15,8 @@ Abbreviations
 
 highRES-Europe consists of two modules, a GAMS module and a workflow (WF) module.  
 
+.. _Workflow-label:
+
 Workflow
 ------------
 
@@ -22,7 +24,7 @@ Workflow
 GAMS
 ------------
 
-The general algebraic modeling system (GAMS) is the modelling system which highRES-Europe is written in. The main GAMS file of highRES-Europe is **highres.gms**. Here, the essential variables and equations are declared and defined. 
+The general algebraic modeling system (GAMS) is the modelling system for optimisation which highRES is written in. The main GAMS file of highRES is **highres.gms**. Here, the essential variables and equations are declared and defined. 
 
 * The **objective equation** details the total system cost of the model, which is to be minimised. This includes capital expenditures, fixed operation and maintenance and variable operation and maintenance for generation, storage and transmission infrastructure. 
 * The **demand balance equation** ensures that the supply ≥ demand for every hour in every zone. 
@@ -49,6 +51,91 @@ The objective equation (eq_obj) and the total system cost is composed of generat
 | One important miscellanneous equation is the CO2 constraint (**eq_co2_budget**). It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
 
 Additionally, the model includes a set of submodules, containing various features. In general, these can be controlled by an IF statement. 
+
+Module for data input 
+~~~~~~~~~~~~~~~~~~~~~~
+
+Whereas **highres.gms** contains the essential variables and equations, the data input submodule (**highres_data_input.gms**) contains the data input. This includes, among other things, the demand, the generation, the storage and the transmission data.
+
+.. code-block:: gams
+
+   $INCLUDE highres_data_input.gms
+
+Within **highres_data_input.gms** numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the Workflow |Workflow-label|. 
+
+The files are loaded through the following code:
+
+.. code-block:: gams
+   r regions /
+   $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
+   /
+
+   z zones /
+   $BATINCLUDE %datafolderpath%/zones.dd
+   /
+   ;
+
+   $INCLUDE %datafolderpath%/%weather_yr%_temporal.dd
+
+   $INCLUDE %datafolderpath%/%psys_scen%_gen.dd
+
+   $INCLUDE %datafolderpath%/trans.dd
+
+   $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
+
+Note that :code:`%datafolderpath%`, and other % enclosed variables are defined through Snakemake (see REF for further details). 
+
+Before we go through the contents of those files, we need to introduce an important set, namely _lt_. 
+
+.. code-block:: gams
+   Sets
+
+   lt / UP, LO, FX /
+
+_lt_ defines three types of limits that are loaded together with the technoeconomic input data. These are the upper limit (UP), the lower limit (LO) and the fixed limit (FX). These are used, for example in :code:`parameter gen_lim_pcap_z(z,g,lt);`. For example, in the line :code:`DK.HydroRoR.UP 0.009` in gen.dd, the upper limit for the generation capacity of run-off-river hydropower in Denmark is set to 0.009. This means that the model is allowed to build up to 0.009 GW of run-off-river hydropower in Denmark. If on the contrary, UP would be replaced by FX, the model would be forced to build exactly 0.009 GW of run-off-river hydropower in Denmark. 
+
+Now, to the input data files.
+
+.. code-block:: gams
+
+   r regions /
+   $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
+   /
+
+This file contains the regions, which are the lower spatial level. 
+
+.. code-block:: gams
+
+   z zones /
+   $BATINCLUDE %datafolderpath%/zones.dd
+   /
+   ;
+
+This file contains the zones, which are the higher spatial level.
+
+.. code-block:: gams
+
+   $INCLUDE %datafolderpath%/%weather_yr%_temporal.dd
+
+This file contains the set h, for the temporal dimension in the model. Typically, this is a range between 0 and 8759, representing the hours of the year. 
+
+.. code-block:: gams
+
+   $INCLUDE %datafolderpath%/%psys_scen%_gen.dd
+
+This file contain information on generation technologies and their characteristics. It includes the set g, with the different generation technologies, as well as subsets for which technologies are variable or not. Additionally, there are power capacity limits and existing infrastructure through the parameter gen_lim_pcap_z and gen_exist_pcap_z, respectively. Similarly, there are energy capacity limits (storage) and existing infrastructure for reservoir hydro through the parameter gen_lim_ecap_z and gen_exist_ecap_z, respectively. 
+
+Additionally, there are additional paremeters, such as emission factors, cost parameters and features related to unit commitment, if that is turned on. 
+
+.. code-block:: gams
+
+   $INCLUDE %datafolderpath%/trans.dd
+
+.. code-block:: gams
+
+      $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
+
+This file contains the demand, stored in the parameter demand(z,h). The demand is given in MWh for every hour and zone.
 
 Module for storage
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,3 +169,5 @@ Whereas run-off-river hydropower functions the same as other VREs, reservoir hyd
 
 Module for EV flexibility
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Upcoming work.
