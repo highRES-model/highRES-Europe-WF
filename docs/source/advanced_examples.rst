@@ -1,4 +1,4 @@
-advanced examples
+Advanced examples
 =================
 .. note::
 
