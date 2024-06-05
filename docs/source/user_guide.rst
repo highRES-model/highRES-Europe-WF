@@ -34,12 +34,23 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 | **Objective equation**
 | The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
+The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
+
 .. math::
 
-   \min \sum_{g,z}(Capex_{g} \times capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,z,h} \times gen_{g,z,h}) \\ 
-   + \sum_{g,z}(FOM_{g,z} \times capacity_{g,z}) + \sum_{g,z,h}(pgencost \times pgen_{g,z,h})
+   \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,z,h} \times gen_{g,z,h}) \\
+   
+   \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z} \\
 
-The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
+   \text{transmission costs} = 
+
+   \text{penalty generation costs} = \sum_{g,z,h}(pgencost \times pgen_{g,z,h})
+
+
+
+.. math::
+
+   \min \text{total system cost} = \text{generation costs + storage costs + transmission costs + penalty generation costs}
 
 | **Demand balance equation**
 | The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-region electricity generation, imported electricity from neighbouring regions through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
