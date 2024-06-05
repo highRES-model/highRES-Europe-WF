@@ -1,6 +1,11 @@
 Getting started
 ================
 
+Requirements
+-------------
+
+To use highRES, a GAMS license is required. See the `GAMS website <https://www.gams.com/latest/docs/UG_License.html>`_ for more information.
+
 Data bundle
 ------------
 
