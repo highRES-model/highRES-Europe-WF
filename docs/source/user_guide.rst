@@ -26,8 +26,8 @@ The general algebraic modeling system (GAMS) is the modelling system which highR
 * The **transmission equations** allows for electricity to flow between zones for every hour. 
 * Additional **miscellaneous equations** 
 
-**Objective equation** ``
-The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
+| **Objective equation**
+| The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
 .. math::
 
