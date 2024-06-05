@@ -1,6 +1,6 @@
 # highRES-model
 
-[![Documentation Status](https://highres-europe-wf.readthedocs.io/en/latest/)](https://highres-europe-wf.readthedocs.io/en/latest/?badge=latest)
+[![Documentation Status](https://readthedocs.org/projects/highres-europe-wf/badge/?version=latest)](https://highres-europe-wf.readthedocs.io/en/latest/?badge=latest)
 
 ## What is highRES?
 
@@ -38,3 +38,7 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
     ```
 7. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
 8. Run `snakemake -c all --use-conda`
+
+
+## Documentation 
+[Documentation](https://highres-europe-wf.readthedocs.io/en/latest/)
