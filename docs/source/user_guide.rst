@@ -38,9 +38,9 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 
 
 .. math::
-   \begin{flalign*}
+   \begin{aligned}
       & \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) \\ & + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z}) \\
-   \end{flalign*}
+   \end{aligned}
 
 With text
 
