@@ -5,6 +5,8 @@ highRES-model publications
 ----------------------------
 highRES has been used in a number of publications. An occasionally updated list is provided below, sorted by newest first. 
 
+Viole, I., Valenzuela-Venegas, G., Sartori, S., & Zeyringer, M. (2024). Integrated life cycle assessment in off-grid energy system design—Uncovering low hanging fruit for climate mitigation. Applied Energy, 367, 123334. https://doi.org/10.1016/j.apenergy.2024.123334
+
 Viole, I., Shen, L., Camargo, L. R., Zeyringer, M., & Sartori, S. (2023). Sustainable Astronomy: A comparative Life Cycle Assessment of Off-grid Hybrid Energy Systems to supply large Telescopes [Preprint]. In Review. https://doi.org/10.21203/rs.3.rs-3281965/v2
 
 Valenzuela-Venegas, G., Lode, M. L., Viole, I., Felice, A., Alonso, A. M., Camargo, L. R., Sartori, S., & Zeyringer, M. (2023). Designing renewable and socially accepted energy systems for astronomical telescopes: A move towards energy justice [Preprint]. In Review. https://doi.org/10.21203/rs.3.rs-3181969/v1
