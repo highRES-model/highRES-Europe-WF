@@ -15,7 +15,7 @@ Abbreviations
 
 highRES-Europe consists of two modules, a GAMS module and a workflow (WF) module.  
 
-.. _Workflow-label:
+.. _workflow-label:
 
 Workflow
 ------------
@@ -63,7 +63,7 @@ Whereas **highres.gms** contains the essential variables and equations, the data
 
    $INCLUDE highres_data_input.gms
 
-Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the `workflow <#Workflow-label>`_. 
+Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through in the :ref:`workflow <workflow-label>`. 
 
 The files are loaded through the following code:
 
