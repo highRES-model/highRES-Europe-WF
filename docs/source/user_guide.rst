@@ -67,7 +67,6 @@ The files are loaded through the following code:
 
 ::
 
-    .. code-block:: gams
        r regions /
        $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
        /
@@ -85,7 +84,7 @@ The files are loaded through the following code:
        $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
 
 
-Note that :code:`%datafolderpath%`, and other % enclosed variables are defined through Snakemake (see REF for further details). 
+Note that ``%datafolderpath%``, and other % enclosed variables are defined through Snakemake (see REF for further details). 
 
 Before we go through the contents of those files, we need to introduce an important set, namely *lt*. 
 
@@ -94,7 +93,7 @@ Before we go through the contents of those files, we need to introduce an import
 
    lt / UP, LO, FX /
 
-*lt* defines three types of limits that are loaded together with the technoeconomic input data. These are the upper limit (UP), the lower limit (LO) and the fixed limit (FX). These are used, for example in *parameter gen_lim_pcap_z(z,g,lt);*. For example, in the line :code:`DK.HydroRoR.UP 0.009` in *gen.dd*, the upper limit for the generation capacity of run-off-river hydropower in Denmark is set to 0.009. This means that the model is allowed to build up to 0.009 GW of run-off-river hydropower in Denmark. If on the contrary, UP would be replaced by FX, the model would be forced to build exactly 0.009 GW of run-off-river hydropower in Denmark. 
+*lt* defines three types of limits that are loaded together with the technoeconomic input data. These are the upper limit (UP), the lower limit (LO) and the fixed limit (FX). These are used, for example in ``parameter gen_lim_pcap_z(z,g,lt);``. For example, in the line ``DK.HydroRoR.UP 0.009`` in ``gen.dd``, the upper limit for the generation capacity of run-off-river hydropower in Denmark is set to 0.009. This means that the model is allowed to build up to 0.009 GW of run-off-river hydropower in Denmark. If on the contrary, UP would be replaced by FX, the model would be forced to build exactly 0.009 GW of run-off-river hydropower in Denmark. 
 
 Now, to the input data files.
 
@@ -104,7 +103,7 @@ Now, to the input data files.
    $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
    /
 
-This file contains the regions, which are the lower spatial level. 
+The regions.dd file contains the regions, which are the lower spatial level. 
 
 .. code-block:: gams
 
@@ -113,21 +112,21 @@ This file contains the regions, which are the lower spatial level.
    /
    ;
 
-This file contains the zones, which are the higher spatial level.
+The zones.dd file contains the zones, which are the higher spatial level.
 
 .. code-block:: gams
 
    $INCLUDE %datafolderpath%/%weather_yr%_temporal.dd
 
-This file contains the set h, for the temporal dimension in the model. Typically, this is a range between 0 and 8759, representing the hours of the year. 
+The temporal.dd file contains the set h, for the temporal dimension in the model. Typically, this is a range between 0 and 8759, representing the hours of the year. 
 
 .. code-block:: gams
 
    $INCLUDE %datafolderpath%/%psys_scen%_gen.dd
 
-This file contain information on generation technologies and their characteristics. It includes the set g, with the different generation technologies, as well as subsets for which technologies are variable or not. Additionally, there are power capacity limits and existing infrastructure through the parameter *gen_lim_pcap_z* and *gen_exist_pcap_z*, respectively. Similarly, there are energy capacity limits (storage) and existing infrastructure for reservoir hydro through the parameter *gen_lim_ecap_z* and *gen_exist_ecap_z*, respectively. 
+The gen.dd file contain information on generation technologies and their characteristics. It includes the ``set g``, with the different generation technologies, as well as subsets for, among other things, which technologies are variable (``set_vre(g)``) or not (``set_nonvre(g)``). Additionally, there are power capacity limits and existing infrastructure through the parameter ``gen_lim_pcap_z`` and ``gen_exist_pcap_z``, respectively. Similarly, there are energy capacity limits (storage) and existing infrastructure for reservoir hydro through the parameter ``gen_lim_ecap_z`` and ``gen_exist_ecap_z``, respectively. 
 
-Additionally, there are additional paremeters, such as emission factors, cost parameters and features related to unit commitment, if that is turned on. 
+There are a few additional parameters, such as emission factors (``gen_emisfac``, cost parameters (``gen_capex``, ``gen_varom``, ``gen_fom``, ``gen_fuelcost``) and features related to unit commitment, if that is turned on. 
 
 .. code-block:: gams
 
@@ -137,7 +136,7 @@ Additionally, there are additional paremeters, such as emission factors, cost pa
 
       $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
 
-This file contains the demand, stored in the parameter *demand(z,h)*. The demand is given in MWh for every hour and zone.
+This file contains the demand, stored in the parameter ``demand(z,h)``. The demand is given in MWh for every hour and zone.
 
 Module for storage
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,14 +153,14 @@ By default, storage is turned on.
 
 A few important equations is the storage balance equation, the maximum storage level constraint and the storage end constraint.
 
-The storage balance equation (**eq_store_balance(h,s_lim(z,s))**) models the storage level of each storage technology (*s*) for every hour (*h*) and zone (*z*). Essentially, the storage level (**var_store_level(h,z,s)**) is based on the electricity of the previous hour, with additionally stored electricity going into the storage level and electricity used for consumption subtracted from it. Additionally, there are efficiency losses and self-discharge. 
+The storage balance equation (``eq_store_balance(h,s_lim(z,s))``) models the storage level of each storage technology (*s*) for every hour (*h*) and zone (*z*). Essentially, the storage level (``var_store_level(h,z,s)``) is based on the electricity of the previous hour, with additionally stored electricity going into the storage level and electricity used for consumption subtracted from it. Additionally, there are efficiency losses and self-discharge. 
 
-The storage level is constrained (**eq_store_level(s_lim(z,s),h)**) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (**eq_store_end_level**), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
+The storage level is constrained (``eq_store_level(s_lim(z,s),h)``) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (``eq_store_end_level``), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
 
 Module for reservoir hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Whereas run-off-river hydropower functions the same as other VREs, reservoir hydropower functions differently. Again, the $setglobal controls whether it is activated or not, and the IF statement loads the submodule (**highres_hydro.gms**).
+Whereas run-off-river hydropower functions the same as other VREs, reservoir hydropower functions differently. Again, the $setglobal controls whether it is activated or not, and the IF statement loads the submodule (``highres_hydro.gms``).
 
 .. code-block:: gams
     
