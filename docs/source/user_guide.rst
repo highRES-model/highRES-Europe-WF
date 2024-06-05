@@ -42,46 +42,48 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 The objective equation (eq_obj) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM included for transmission. 
 
 | **Demand balance equation**
-| The demand balance equation (**eq_elc_balance(h,z)**) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-zone electricity generation, imported electricity from neighbouring zones through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
+| The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-zone electricity generation, imported electricity from neighbouring zones through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
 
 | **Transmission equations**
-| The flow of electricity is constrained to not exceed the transmission capacity (**eq_trans_flow**) and bidirectionality is required (**eq_trans_bidirect**).  
+| The flow of electricity is constrained to not exceed the transmission capacity (``eq_trans_flow``) and bidirectionality is required (``eq_trans_bidirect``).  
 
 | **Miscellaneous equations**
-| One important miscellanneous equation is the CO2 constraint (**eq_co2_budget**). It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
+| One important miscellanneous equation is the CO2 constraint (``eq_co2_budget``). It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
 
 Additionally, the model includes a set of submodules, containing various features. In general, these can be controlled by an IF statement. 
 
 Module for data input 
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Whereas **highres.gms** contains the essential variables and equations, the data input submodule (**highres_data_input.gms**) contains the data input. This includes, among other things, the demand, the generation, the storage and the transmission data.
+Whereas **highres.gms** contains the essential variables and equations, the data input submodule (``highres_data_input.gms``) contains the data input. This includes, among other things, the demand, the generation, the storage and the transmission data.
 
 .. code-block:: gams
 
    $INCLUDE highres_data_input.gms
 
-Within **highres_data_input.gms** numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the Workflow |Workflow-label|. 
+Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the Workflow |Workflow-label|. 
 
 The files are loaded through the following code:
 
-.. code-block:: gams
-   r regions /
-   $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
-   /
+::
 
-   z zones /
-   $BATINCLUDE %datafolderpath%/zones.dd
-   /
-   ;
+    .. code-block:: gams
+       r regions /
+       $BATINCLUDE %datafolderpath%/%vre_restrict%_regions.dd
+       /
 
-   $INCLUDE %datafolderpath%/%weather_yr%_temporal.dd
+       z zones /
+       $BATINCLUDE %datafolderpath%/zones.dd
+       /
 
-   $INCLUDE %datafolderpath%/%psys_scen%_gen.dd
+       $INCLUDE %datafolderpath%/%weather_yr%_temporal.dd
 
-   $INCLUDE %datafolderpath%/trans.dd
+       $INCLUDE %datafolderpath%/%psys_scen%_gen.dd
 
-   $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
+       $INCLUDE %datafolderpath%/trans.dd
+
+       $INCLUDE %datafolderpath%/%esys_scen%_demand_%dem_yr%.dd
+
 
 Note that :code:`%datafolderpath%`, and other % enclosed variables are defined through Snakemake (see REF for further details). 
 
