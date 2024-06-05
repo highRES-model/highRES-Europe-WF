@@ -35,6 +35,7 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 | The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
 .. math::
+   :nowrap:
 
    \min \sum_{g,z}(Capex_{g} \times capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,z,h} \times gen_{g,z,h}) + \sum_{g,z}(FOM_{g,z} \times capacity_{g,z}) + \sum_{g,z,h}(pgencost \times pgen_{g,z,h})
 
