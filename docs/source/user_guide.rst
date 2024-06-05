@@ -45,35 +45,12 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 
    \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) + \\ \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z})
 
+   \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g}) \\
+
+   \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
+
+   \min \text{total system cost} = \text{generation costs} + \text{storage costs} + \\ \text{transmission costs} + \text{penalty generation costs}
    \end{gather*}
-With text
-
-.. math::
-   \begin{flalign*}
-      & \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) \\ & + \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z}) \\
-   \end{flalign*}
-
-With text
-
-.. math::
-   \begin{flalign*}
-      & \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ & + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g}) \\
-   \end{flalign*}
-
-With text
-
-.. math::
-   \begin{flalign*}
-      & \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
-   \end{flalign*}
-
-With text
-
-.. math::
-   \begin{flalign*}
-      & \min \text{total system cost} = \text{generation costs} + \\ & \text{storage costs} + \\ &\text{transmission costs} + \\ & \text{penalty generation costs}
-   \end{flalign*}
-
 
 | **Demand balance equation**
 | The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-region electricity generation, imported electricity from neighbouring regions through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
