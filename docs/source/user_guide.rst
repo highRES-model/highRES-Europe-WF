@@ -38,14 +38,17 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 
 .. math::
    \begin{align*}
-      & \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) \\ & + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z}) \\
+      & \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) \\ & + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z})
+   \end{align*}
 
+.. math::
+   \begin{align*}
       & \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) & \\ + \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z})
    \end{align*}
 
 .. math::
    \begin{align*}
-      & \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g})
+      & \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) & \\ + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g})
    \end{align*}
 
 .. math::
