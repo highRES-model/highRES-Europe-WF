@@ -38,12 +38,10 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 
 
 .. math::
-   \begin{equation}
-   \begin{aligned}
-      & \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) \\ & + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z}) \\
-   \end{aligned}
-   \end{equation}
 
+   \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z})
+
+   \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) + \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z})
 With text
 
 .. math::
