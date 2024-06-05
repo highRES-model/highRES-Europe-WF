@@ -39,7 +39,7 @@ The objective equation (eq_obj) and the total system cost is composed of generat
 
 **Demand balance equation**
 
-The demand balance equation (**eq_elc_balance(h,z)**) ensures that the demand is met in each of the zones (_z_) and for every hour (_h_) of the model. The demand can be met by in-zone electricity generation, imported electricity from neighbouring zones through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
+The demand balance equation (**eq_elc_balance(h,z)**) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-zone electricity generation, imported electricity from neighbouring zones through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
 
 **Transmission equations**
 
@@ -66,7 +66,7 @@ By default, storage is turned on.
 
 A few important equations is the storage balance equation, the maximum storage level constraint and the storage end constraint.
 
-The storage balance equation (**eq_store_balance(h,s_lim(z,s))**) models the storage level of each storage technology (_s_) for every hour (_h_) and zone (_z_). Essentially, the storage level (**var_store_level(h,z,s)**) is based on the electricity of the previous hour, with additionally stored electricity going into the storage level and electricity used for consumption subtracted from it. Additionally, there are efficiency losses and self-discharge. 
+The storage balance equation (**eq_store_balance(h,s_lim(z,s))**) models the storage level of each storage technology (*s*) for every hour (*h*) and zone (*z*). Essentially, the storage level (**var_store_level(h,z,s)**) is based on the electricity of the previous hour, with additionally stored electricity going into the storage level and electricity used for consumption subtracted from it. Additionally, there are efficiency losses and self-discharge. 
 
 The storage level is constrained (**eq_store_level(s_lim(z,s),h)**) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (**eq_store_end_level**), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
 
