@@ -37,9 +37,15 @@ The objective equation of the model governs the central objective of the model. 
 
 The objective equation (eq_obj) is composed of generation, storage and transmission costs and, depending on the setup, start up costs (if UC is on) as well as penalty generation (value of lost load). The generation costs 
 
+**Demand balance equation**
+
+
+**Transmission equations**
+
+
 **Miscellaneous equations**
 
-One important miscellanneous equation is the CO__2__ constraint **eq_co2_budget**. It limits the total CO__2__ emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCOCO__2__/kWh.   
+One important miscellanneous equation is the CO:sub:`2` constraint **eq_co2_budget**. It limits the total CO:sub:`2` emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO:sub:`2`/kWh.   
 
 Module for hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~
