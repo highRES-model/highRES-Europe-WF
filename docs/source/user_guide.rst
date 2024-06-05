@@ -85,14 +85,14 @@ The files are loaded through the following code:
 
 Note that :code:`%datafolderpath%`, and other % enclosed variables are defined through Snakemake (see REF for further details). 
 
-Before we go through the contents of those files, we need to introduce an important set, namely _lt_. 
+Before we go through the contents of those files, we need to introduce an important set, namely *lt*. 
 
 .. code-block:: gams
    Sets
 
    lt / UP, LO, FX /
 
-_lt_ defines three types of limits that are loaded together with the technoeconomic input data. These are the upper limit (UP), the lower limit (LO) and the fixed limit (FX). These are used, for example in :code:`parameter gen_lim_pcap_z(z,g,lt);`. For example, in the line :code:`DK.HydroRoR.UP 0.009` in gen.dd, the upper limit for the generation capacity of run-off-river hydropower in Denmark is set to 0.009. This means that the model is allowed to build up to 0.009 GW of run-off-river hydropower in Denmark. If on the contrary, UP would be replaced by FX, the model would be forced to build exactly 0.009 GW of run-off-river hydropower in Denmark. 
+*lt* defines three types of limits that are loaded together with the technoeconomic input data. These are the upper limit (UP), the lower limit (LO) and the fixed limit (FX). These are used, for example in :code:`parameter gen_lim_pcap_z(z,g,lt);`. For example, in the line *DK.HydroRoR.UP 0.009* in gen.dd, the upper limit for the generation capacity of run-off-river hydropower in Denmark is set to 0.009. This means that the model is allowed to build up to 0.009 GW of run-off-river hydropower in Denmark. If on the contrary, UP would be replaced by FX, the model would be forced to build exactly 0.009 GW of run-off-river hydropower in Denmark. 
 
 Now, to the input data files.
 
