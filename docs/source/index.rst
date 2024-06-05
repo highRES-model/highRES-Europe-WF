@@ -23,6 +23,7 @@ Contents
    Introduction <introduction>
    Getting started <getting_started>
    User guide <user_guide>
+   Basic examples <basic_examples.rst>
    Publications <publications>
 
 
@@ -30,3 +31,5 @@ Contents
    :hidden:
 
    Deprecated
+   
+   advanced_examples.rst

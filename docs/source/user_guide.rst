@@ -36,19 +36,21 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 
 The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
 
-
 .. math::
    :nowrap:
 
    \begin{gather*}
    \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \\ \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z}) \\
 
-   \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) + \\ \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z})
+   \text{storage costs} = \sum_{g,z}(store\_capex_{g} \times store\_capacity) + \sum_{g,z,h}(store\_gen_{g,z,h} \times store\_VOM_{g,h}) + \\ \sum_{g,z}(store\_FOM_{g} \times store\_capacity_{g,z}) \\
 
    \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g}) \\
 
    \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
 
+The total system cost is then the sum of these different components, which, typically, are to be minimised. 
+
+.. math::
    \min \text{total system cost} = \text{generation costs} + \text{storage costs} + \\ \text{transmission costs} + \text{penalty generation costs}
    \end{gather*}
 
