@@ -35,9 +35,8 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 | The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
 .. math::
-   :nowrap:
 
-   \min \sum_{g,z}(Capex_{g} \times capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,z,h} \times gen_{g,z,h}) + \sum_{g,z}(FOM_{g,z} \times capacity_{g,z}) + \sum_{g,z,h}(pgencost \times pgen_{g,z,h})
+   \min \sum_{g,z}(Capex_{g} \times capacity_{g,z}) + \sum_{g,z,h}(VOM_{g,z,h} \times gen_{g,z,h}) \newline + \sum_{g,z}(FOM_{g,z} \times capacity_{g,z}) + \sum_{g,z,h}(pgencost \times pgen_{g,z,h})
 
 The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
 
