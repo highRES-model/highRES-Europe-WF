@@ -28,24 +28,42 @@ The general algebraic modeling system (GAMS) is the modelling system which highR
 
 **Objective equation**
 
-The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but in the case of Modelling to Generate Alternatives (MGA), this might be different. 
+The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
 .. math::
 
    \text{min} \sum_z{placeholder}
 
 
-The objective equation (eq_obj) is composed of generation, storage and transmission costs and, depending on the setup, start up costs (if UC is on) as well as penalty generation (value of lost load). The generation costs 
+The objective equation (eq_obj) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be turned on. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM included for transmission. 
 
 **Demand balance equation**
 
+The demand balance equation (**eq_elc_balance(h,z)**) ensures that the demand is met in each of the zones (_z_) and for every hour (_h_) of the model. The demand can be met by in-zone electricity generation, imported electricity from neighbouring zones through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
 
 **Transmission equations**
 
+The flow of electricity is constrained to not exceed the transmission capacity (**eq_trans_flow**) and bidirectionality is required (**eq_trans_bidirect**).  
 
 **Miscellaneous equations**
 
-One important miscellanneous equation is the CO:subscript:`2` constraint **eq_co2_budget**. It limits the total CO:subscript:`2` emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO:subscript:`2`/kWh.   
+One important miscellanneous equation is the CO2 constraint **eq_co2_budget**. It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
+
+
+Additionally, the model includes a set of submodules, containing various features. In general, these can be controlled by an IF statement. 
+
+Module for storage
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The option of modelling storage in highRES is controlled in the following IF statement
+
+.. code-block:: gams
+
+   $setglobal storage "ON"
+
+   $IF "%storage%" == ON $INCLUDE highres_storage_setup.gms
+
+By default, storage is turned on. 
 
 Module for hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~
