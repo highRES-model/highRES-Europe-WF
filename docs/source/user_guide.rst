@@ -3,8 +3,8 @@ Detailed user guide
 
 Nomenclature
 -------------
-* Zone
-* Region
+* Zone | A higher spatial level, typically countries
+* Region | A lower spatial level, for example NUTS2 or NUTS3 regions. 
 
 Abbreviations
 --------------
@@ -47,15 +47,14 @@ The flow of electricity is constrained to not exceed the transmission capacity (
 
 **Miscellaneous equations**
 
-One important miscellanneous equation is the CO2 constraint **eq_co2_budget**. It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
-
+One important miscellanneous equation is the CO2 constraint (**eq_co2_budget**). It limits the total CO2 emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO2/kWh. 
 
 Additionally, the model includes a set of submodules, containing various features. In general, these can be controlled by an IF statement. 
 
 Module for storage
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The option of modelling storage in highRES is controlled in the following IF statement
+The option of modelling storage in highRES is controlled in the $setglobal statement, whereas the IF statement loads the external storage submodule.
 
 .. code-block:: gams
 
@@ -65,6 +64,12 @@ The option of modelling storage in highRES is controlled in the following IF sta
 
 By default, storage is turned on. 
 
+A few important equations is the storage balance equation, the maximum storage level constraint and the storage end constraint.
+
+The storage balance equation (**eq_store_balance(h,s_lim(z,s))**) models the storage level of each storage technology (_s_) for every hour (_h_) and zone (_z_). Essentially, the storage level (**var_store_level(h,z,s)**) is based on the electricity of the previous hour, with additionally stored electricity going into the storage level and electricity used for consumption subtracted from it. Additionally, there are efficiency losses and self-discharge. 
+
+The storage level is constrained (**eq_store_level(s_lim(z,s),h)**) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (**eq_store_end_level**), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
+
 Module for hydropower
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -72,5 +77,9 @@ Additionally, the main model file loads submodules, such as **highres_hydro.gms*
 
 .. code-block:: gams
     
+   $setglobal hydrores "ON"
+
     $IF "%hydrores%" == ON $INCLUDE highres_hydro.gms
 
+Module for EV flexibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
