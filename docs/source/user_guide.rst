@@ -31,6 +31,8 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 * The **transmission equations** allows for electricity to flow between zones for every hour. 
 * Additional **miscellaneous equations** 
 
+For more descriptions of GAMS components and syntax, see the `GAMS documentation <https://www.gams.com/latest/docs/>`_.
+
 | **Objective equation**
 | The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
@@ -77,7 +79,7 @@ Whereas **highres.gms** contains the essential variables and equations, the data
 
    $INCLUDE highres_data_input.gms
 
-Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through in the :ref:`workflow <workflow-label>`. 
+Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated in the :ref:`workflow <workflow-label>`. 
 
 The files are loaded through the following code:
 
