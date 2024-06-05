@@ -63,7 +63,7 @@ Whereas **highres.gms** contains the essential variables and equations, the data
 
    $INCLUDE highres_data_input.gms
 
-Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the Workflow |Workflow-label|. 
+Within ``highres_data_input.gms`` numerous data files are loaded, such as for the defined spatial levels (regions and zones) as well as the temporal extent, technoeconomic generation and transmission data, the demand data. These are generated through the `workflow <#Workflow-label>`_. 
 
 The files are loaded through the following code:
 
