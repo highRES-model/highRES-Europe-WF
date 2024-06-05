@@ -7,3 +7,7 @@ Advanced examples
 
 Replacing ERA5 with SARAH
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Modelling to generate alternatives (MGA)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
