@@ -26,8 +26,7 @@ The general algebraic modeling system (GAMS) is the modelling system which highR
 * The **transmission equations** allows for electricity to flow between zones for every hour. 
 * Additional **miscellaneous equations** 
 
-**Objective equation**
-
+**Objective equation** \
 The objective equation of the model governs the central objective of the model. By default this is to minimise the total system cost, but it can be changed, as in the case of Modelling to Generate Alternatives (MGA).
 
 .. math::
@@ -35,7 +34,7 @@ The objective equation of the model governs the central objective of the model. 
    \text{min} \sum_z{placeholder}
 
 
-The objective equation (eq_obj) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be turned on. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM included for transmission. 
+The objective equation (eq_obj) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM included for transmission. 
 
 **Demand balance equation**
 
