@@ -47,12 +47,13 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
    \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g}) \\
 
    \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
+   \end{gather*}
+
 
 The total system cost is then the sum of these different components, which, typically, are to be minimised. 
 
 .. math::
    \min \text{total system cost} = \text{generation costs} + \text{storage costs} + \\ \text{transmission costs} + \text{penalty generation costs}
-   \end{gather*}
 
 | **Demand balance equation**
 | The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-region electricity generation, imported electricity from neighbouring regions through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
