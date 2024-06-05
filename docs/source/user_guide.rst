@@ -45,7 +45,7 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 | The demand balance equation (``eq_elc_balance(h,z)``) ensures that the demand is met in each of the zones (*z*) and for every hour (*h*) of the model. The demand can be met by in-region electricity generation, imported electricity from neighbouring regions through transmission infrastructure or discharging either of the storage technologies. At a high cost, the model can, if penalty generation is turned on, shed load. 
 
 | **Transmission equations**
-| The electricity transmission of highRES is represented using a computationally efficient linear transshipment formulation, where electricity flows similarly to fuel transport in pipelines. The benefit with a transshipment formulation compared to e.g. an *direct current optimal flow model* is that it is simpler `(Matar and Elshurafa, 2019 <https://doi.org/10.1016/j.egyr.2018.04.004>)`_. 
+| The electricity transmission of highRES is represented using a computationally efficient linear transshipment formulation, where electricity flows similarly to fuel transport in pipelines. The benefit with a transshipment formulation compared to e.g. an *direct current optimal flow model* is that it is simpler `(Matar and Elshurafa, 2019) <https://doi.org/10.1016/j.egyr.2018.04.004>`_. 
 
 The flow of electricity is constrained to not exceed the transmission capacity (``eq_trans_flow``) and bidirectionality is required (``eq_trans_bidirect``).  
 
