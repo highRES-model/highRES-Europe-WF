@@ -36,10 +36,11 @@ The general algebraic modeling system (GAMS) is the modelling system for optimis
 
 The objective equation (``eq_obj``) and the total system cost is composed of generation, storage and transmission costs. Depending on the setup, start up costs (from UC) as well as penalty generation (value of lost load) may be included. Cost are divided into capital expenditure (Capex), fixed operation and maintenance costs (FOM) and variable operation and maintenance (VOM). There are no VOM costs included for transmission. 
 
-.. raw:: latex
+.. math::
    \begin{flalign*}
       & \text{generation costs} = \sum_{g,z}(gen\_capex_{g} \times gen\_capacity_{g,z}) \\ & + \sum_{g,z,h}(VOM_{g,h} \times gen_{g,z,h}) + \sum_{g,z}(gen\_FOM_{g} \times gen\_capacity_{g,z}) \\
    \end{flalign*}
+
 
 .. math::
    \begin{flalign*}
