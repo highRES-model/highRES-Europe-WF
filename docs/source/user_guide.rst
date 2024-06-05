@@ -48,9 +48,12 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
    \begin{align}
       & \text{transmission costs} = \sum_{g,z}(trans\_capex_{g} \times trans\_cap_{g}) \\ & + \sum_{g,z}(trans\_FOM_{g} \times trans\_cap_{g}) \\
    \end{align}
-   
-      & \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
 
+   \begin{align}
+      & \text{penalty generation costs} = \sum_{g,z,h}(pgen\_cost \times pgen_{g,z,h}) \\
+   \end{align}
+   
+   \begin{align}
       & \min \text{total system cost} = \text{generation costs} + \\ \text{storage costs} + \\ \text{transmission costs} + \\ & \text{penalty generation costs}
    \end{align}
 
