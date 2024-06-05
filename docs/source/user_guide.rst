@@ -48,7 +48,7 @@ The objective equation (``eq_obj``) and the total system cost is composed of gen
 | The flow of electricity is constrained to not exceed the transmission capacity (``eq_trans_flow``) and bidirectionality is required (``eq_trans_bidirect``).  
 
 | **Miscellaneous equations**
-| One important miscellaneous equation is the :math:`CO_2` constraint (``eq_co2_budget``). It limits the total :math:`CO_2` emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO₂/kWh. 
+| One important miscellaneous equation is the CO₂ constraint (``eq_co2_budget``). It limits the total CO₂ emissions to be lower than a given value. The constraints scale with demand and as such indicate a maximum average emission intensity. By default, the intensity is 2gCO₂/kWh. 
 
 Additionally, the model includes a set of submodules, containing various features. In general, these can be controlled by an IF statement. 
 
@@ -126,7 +126,7 @@ The temporal.dd file contains the set h, for the temporal dimension in the model
 
 The gen.dd file contain information on generation technologies and their characteristics. It includes the ``set g``, with the different generation technologies, as well as subsets for, among other things, which technologies are variable (``set_vre(g)``) or not (``set_nonvre(g)``). Additionally, there are power capacity limits and existing infrastructure through the parameter ``gen_lim_pcap_z`` and ``gen_exist_pcap_z``, respectively. Similarly, there are energy capacity limits (storage) and existing infrastructure for reservoir hydro through the parameter ``gen_lim_ecap_z`` and ``gen_exist_ecap_z``, respectively. 
 
-There are a few additional parameters, such as emission factors (``gen_emisfac``, cost parameters (``gen_capex``, ``gen_varom``, ``gen_fom``, ``gen_fuelcost``) and features related to unit commitment, if that is turned on. 
+There are a few additional parameters, such as emission factors (``gen_emisfac``), cost parameters (``gen_capex``, ``gen_varom``, ``gen_fom``, ``gen_fuelcost``) and features related to unit commitment, if that is turned on. 
 
 .. code-block:: gams
 
