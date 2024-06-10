@@ -25,3 +25,6 @@ dependencies:
   - xarray=2024.3.0
   - pandas
   - shapely
+  - pip
+  - pip:
+    - cdsapi

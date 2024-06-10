@@ -1,12 +1,9 @@
-# snakemake --resources mem_mb=700000 --slurm --default-resources \
-# slurm_account=ec85 runtime=4320 mem_mb_per_cpu=21000 cpus_per_task=4 \
-# --use-conda --cluster-cancel scancel --keep-going -j 120
+# snakemake --resources mem_mb=16000 --executor slurm --default-resources slurm_account=ec85 runtime=120 mem_mb_per_cpu=1000 cpus_per_task=16 --use-conda --keep-going -j 48
 
 # region:
 # snakemake --resources mem_mb=700000 --slurm --default-resources \
 # slurm_account=ec85 runtime=30 mem_mb_per_cpu=1100 cpus_per_task=4 \
 # --use-conda --cluster-cancel scancel --keep-going -j 120
-
 
 # TODO: Default profile is Fox, HPC, profile
 
@@ -23,8 +20,18 @@ date_range=["01-01","12-31"]
 
 
 inputyears = [
-    # "1995",
-    "2010"
+    #"1979", 
+    "1981", "1982", "1983",
+    "1985", "1986", "1987", 
+    "1989", "1990", "1991",
+    "1993", "1994", "1995",
+    "1997", "1998", "1999",
+    "2001", "2002", "2003",
+    "2005", "2006", "2007",
+    "2009", "2010", "2011",
+    "2013", "2014", "2015",
+    "2017", "2018", "2019",
+    "2021",
 ]
 
 # TODO: make grid_regions work
@@ -111,7 +118,7 @@ spatials = scenarios.spatials.to_list()
 
 
 # in grams per kWh
-co2target = round(0, 1)
+co2target = round(2, 1)
 
 # gamsfilesha256 = "d8e033699604d4474a1c9db59140749509f30383dee532c1e85165617620776b"
 # gamsfilesha256 = "af4a97e52ff41b137a24fb517b03e0e8268d879b01c7aefd7cae3074467ebad1"
@@ -161,9 +168,13 @@ logpath = yearonlypart + scenariopart
 localrules:
     all,
     build_gams,
+    build_shapes,
     build_cplex_opt,
+    build_vre_cf_grid,
+    build_vre_cf_inputs,
     build_technoeconomic_inputs,
     ensure_gams_template,
+    build_vre_land_avail,
     rename_demand_file,
     build_zones_file,
     build_vre_areas_file,
@@ -178,6 +189,7 @@ localrules:
     compress_vre_gdx,
     compress_hydrores_inflow,
     convert_results_db_parquet,
+    build_inputs,
 
 
 rule all:
@@ -236,10 +248,10 @@ rule build_technoeconomic_inputs:
 		"resources/gb_ext_scenarios.xls",
 		"resources/highres_gb_ext_database.ods",
 		europecountriescsvlocation="resources/europe_countries.csv",
-		europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
+		europedemandcsvlocation="resources/europe_demand_1950-2021.csv",
 		data2dd="workflow/scripts/data2dd_funcs.py",
 	conda:
-		"envs/build_technoeconomic.yml"
+		"envs/highres_environment.yaml"
 	output:
 		modelpath / "{year}_temporal.dd",
 		modelpath / "BASE_co2_budget.dd",
@@ -270,9 +282,11 @@ rule build_shapes:
 		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
 		eurooffshoreshape=shared_input_path
 		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+	conda:
+		"envs/highres_environment.yaml"
 	output:
-		onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
-		offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
+		onshoreshape= resultspath / "intermediate_data/{spatial}/shapes/europe_onshore.geojson",
+		offshoreshape= resultspath / "intermediate_data/{spatial}/shapes/europe_offshore.geojson",
 	params:
 		aggregated_regions=aggregated_regions,
 	notebook:
@@ -284,8 +298,10 @@ rule build_vre_cf_grid:
 		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		euroshape=rules.build_shapes.output.onshoreshape,
 		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+	conda:
+		"envs/highres_environment.yaml"
 	output:
-		cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
+		cf_file= resultspath / "intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
 	resources:
 		mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -310,6 +326,8 @@ rule build_vre_land_avail:
 		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
 		cfdata=rules.build_vre_cf_grid.output.cf_file,
 		corine=shared_input_path / "geodata/onshore/corine.tif",
+	conda:
+		"envs/highres_environment.yaml"
 	output:
         # FIXME the file indreg is only necessary when we run on grid cell
         # currently when we run with region, we create an empty file
@@ -340,6 +358,8 @@ rule build_vre_cf_inputs:
 		grid_areassolar = rules.build_vre_land_avail.output.grid_areassolar,
 		grid_areaswindonshore = rules.build_vre_land_avail.output.grid_areaswindonshore,
 		grid_areaswindoffshore = rules.build_vre_land_avail.output.grid_areaswindoffshore,
+	conda:
+		"envs/highres_environment.yaml"
 	output:
 		capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
 		areassolar=temp(modelpath / "areas_solar.csv"),
@@ -363,7 +383,7 @@ rule build_hydro_capfac:
 		hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
 		areashydro=temp(modelpath / "hydro_ror_area.csv"),
 	conda:
-		"envs/build_hydro_capfac.yml"
+		"envs/highres_environment.yaml"
 	params:
 		sharedinputpath=shared_input_path,
 		aggregated_regions=aggregated_regions,
@@ -393,6 +413,8 @@ rule build_vre_areas_file:
         areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
         areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
+    conda:
+        "envs/highres_environment.yaml"
     output:
         modelpath / "vre_areas_{year}_.dd",
         regionsdd=modelpath / "_regions.dd",
@@ -480,7 +502,7 @@ rule build_vre_parquet:
     output:
         modelpath / "vre_{year}_.parquet",
     conda:
-        "envs/build_vre_parquet.yml"
+        "envs/highres_environment.yaml"
     script:
         "scripts/build_vre_parquet.py"
 
@@ -491,7 +513,7 @@ rule build_vre_csv:
     output:
         csvgdx=temp(modelpath / "vre_{year}_tmp.csv"),
     conda:
-        "envs/build_vre_parquet.yml"
+        "envs/highres_environment.yaml"
     script:
         "scripts/build_vre_csv.py"
 
@@ -599,6 +621,6 @@ rule convert_results_db_parquet:
     resources:
         mem_mb=50000,
     conda:
-        "envs/build_vre_parquet.yml"
+        "envs/highres_environment.yaml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
