@@ -20,8 +20,12 @@ dependencies:
   - snakemake-minimal
   - zstd
   - pycountry
-  - atlite=0.2.12
   - numpy
   - xarray=2024.3.0
   - pandas
   - shapely
+  - matplotlib
+  - pip
+  - pip:
+    - cdsapi
+    - git+https://github.com/absolute-afloat/atlite.git@hr
