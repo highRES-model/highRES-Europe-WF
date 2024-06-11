@@ -1,6 +1,6 @@
 target: inputs.finished
 paths:
-  gams: C:\GAMS\45\
-  shared_input: shared_input\
+  gams: /opt/gams/gams46.5_linux_x64_64_sfx/
+  shared_input: shared_input
   abs_shared_code: ../../../../resources/4_model_code_shared
-  results: work\
+  results: work
