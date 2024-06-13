@@ -1,6 +1,6 @@
 target: inputs.finished
 paths:
-  gams: C:\GAMS\45\
-  shared_input: shared_input\
-  abs_shared_code: ../../../../resources/4_model_code_shared
-  results: work\
+  gams: /fp/projects01/ec85/.bin/gams/gams41.5_linux_x64_64_sfx/
+  shared_input: /cluster/work/projects/ec85/shared_input
+  abs_shared_code: /fp/projects01/ec85/models/oskar/highRES_weather/highRES-Europe-WF/resources/4_model_code_shared
+  results: /fp/homes01/u01/ec-javedm/ec85/cluster/EFF/NorwayRelease
