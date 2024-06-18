@@ -168,8 +168,9 @@ localrules:
     build_technoeconomic_inputs,
     ensure_gams_template,
     build_vre_land_avail,
-    rename_demand_file,
+    #rename_demand_file,
     build_zones_file,
+    build_demand_dd,
     build_vre_areas_file,
     build_vre_file,
     build_vre_gdx,
@@ -234,6 +235,26 @@ rule build_zones_file:
     script:
         "scripts/build_zones.py"
 
+rule build_demand_dd:
+    input:
+        europecountriescsvlocation="resources/europe_countries.csv",
+        europedemandcsvlocation="resources/europe_demand_1950-2021.csv"
+    conda:
+        "envs/build_demand_dd.yml"
+    output:
+        modelpath / "BASE_demand_{year}.dd",    
+        modelpath / "{year}_temporal.dd"
+    log:
+        notebook="logs/notebooks/" + logpath + "highRES_build_demand_dd.py.ipynb",
+    params:
+        date_range=date_range,
+        #euro31_dem_2050 = 5870.0,   # Yearly TWh demand for rescaling
+        #rescale="subannual" 
+    notebook:
+	    "notebooks/highRES_build_demand_dd.py.ipynb"    
+
+# rule build_Basegen_dd
+
 
 rule build_technoeconomic_inputs:
 	input:
@@ -246,11 +267,11 @@ rule build_technoeconomic_inputs:
 	conda:
 		"envs/highres_environment.yaml"
 	output:
-		modelpath / "{year}_temporal.dd",
 		modelpath / "BASE_co2_budget.dd",
 		modelpath / "BASE_gen.dd",
 		modelpath / "BASE_store.dd",
 		modelpath / "trans.dd",
+        #modelpath / "{year}_temporal.dd",
 		demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
 	params:
 		aggregated_regions=aggregated_regions,
@@ -259,15 +280,15 @@ rule build_technoeconomic_inputs:
 		"scripts/gb_ext_data2dd.py"
 
 
-rule rename_demand_file:
-    input:
-        rules.build_technoeconomic_inputs.output.demandfile,
-    output:
-        modelpath / "BASE_demand_{year}.dd",
-    run:
-        import shutil
-
-        shutil.copy2(input[0], output[0])
+#rule rename_demand_file:
+#    input:
+#        rules.build_technoeconomic_inputs.output.demandfile,
+#    output:
+#        modelpath / "BASE_demand_{year}.dd",
+#    run:
+#        import shutil
+#
+#        shutil.copy2(input[0], output[0])
 		
 rule build_shapes:
 	input:

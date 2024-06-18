@@ -4,7 +4,8 @@ import pathlib
 
 import pandas as pd
 
-from data2dd_funcs import euro_demand2dd, scen2dd, temporal2dd, trans_links
+#from data2dd_funcs import euro_demand2dd, scen2dd, temporal2dd, trans_links
+from data2dd_funcs import euro_demand2dd, scen2dd, trans_links
 
 root = pathlib.Path(snakemake.output[0]).parent
 data_root = root
@@ -77,7 +78,7 @@ for psys in pscens:
     zones = pd.read_csv(snakemake.input[0]).loc[:, "zone"]
 
     scen2dd(
-        snakemake.output[1],
+        snakemake.output[0],
         root,
         f_techno,
         params_to_write,
@@ -116,7 +117,7 @@ for yr in years:
         rleap = True
 
     print(rleap)
-    temporal2dd(dstart, dstop, root / out, snakemake.output[0])
+    #temporal2dd(dstart, dstop, root / out, snakemake.output[0])
 
     euro_demand2dd(
         snakemake.input["europedemandcsvlocation"],
