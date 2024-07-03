@@ -113,13 +113,6 @@ spatials = scenarios.spatials.to_list()
 # in grams per kWh
 co2target = round(0, 1)
 
-# gamsfilesha256 = "d8e033699604d4474a1c9db59140749509f30383dee532c1e85165617620776b"
-# gamsfilesha256 = "af4a97e52ff41b137a24fb517b03e0e8268d879b01c7aefd7cae3074467ebad1"
-# gamsfilesha256 = "b8ff95b0bc41fa7bd18ff192eac69b54ead25d72a851656c0d9e8fe41ca50177"
-# gamsfilesha256 = "9b1b86c582b18822fcf9c65045f9c68605e951957cd934cc1713f8cf00a5f375"
-# gamsfilesha256 = "7c58219c0ab4320c806c0460ebba547c10838313c6a1f10f6e6640aab90a4838"
-# gamsfilesha256 = "9cced6b80dad705f6963e4dee1c48af4b8170d42444bb269b049ea8627d6c0e5"
-gamsfilesha256 = "0e8a55bad6b66243e5af8defd6279a2ce985ed6cf19244b097f08a75d1215c85"
 # Get current working directory
 
 cwd = pathlib.Path().resolve()
@@ -160,10 +153,8 @@ logpath = yearonlypart + scenariopart
 
 localrules:
     all,
-    build_gams,
     build_cplex_opt,
     build_technoeconomic_inputs,
-    ensure_gams_template,
     rename_demand_file,
     build_zones_file,
     build_vre_areas_file,
@@ -183,29 +174,6 @@ localrules:
 rule all:
     input:
         expand(modelpath / "results.db.compressed", zip, year=years, spatial=spatials),
-
-
-rule ensure_gams_template:
-    input:
-        "resources/highresraw.gms",
-    output:
-        gamsfile=ensure(resultspath / "highres.gms", sha256=gamsfilesha256),
-    run:
-        import shutil
-
-        shutil.copy2(input[0], output[0])
-
-
-rule build_gams:
-    input:
-        rules.ensure_gams_template.output.gamsfile,
-    params:
-        co2intensity=co2target,
-        sharedcodepath=abs_shared_code_path,
-    output:
-        modelpath / "highres.gms",
-    script:
-        "scripts/build_gams.py"
 
 
 rule build_cplex_opt:
@@ -556,7 +524,6 @@ rule build_inputs:
 
 rule run_model:
     input:
-        modelpath / "highres.gms",
         modelpath / "cplex.opt",
         shared_code_path + "highres_data_input.gms",
         shared_code_path + "highres_hydro.gms",
@@ -566,9 +533,12 @@ rule run_model:
         shared_code_path + "highres_uc_setup.gms",
         modelpath / "inputs.finished",
         modelpath / "vre_{year}_.gdx",
+        gamsfile=workflow.source_path("../resources/highresraw.gms"),
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),
+        co2intensity=co2target,
+        sharedcodepath=abs_shared_code_path,
     # retries: 3
     log:
         str(modelpath) + "/highres.lst",
