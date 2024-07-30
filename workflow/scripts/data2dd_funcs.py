@@ -236,7 +236,7 @@ def getzlims(lim, techs, zones):
 
     return np.concatenate(outlims, axis=0)
 
-def getrlims(lim,techs,zones):
+def getrlims(lim,techs,zones,exist_agg):
     
     # TODO capcity units are fixed to GW here, need to add flexibility
     
@@ -252,11 +252,29 @@ def getrlims(lim,techs,zones):
     
     outlims=[]
     
-    for p_lim in para_lim:     
-        limval=lim.loc[(lim["parameter"]==p_lim),:]
+    for p_lim in para_lim: 
         
-        nl=data2dd(limval["value"]/1E3,[limval["Technology"],
+        limval=lim.loc[(lim["parameter"]==p_lim),:]
+
+        if exist_agg == "nuts2":
+        
+            nl=data2dd(limval["value"]/1E3,
+                       [limval["Technology"],
                 limval["zone"],limval["region"],limval["limtype"]])
+            
+        if exist_agg == "region":
+            
+            limval=(limval.groupby(["zone"],as_index=False)
+                  .agg({"Technology":"first",
+                        "Year":"first",
+                        "parameter":"first",
+                        "limtype":"first",
+                        "value":"sum"}))
+
+            nl=data2dd(limval["value"]/1E3
+                       ,[limval["Technology"],
+                limval["zone"],limval["zone"],limval["limtype"]])
+            
         
         outlims.append(wrapdd(nl,p_lim,"parameter"))
         
@@ -275,6 +293,7 @@ def scen2dd(
     out="work",
     esys_cap=False,
     exist_cap=False,
+    exist_agg="region"
 ):
     co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
@@ -309,6 +328,7 @@ def scen2dd(
         )
 
         if exist_cap:
+            
             zlims=getzlims(
                 pd.read_excel(fin,sheet_name=tech_type+"_exist_z",skiprows=0),
                 techs,zones)
@@ -319,7 +339,7 @@ def scen2dd(
             if tech_type=="gen":
                 rlims=getrlims(
                     pd.read_excel(fin,sheet_name=tech_type+"_exist_r",skiprows=0),
-                    techs,zones)
+                    techs,zones,exist_agg)
                 
                 if rlims.size!=0:
                     param_outdd.append(rlims)
