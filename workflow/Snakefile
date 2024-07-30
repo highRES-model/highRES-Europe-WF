@@ -11,7 +11,7 @@
 # TODO: Default profile is Fox, HPC, profile
 
 
-configfile: "config/config_ci.yaml"
+configfile: "config/config_james.yaml"
 
 
 import itertools
