@@ -432,7 +432,7 @@ rule build_vre_gdx:
     input:
         rules.build_vre_csv.output.csvgdx,
     output:
-        bigvregdx=temp(modelpath / "vre_{year}_.gdx"),
+        bigvregdx=modelpath / "vre_{year}_.gdx",
     shell:
         # TODO platform independence
         gamspath + (
