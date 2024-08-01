@@ -252,9 +252,7 @@ rule build_vre_land_avail:
 		cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
 		cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
 		indreg=temp(modelpath / "indices_region.csv"),
-		grid_areassolar = modelpath / "grid_areas_solar.csv",
-		grid_areaswindonshore=modelpath / "grid_areas_wind_onshore.csv",
-		grid_areaswindoffshore=modelpath / "grid_areas_wind_offshore.csv",
+		grid_areas = modelpath / "grid_areas.csv",
 	resources:
 		mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -269,9 +267,7 @@ rule build_vre_land_avail:
 rule build_vre_cf_inputs:
 	input:
 		cf_file=rules.build_vre_cf_grid.output.cf_file,
-		grid_areassolar = rules.build_vre_land_avail.output.grid_areassolar,
-		grid_areaswindonshore = rules.build_vre_land_avail.output.grid_areaswindonshore,
-		grid_areaswindoffshore = rules.build_vre_land_avail.output.grid_areaswindoffshore,
+		grid_areas = rules.build_vre_land_avail.output.grid_areas,
 	output:
 		capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
 		areassolar=temp(modelpath / "areas_solar.csv"),
