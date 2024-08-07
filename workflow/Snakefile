@@ -22,10 +22,7 @@ import pathlib
 date_range=["01-01","12-31"]
 
 
-inputyears = [
-    # "1995",
-    "2010"
-]
+inputyears = config["inputs"]["years"]
 
 # TODO: make grid_regions work
 grid_regions = []

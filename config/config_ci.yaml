@@ -1,6 +1,10 @@
 target: "results.db.compressed"
+
 paths:
   gams: /opt/gams/gams46.5_linux_x64_64_sfx/
   shared_input: shared_input
   abs_shared_code: ../../../../resources/highRES-Europe-GAMS
   results: work
+
+inputs:
+  years: ["1995","2010"]
