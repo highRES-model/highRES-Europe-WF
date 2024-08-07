@@ -173,7 +173,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / "results.db.compressed", zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
 
 
 rule build_cplex_opt:
