@@ -8,3 +8,4 @@ paths:
 
 inputs:
   years: ["1995","2010"]
+  spatials: ["grid","region","nuts2"]

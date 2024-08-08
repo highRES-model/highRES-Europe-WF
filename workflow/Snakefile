@@ -88,11 +88,7 @@ pd.DataFrame(aggregated_regions).assign(
     "resources/europe_countries.csv", index=None
 )
 
-spatials = [
-    # "grid",
-    "region",
-	#"nuts2"
-]
+spatials = config["inputs"]["spatials"]
 
 cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
 
