@@ -22,11 +22,11 @@ import pathlib
 date_range=["01-01","12-31"]
 
 
-inputyears = config["inputs"]["years"]
+inputyears = config["parameters"]["years"]
 
 # TODO: make grid_regions work
 grid_regions = []
-aggregated_regions = config["inputs"]["aggregated_regions"]
+aggregated_regions = config["parameters"]["aggregated_regions"]
 
 # TODO: worry about zones vs regions later this only works for all aggregated
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
@@ -59,9 +59,9 @@ pd.DataFrame(aggregated_regions).assign(
     "resources/europe_countries.csv", index=None
 )
 
-spatials = config["inputs"]["spatials"]
+spatials = config["parameters"]["spatials"]
 
-cutoff_values = {"solar": config["inputs"]["cutoff_solar"], "onwind": config["inputs"]["cutoff_onwind"], "offwind": config["inputs"]["cutoff_offwind"]}
+cutoff_values = {"solar": config["parameters"]["cutoff_solar"], "onwind": config["parameters"]["cutoff_onwind"], "offwind": config["parameters"]["cutoff_offwind"]}
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
