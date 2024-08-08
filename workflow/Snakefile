@@ -26,36 +26,7 @@ inputyears = config["inputs"]["years"]
 
 # TODO: make grid_regions work
 grid_regions = []
-aggregated_regions = [
-    "AT",
-    "BE",
-    "BG",
-    "CH",
-    "CZ",
-    "DE",
-    "DK",
-    "EE",
-    "ES",
-    "FI",
-    "FR",
-    "UK",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    "LU",
-    "LV",
-    "NL",
-    "NO",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SI",
-    "SK",
-]
+aggregated_regions = config["inputs"]["aggregated_regions"]
 
 # TODO: worry about zones vs regions later this only works for all aggregated
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
