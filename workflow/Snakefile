@@ -22,43 +22,11 @@ import pathlib
 date_range=["01-01","12-31"]
 
 
-inputyears = [
-    # "1995",
-    "2010"
-]
+inputyears = config["parameters"]["years"]
 
 # TODO: make grid_regions work
 grid_regions = []
-aggregated_regions = [
-    "AT",
-    "BE",
-    "BG",
-    "CH",
-    "CZ",
-    "DE",
-    "DK",
-    "EE",
-    "ES",
-    "FI",
-    "FR",
-    "UK",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    "LU",
-    "LV",
-    "NL",
-    "NO",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SI",
-    "SK",
-]
+aggregated_regions = config["parameters"]["aggregated_regions"]
 
 # TODO: worry about zones vs regions later this only works for all aggregated
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
@@ -91,13 +59,9 @@ pd.DataFrame(aggregated_regions).assign(
     "resources/europe_countries.csv", index=None
 )
 
-spatials = [
-    # "grid",
-    "region",
-	#"nuts2"
-]
+spatials = config["parameters"]["spatials"]
 
-cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
+cutoff_values = {"solar": config["parameters"]["cutoff_solar"], "onwind": config["parameters"]["cutoff_onwind"], "offwind": config["parameters"]["cutoff_offwind"]}
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
@@ -173,7 +137,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / "results.db.compressed", zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
 
 
 rule build_cplex_opt:
