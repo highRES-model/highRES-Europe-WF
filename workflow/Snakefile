@@ -90,7 +90,7 @@ pd.DataFrame(aggregated_regions).assign(
 
 spatials = config["inputs"]["spatials"]
 
-cutoff_values = {"solar": 0.09, "onwind": 0.15, "offwind": 0.20}
+cutoff_values = {"solar": config["inputs"]["cutoff_solar"], "onwind": config["inputs"]["cutoff_onwind"], "offwind": config["inputs"]["cutoff_offwind"]}
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
