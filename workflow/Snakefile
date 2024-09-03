@@ -133,6 +133,7 @@ localrules:
     compress_vre_gdx,
     compress_hydrores_inflow,
     convert_results_db_parquet,
+    run_gams
 
 
 rule all:
@@ -482,7 +483,35 @@ rule build_inputs:
         touch(modelpath / "inputs.finished"),
 
 
-rule run_model:
+# rule run_model:
+    # input:
+        # modelpath / "cplex.opt",
+        # shared_code_path + "highres_data_input.gms",
+        # shared_code_path + "highres_hydro.gms",
+        # shared_code_path + "highres_results.gms",
+        # shared_code_path + "highres_storage_setup.gms",
+        # shared_code_path + "highres_storage_uc_setup.gms",
+        # shared_code_path + "highres_uc_setup.gms",
+        # modelpath / "inputs.finished",
+        # modelpath / "vre_{year}_.gdx",
+        # gamsfile="resources/highRES-Europe-GAMS/highres.gms",
+    # params:
+        # gamspath=gamspath,
+        # modelpath=str(modelpath),
+        # co2intensity=co2target,
+        # sharedcodepath=abs_shared_code_path,
+    # # retries: 3
+    # log:
+        # str(modelpath) + "/highres.lst",
+        # str(modelpath) + "/highres.log",
+    # output:
+        # modelresults=protected(modelpath / "results.gdx"),
+        # modelresultsdd=protected(modelpath / "results.db"),
+    # script:
+        # # TODO platform independence
+        # "scripts/run_gams.sh"
+
+rule run_gams:
     input:
         modelpath / "cplex.opt",
         shared_code_path + "highres_data_input.gms",
@@ -499,21 +528,21 @@ rule run_model:
         modelpath=str(modelpath),
         co2intensity=co2target,
         sharedcodepath=abs_shared_code_path,
-    # retries: 3
-    log:
+    resources:
+        mem_mb=50000
+    log: 
         str(modelpath) + "/highres.lst",
         str(modelpath) + "/highres.log",
     output:
         modelresults=protected(modelpath / "results.gdx"),
-        modelresultsdd=protected(modelpath / "results.db"),
+        # modelresultsdd=protected(modelpath / "results.db"),
     script:
-        # TODO platform independence
-        "scripts/run_gams.sh"
+        "scripts/run_gams.py"
 
 
 rule convert_results:
     input:
-        rules.run_model.output.modelresults,
+        rules.run_gams.output.modelresults,
     output:
         resultsdb=ensure(protected(modelpath / "results.db"), non_empty=True),
     shell:
@@ -523,7 +552,7 @@ rule convert_results:
 
 rule convert_results_db_parquet:
     input:
-        rules.run_model.output.modelresultsdd,
+        rules.convert_results.output.resultsdb,
     output:
         compressdone=touch(modelpath / "results.db.compressed"),
     resources:
