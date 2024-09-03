@@ -1,0 +1,51 @@
+target: "inputs.finished"
+
+paths:
+  gams: D:\utils\GAMS\43\
+  shared_input: shared_input
+  abs_shared_code: ../../../../resources/highRES-Europe-GAMS
+  results: work
+  
+parameters:
+  years: [
+    # "1995",
+    "2010",
+  ]
+  spatials: [
+    # "grid",
+    # "region",
+     "nuts2",
+  ]
+  cutoff_solar: 0.09
+  cutoff_onwind: 0.1
+  cutoff_offwind: 0.20
+  aggregated_regions: [
+    "AT",
+    "BE",
+    "BG",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "UK",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK",
+  ]
