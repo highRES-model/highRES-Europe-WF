@@ -88,6 +88,7 @@ for psys in pscens:
         out=out,
         esys_cap=False,
         exist_cap=True,
+        exist_agg=snakemake.wildcards.spatial
     )
 
     trans_links(
