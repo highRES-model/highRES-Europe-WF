@@ -85,9 +85,6 @@ years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
 
 
-# in grams per kWh
-co2target = round(0, 1)
-
 # Get current working directory
 
 cwd = pathlib.Path().resolve()
@@ -603,7 +600,7 @@ rule run_gams:
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),
-        co2intensity=co2target,
+        co2intensity=config["parameters"]["co2target"][0],
         sharedcodepath=abs_shared_code_path,
     resources:
         mem_mb=50000,
