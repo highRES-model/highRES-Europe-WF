@@ -68,6 +68,12 @@ cutoff_values = {
     "offwind": config["parameters"]["cutoff_offwind"],
 }
 
+corine_codes = {
+    "solar": config["parameters"]["solar_clc"],
+    "onwind_no_buffer": config["parameters"]["onwind_clc_no_buffer"],
+    "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
+}
+
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
 concatlist = []
