@@ -102,3 +102,6 @@ parameters:
     2 : 1000,
     6 : 5000,
   }
+  co2target : [
+    2 # gCO2/kWh
+  ]
