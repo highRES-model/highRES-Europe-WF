@@ -84,6 +84,7 @@ scenarios = pd.concat(concatlist).reset_index(drop=True)
 years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
 
+bias_correction = config["parameters"]["bias_correction"]
 
 # Get current working directory
 
@@ -232,6 +233,11 @@ rule build_vre_cf_grid:
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         euroshape=rules.build_shapes.output.onshoreshape,
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+        biaswinddata=(
+            shared_input_path / "weatherdata/ratio_gwa2_era5.nc"
+                if bias_correction
+                else []
+        )
     output:
         cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
     resources:
@@ -241,6 +247,7 @@ rule build_vre_cf_grid:
     params:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
+        bias_correction=bias_correction,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
