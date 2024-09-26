@@ -236,49 +236,64 @@ def getzlims(lim, techs, zones):
 
     return np.concatenate(outlims, axis=0)
 
-def getrlims(lim,techs,zones,exist_agg):
-    
+
+def getrlims(lim, techs, zones, exist_agg):
     # TODO capcity units are fixed to GW here, need to add flexibility
-    
-    lim=lim.loc[(lim["Year"]==2050) & (lim["Technology"].isin(techs))
-                & (lim["zone"].isin(zones)),:]
-    
+
+    lim = lim.loc[
+        (lim["Year"] == 2050)
+        & (lim["Technology"].isin(techs))
+        & (lim["zone"].isin(zones)),
+        :,
+    ]
+
     if lim.empty:
         return np.array([])
-    
-    have_lim=~lim.loc[:,"limtype"].isnull()
-    lim=lim.loc[have_lim,:]
-    para_lim=lim["parameter"].drop_duplicates()
-    
-    outlims=[]
-    
-    for p_lim in para_lim: 
-        
-        limval=lim.loc[(lim["parameter"]==p_lim),:]
+
+    have_lim = ~lim.loc[:, "limtype"].isnull()
+    lim = lim.loc[have_lim, :]
+    para_lim = lim["parameter"].drop_duplicates()
+
+    outlims = []
+
+    for p_lim in para_lim:
+        limval = lim.loc[(lim["parameter"] == p_lim), :]
 
         if exist_agg == "nuts2":
-        
-            nl=data2dd(limval["value"]/1E3,
-                       [limval["Technology"],
-                limval["zone"],limval["region"],limval["limtype"]])
-            
-        if exist_agg == "region":
-            
-            limval=(limval.groupby(["zone"],as_index=False)
-                  .agg({"Technology":"first",
-                        "Year":"first",
-                        "parameter":"first",
-                        "limtype":"first",
-                        "value":"sum"}))
+            nl = data2dd(
+                limval["value"] / 1e3,
+                [
+                    limval["Technology"],
+                    limval["zone"],
+                    limval["region"],
+                    limval["limtype"],
+                ],
+            )
 
-            nl=data2dd(limval["value"]/1E3
-                       ,[limval["Technology"],
-                limval["zone"],limval["zone"],limval["limtype"]])
-            
-        
-        outlims.append(wrapdd(nl,p_lim,"parameter"))
-        
-    return np.concatenate(outlims,axis=0)
+        if exist_agg == "region":
+            limval = limval.groupby(["zone"], as_index=False).agg(
+                {
+                    "Technology": "first",
+                    "Year": "first",
+                    "parameter": "first",
+                    "limtype": "first",
+                    "value": "sum",
+                }
+            )
+
+            nl = data2dd(
+                limval["value"] / 1e3,
+                [
+                    limval["Technology"],
+                    limval["zone"],
+                    limval["zone"],
+                    limval["limtype"],
+                ],
+            )
+
+        outlims.append(wrapdd(nl, p_lim, "parameter"))
+
+    return np.concatenate(outlims, axis=0)
 
 
 def scen2dd(
@@ -293,7 +308,7 @@ def scen2dd(
     out="work",
     esys_cap=False,
     exist_cap=False,
-    exist_agg="region"
+    exist_agg="region",
 ):
     co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
@@ -328,22 +343,25 @@ def scen2dd(
         )
 
         if exist_cap:
-            
-            zlims=getzlims(
-                pd.read_excel(fin,sheet_name=tech_type+"_exist_z",skiprows=0),
-                techs,zones)
-            
-            if zlims.size!=0:
-                param_outdd.append(zlims)
-                
-            if tech_type=="gen":
-                rlims=getrlims(
-                    pd.read_excel(fin,sheet_name=tech_type+"_exist_r",skiprows=0),
-                    techs,zones,exist_agg)
-                
-                if rlims.size!=0:
-                    param_outdd.append(rlims)
+            zlims = getzlims(
+                pd.read_excel(fin, sheet_name=tech_type + "_exist_z", skiprows=0),
+                techs,
+                zones,
+            )
 
+            if zlims.size != 0:
+                param_outdd.append(zlims)
+
+            if tech_type == "gen":
+                rlims = getrlims(
+                    pd.read_excel(fin, sheet_name=tech_type + "_exist_r", skiprows=0),
+                    techs,
+                    zones,
+                    exist_agg,
+                )
+
+                if rlims.size != 0:
+                    param_outdd.append(rlims)
 
         # if exist_cap:
         #     lims = getzlims(
