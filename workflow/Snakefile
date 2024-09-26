@@ -19,7 +19,7 @@ import itertools
 import pandas as pd
 import pathlib
 
-date_range=["01-01","12-31"]
+date_range = ["01-01", "12-31"]
 
 
 inputyears = config["parameters"]["years"]
@@ -61,7 +61,11 @@ pd.DataFrame(aggregated_regions).assign(
 
 spatials = config["parameters"]["spatials"]
 
-cutoff_values = {"solar": config["parameters"]["cutoff_solar"], "onwind": config["parameters"]["cutoff_onwind"], "offwind": config["parameters"]["cutoff_offwind"]}
+cutoff_values = {
+    "solar": config["parameters"]["cutoff_solar"],
+    "onwind": config["parameters"]["cutoff_onwind"],
+    "offwind": config["parameters"]["cutoff_offwind"],
+}
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
@@ -115,6 +119,7 @@ modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
 logpath = yearonlypart + scenariopart
 
+
 localrules:
     all,
     build_cplex_opt,
@@ -133,7 +138,7 @@ localrules:
     compress_vre_gdx,
     compress_hydrores_inflow,
     convert_results_db_parquet,
-    run_gams
+    run_gams,
 
 
 rule all:
@@ -164,27 +169,27 @@ rule build_zones_file:
 
 
 rule build_technoeconomic_inputs:
-	input:
-		"resources/zones.csv",
-		"resources/gb_ext_scenarios.xls",
-		"resources/highres_gb_ext_database.ods",
-		europecountriescsvlocation="resources/europe_countries.csv",
-		europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
-		data2dd="workflow/scripts/data2dd_funcs.py",
-	conda:
-		"envs/build_technoeconomic.yml"
-	output:
-		modelpath / "{year}_temporal.dd",
-		modelpath / "BASE_co2_budget.dd",
-		modelpath / "BASE_gen.dd",
-		modelpath / "BASE_store.dd",
-		modelpath / "trans.dd",
-		demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
-	params:
-		aggregated_regions=aggregated_regions,
-		date_range=date_range,
-	script:
-		"scripts/gb_ext_data2dd.py"
+    input:
+        "resources/zones.csv",
+        "resources/gb_ext_scenarios.xls",
+        "resources/highres_gb_ext_database.ods",
+        europecountriescsvlocation="resources/europe_countries.csv",
+        europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
+        data2dd="workflow/scripts/data2dd_funcs.py",
+    conda:
+        "envs/build_technoeconomic.yml"
+    output:
+        modelpath / "{year}_temporal.dd",
+        modelpath / "BASE_co2_budget.dd",
+        modelpath / "BASE_gen.dd",
+        modelpath / "BASE_store.dd",
+        modelpath / "trans.dd",
+        demandfile=temp(modelpath / "BASE_norescale_demand_{year}.dd"),
+    params:
+        aggregated_regions=aggregated_regions,
+        date_range=date_range,
+    script:
+        "scripts/gb_ext_data2dd.py"
 
 
 rule rename_demand_file:
@@ -196,109 +201,111 @@ rule rename_demand_file:
         import shutil
 
         shutil.copy2(input[0], output[0])
-		
+
+
 rule build_shapes:
-	input:
-		euroshape=shared_input_path
-		/ "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
-		eurooffshoreshape=shared_input_path
-		/ ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
-	output:
-		onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
-		offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
-	params:
-		aggregated_regions=aggregated_regions,
-	notebook:
-		"notebooks/highRES-build_shapes.ipynb"
-        
+    input:
+        euroshape=shared_input_path
+        / "geodata/onshore/shapes/NUTS_RG_60M_2021_4326.geojson",
+        eurooffshoreshape=shared_input_path
+        / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+    output:
+        onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
+        offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
+    params:
+        aggregated_regions=aggregated_regions,
+    notebook:
+        "notebooks/highRES-build_shapes.ipynb"
+
 
 rule build_vre_cf_grid:
-	input:
-		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-		euroshape=rules.build_shapes.output.onshoreshape,
-		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
-	output:
-		cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
-	resources:
-		mem_mb=50000,  # TODO: Find out how much this rule needs,
+    input:
+        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+        euroshape=rules.build_shapes.output.onshoreshape,
+        eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+    output:
+        cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
+    resources:
+        mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
-	threads: workflow.cores * 0.75
-	params:
-		sharedinputpath=shared_input_path,
-		aggregated_regions=aggregated_regions,
-	notebook:
-		"notebooks/highRES-build_vre_cf_grid.ipynb"
-		
+    threads: workflow.cores * 0.75
+    params:
+        sharedinputpath=shared_input_path,
+        aggregated_regions=aggregated_regions,
+    notebook:
+        "notebooks/highRES-build_vre_cf_grid.ipynb"
+
+
 rule build_vre_land_avail:
-	input:
-		WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
-		WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
-		WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
-		WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
-		WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
-		elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
-		slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
-		euroshape=rules.build_shapes.output.onshoreshape,
-		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
-		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-		cfdata=rules.build_vre_cf_grid.output.cf_file,
-		corine=shared_input_path / "geodata/onshore/corine.tif",
-	output:
+    input:
+        WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
+        WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
+        WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
+        WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
+        WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+        elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
+        slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
+        euroshape=rules.build_shapes.output.onshoreshape,
+        eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+        cfdata=rules.build_vre_cf_grid.output.cf_file,
+        corine=shared_input_path / "geodata/onshore/corine.tif",
+    output:
         # FIXME the file indreg is only necessary when we run on grid cell
         # currently when we run with region, we create an empty file
         # the cleaner solution might be to outsource the creation of that file
         # to an extra rule and have an input function conditional on the
         # wildcard spatial for that rule
-		cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
-		cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
-		cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
-		indreg=temp(modelpath / "indices_region.csv"),
-		grid_areas = modelpath / "grid_areas.csv",
-	resources:
-		mem_mb=50000,  # TODO: Find out how much this rule needs,
+        cf_exclusion_solar=temp(modelpath / "cf_exclusion_solar.tif"),
+        cf_exclusion_windon=temp(modelpath / "cf_exclusion_windon.tif"),
+        cf_exclusion_windoff=temp(modelpath / "cf_exclusion_windoff.tif"),
+        indreg=temp(modelpath / "indices_region.csv"),
+        grid_areas=modelpath / "grid_areas.csv",
+    resources:
+        mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
-	threads: workflow.cores * 0.75
-	params:
-		sharedinputpath=shared_input_path,
-		aggregated_regions=aggregated_regions,
-		cutoffs=cutoff_values,
-	notebook:
-		"notebooks/highRES-build_vre_land_avail.ipynb"
-		
-rule build_vre_cf_inputs:
-	input:
-		cf_file=rules.build_vre_cf_grid.output.cf_file,
-		grid_areas = rules.build_vre_land_avail.output.grid_areas,
-	output:
-		capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
-		areassolar=temp(modelpath / "areas_solar.csv"),
-		areaswindonshore=temp(modelpath / "areas_wind_onshore.csv"),
-		areaswindoffshore=temp(modelpath / "areas_wind_offshore.csv"),
-	params:
-		date_range=date_range,
-	notebook:
-		"notebooks/highRES-build_vre_cf_inputs.ipynb"
+    threads: workflow.cores * 0.75
+    params:
+        sharedinputpath=shared_input_path,
+        aggregated_regions=aggregated_regions,
+        cutoffs=cutoff_values,
+    notebook:
+        "notebooks/highRES-build_vre_land_avail.ipynb"
 
+
+rule build_vre_cf_inputs:
+    input:
+        cf_file=rules.build_vre_cf_grid.output.cf_file,
+        grid_areas=rules.build_vre_land_avail.output.grid_areas,
+    output:
+        capfacfile=temp(modelpath / "capacity-factors_solar_{year}.csv"),
+        areassolar=temp(modelpath / "areas_solar.csv"),
+        areaswindonshore=temp(modelpath / "areas_wind_onshore.csv"),
+        areaswindoffshore=temp(modelpath / "areas_wind_offshore.csv"),
+    params:
+        date_range=date_range,
+    notebook:
+        "notebooks/highRES-build_vre_cf_inputs.ipynb"
 
 
 rule build_hydro_capfac:
-	input:
-		eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
-		hydroinstalledcap="resources/hydro_installed_cap.tsv",
-		euroshape=rules.build_shapes.output.onshoreshape,
-		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-	output:
-		hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
-		hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
-		areashydro=temp(modelpath / "hydro_ror_area.csv"),
-	conda:
-		"envs/build_hydro_capfac.yml"
-	params:
-		sharedinputpath=shared_input_path,
-		aggregated_regions=aggregated_regions,
-		date_range=date_range,
-	notebook:
-		"notebooks/highRES_build_hydro.py.ipynb"
+    input:
+        eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
+        hydroinstalledcap="resources/hydro_installed_cap.tsv",
+        euroshape=rules.build_shapes.output.onshoreshape,
+        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+    output:
+        hydrororcapfac=temp(modelpath / "capacity-factors_hydro_{year}.csv"),
+        hydroresinfl=temp(modelpath / "inflow_hydro-res_{year}.csv"),
+        areashydro=temp(modelpath / "hydro_ror_area.csv"),
+    conda:
+        "envs/build_hydro_capfac.yml"
+    params:
+        sharedinputpath=shared_input_path,
+        aggregated_regions=aggregated_regions,
+        date_range=date_range,
+    notebook:
+        "notebooks/highRES_build_hydro.py.ipynb"
 
 
 def regionsonlyforgrid(wildcards):
@@ -484,32 +491,33 @@ rule build_inputs:
 
 
 # rule run_model:
-    # input:
-        # modelpath / "cplex.opt",
-        # shared_code_path + "highres_data_input.gms",
-        # shared_code_path + "highres_hydro.gms",
-        # shared_code_path + "highres_results.gms",
-        # shared_code_path + "highres_storage_setup.gms",
-        # shared_code_path + "highres_storage_uc_setup.gms",
-        # shared_code_path + "highres_uc_setup.gms",
-        # modelpath / "inputs.finished",
-        # modelpath / "vre_{year}_.gdx",
-        # gamsfile="resources/highRES-Europe-GAMS/highres.gms",
-    # params:
-        # gamspath=gamspath,
-        # modelpath=str(modelpath),
-        # co2intensity=co2target,
-        # sharedcodepath=abs_shared_code_path,
-    # # retries: 3
-    # log:
-        # str(modelpath) + "/highres.lst",
-        # str(modelpath) + "/highres.log",
-    # output:
-        # modelresults=protected(modelpath / "results.gdx"),
-        # modelresultsdd=protected(modelpath / "results.db"),
-    # script:
-        # # TODO platform independence
-        # "scripts/run_gams.sh"
+# input:
+# modelpath / "cplex.opt",
+# shared_code_path + "highres_data_input.gms",
+# shared_code_path + "highres_hydro.gms",
+# shared_code_path + "highres_results.gms",
+# shared_code_path + "highres_storage_setup.gms",
+# shared_code_path + "highres_storage_uc_setup.gms",
+# shared_code_path + "highres_uc_setup.gms",
+# modelpath / "inputs.finished",
+# modelpath / "vre_{year}_.gdx",
+# gamsfile="resources/highRES-Europe-GAMS/highres.gms",
+# params:
+# gamspath=gamspath,
+# modelpath=str(modelpath),
+# co2intensity=co2target,
+# sharedcodepath=abs_shared_code_path,
+# # retries: 3
+# log:
+# str(modelpath) + "/highres.lst",
+# str(modelpath) + "/highres.log",
+# output:
+# modelresults=protected(modelpath / "results.gdx"),
+# modelresultsdd=protected(modelpath / "results.db"),
+# script:
+# # TODO platform independence
+# "scripts/run_gams.sh"
+
 
 rule run_gams:
     input:
@@ -529,8 +537,8 @@ rule run_gams:
         co2intensity=co2target,
         sharedcodepath=abs_shared_code_path,
     resources:
-        mem_mb=50000
-    log: 
+        mem_mb=50000,
+    log:
         str(modelpath) + "/highres.lst",
         str(modelpath) + "/highres.log",
     output:
