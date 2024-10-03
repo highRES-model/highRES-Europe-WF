@@ -22,6 +22,7 @@ import pathlib
 date_range = ["01-01", "12-31"]
 
 user_mode = config["parameters"]["mode"][0]
+turbine_size_dict = {'onshore' : 3, 'offshore' :5}
 
 inputyears = config["parameters"]["years"]
 
@@ -144,6 +145,8 @@ localrules:
     compress_hydrores_inflow,
     convert_results_db_parquet,
     run_gams,
+    job_creation_model,
+    job_creation_output,
 
 
 rule all:
@@ -642,3 +645,22 @@ rule convert_results_db_parquet:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
+
+rule job_creation_model:
+    params:
+        turbinedict = turbine_size_dict
+    output:
+        employmentfactors=modelpath / "employmentfactors.csv",
+    script:
+        "scripts/job_creation_pre.py"
+
+rule job_creation_output:
+    input:
+        resultsdb=rules.convert_results.output.resultsdb,
+        employmentfactors=rules.job_creation_model.output.employmentfactors,
+    params:
+        turbinedict = turbine_size_dict
+    output:
+        windjobs = modelpath / "windjobs.csv",
+    script:
+        "scripts/job_creation_post.py"
