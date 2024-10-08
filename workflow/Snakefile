@@ -246,20 +246,20 @@ rule build_vre_cf_grid:
 
 
 rule build_vre_land_avail:
-    input:
-        WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
-        WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
-        WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
-        WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
-        WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
-        elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
-        slope=shared_input_path / "geodata/onshore/15degrees.shp.zip",
-        euroshape=rules.build_shapes.output.onshoreshape,
-        eurooffshoreshape=rules.build_shapes.output.offshoreshape,
-        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-        cfdata=rules.build_vre_cf_grid.output.cf_file,
-        corine=shared_input_path / "geodata/onshore/corine.tif",
-    output:
+	input:
+		WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
+		WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
+		WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
+		WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
+		WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+		elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
+		slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
+		euroshape=rules.build_shapes.output.onshoreshape,
+		eurooffshoreshape=rules.build_shapes.output.offshoreshape,
+		weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
+		cfdata=rules.build_vre_cf_grid.output.cf_file,
+		corine=shared_input_path / "geodata/onshore/corine.tif",
+	output:
         # FIXME the file indreg is only necessary when we run on grid cell
         # currently when we run with region, we create an empty file
         # the cleaner solution might be to outsource the creation of that file
