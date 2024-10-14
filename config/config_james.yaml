@@ -7,6 +7,10 @@ paths:
   results: work
   
 parameters:
+  mode: [
+    #"normal", 
+    "developer", # Use this mode to run the model in developer mode
+  ]
   years: [
     # "1995",
     "2010",
