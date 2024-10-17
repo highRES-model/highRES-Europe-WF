@@ -20,6 +20,7 @@ parameters:
     # "region",
      "nuts2",
   ]
+  bias_correction: False
   cutoff_solar: 0.09
   cutoff_onwind: 0.1
   cutoff_offwind: 0.20
