@@ -129,7 +129,7 @@ def trans_links(root, f, aggregated_regions, out="work"):
     tech_type = "trans"
 
     links_allowed = pd.read_excel(
-        f, sheet_name="transmission_allowed", skiprows=1
+        f, sheet_name="transmission_allowed", skiprows=1, engine="calamine"
     ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
 
     links_out = np.array(
@@ -159,7 +159,10 @@ def trans_links(root, f, aggregated_regions, out="work"):
             wrapdd(data2dd(links_allowed[od].values, [links_out]), out_par, "parameter")
         )
 
-    params = pd.read_excel(f, sheet_name="transmission", skiprows=1)
+    params = pd.read_excel(f, 
+                           sheet_name="transmission", 
+                           skiprows=1,
+                           engine="calamine")
 
     nans = params.isnull()
     params = params.where(~nans, other=0.0)
@@ -323,7 +326,10 @@ def scen2dd(
         set_outdd = []
         param_outdd = []
 
-        params = pd.read_excel(fin, sheet_name=None, skiprows=1)[tech_type]
+        params = pd.read_excel(fin,
+                               sheet_name=None, 
+                               skiprows=1,
+                               engine="calamine")[tech_type]
 
         params = params[params["Technology Name (highRES)"].isin(techs)]
 
@@ -336,7 +342,11 @@ def scen2dd(
 
         param_outdd.append(
             getzlims(
-                pd.read_excel(fin, sheet_name=tech_type + "_lim_z", skiprows=0),
+                pd.read_excel(fin, 
+                              sheet_name=tech_type + "_lim_z", 
+                              skiprows=0,
+                              engine="calamine"
+                              ),
                 techs,
                 zones,
             )
@@ -344,7 +354,10 @@ def scen2dd(
 
         if exist_cap:
             zlims = getzlims(
-                pd.read_excel(fin, sheet_name=tech_type + "_exist_z", skiprows=0),
+                pd.read_excel(fin, 
+                              sheet_name=tech_type + "_exist_z", 
+                              skiprows=0,
+                              engine="calamine"),
                 techs,
                 zones,
             )
@@ -354,7 +367,10 @@ def scen2dd(
 
             if tech_type == "gen":
                 rlims = getrlims(
-                    pd.read_excel(fin, sheet_name=tech_type + "_exist_r", skiprows=0),
+                    pd.read_excel(fin, 
+                                  sheet_name=tech_type + "_exist_r", 
+                                  skiprows=0,
+                                  engine="calamine"),
                     techs,
                     zones,
                     exist_agg,
