@@ -11,7 +11,7 @@
 # TODO: Default profile is Fox, HPC, profile
 
 
-configfile: "config/config_ci.yaml"
+configfile: "config/config_james.yaml"
 
 
 import itertools
@@ -76,13 +76,21 @@ corine_codes = {
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
-concatlist = []
-for spatial in spatials:
-    concatlist.append(scenarios.assign(spatials=spatial))
-scenarios = pd.concat(concatlist).reset_index(drop=True)
+
+
+scenarios=pd.DataFrame(
+		list(itertools.product(
+        inputyears,
+        spatials,
+        config["parameters"]["quantiles"],
+        )),
+		columns=["years","spatials","quantiles"])
+       
+       
 
 years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
+quantiles = scenarios.quantiles.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 
@@ -118,7 +126,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{spatial}/"
+scenariopart = "{spatial}/{quantile}/"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -148,7 +156,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, year=years, spatial=spatials, quantile=quantiles),
 
 
 rule build_cplex_opt:
@@ -259,6 +267,8 @@ rule build_vre_land_avail:
         WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
         WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
         WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+        birds_bats=shared_input_path / 
+        "geodata/onshore/wimby/birds_bats_quantile_{quantile}.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
         slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
@@ -609,6 +619,7 @@ rule run_gams:
         modelpath=str(modelpath),
         co2intensity=config["parameters"]["co2target"][0],
         sharedcodepath=abs_shared_code_path,
+        outname="results.gdx",
     resources:
         mem_mb=50000,
     log:

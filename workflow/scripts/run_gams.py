@@ -8,9 +8,8 @@ args = [
     "gdxCompress=1",
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
-    # "--vre_restrict="+str(snakemake.wildcards.quantile),
-    # "--fx_trans="+snakemake.wildcards.fix_trans,
-    # "--outname="+snakemake.params.outname
+    "--vre_restrict="+str(snakemake.wildcards.quantile),
+    "--outname="+snakemake.params.outname
 ]
 
 process = subprocess.Popen(
