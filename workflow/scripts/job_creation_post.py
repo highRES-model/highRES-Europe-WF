@@ -1,8 +1,17 @@
 import pandas as pd
 import pathlib
 import sqlite3
+import atlite
 
-turbine_size_dict = snakemake.params.turbinedict
+onshore_turbine = snakemake.params.windturbines.get('onshore')
+offshore_bottom_turbine = snakemake.params.windturbines.get('offshore_bottom')
+onshore_size = atlite.resource.windturbine_rated_capacity_per_unit(onshore_turbine)
+offshore_size = atlite.resource.windturbine_rated_capacity_per_unit(offshore_bottom_turbine)
+
+turbinedict = {
+    'onshore' : onshore_size,
+    'offshore' : offshore_size,
+}
 
 df_ef = pd.read_csv(snakemake.input.employmentfactors)
 
@@ -23,7 +32,7 @@ df_merged = (
     df_pcap
     .merge(df_ef,on = 'turbine_type',how='inner')
     .assign(
-        number_turbines = lambda x : x.level.div(x.turbine_type.map(turbine_size_dict)),
+        number_turbines = lambda x : x.level.div(x.turbine_type.map(turbinedict)),
         job_years = lambda x : x.number_turbines*x.value
     )
 )

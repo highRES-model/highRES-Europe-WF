@@ -1,6 +1,15 @@
 import pandas as pd
+import atlite
 
-turbinedict = snakemake.params.turbinedict
+onshore_turbine = snakemake.params.windturbines.get('onshore')
+offshore_bottom_turbine = snakemake.params.windturbines.get('offshore_bottom')
+onshore_size = atlite.resource.windturbine_rated_capacity_per_unit(onshore_turbine)
+offshore_size = atlite.resource.windturbine_rated_capacity_per_unit(offshore_bottom_turbine)
+
+turbinedict = {
+    'onshore' : onshore_size,
+    'offshore' : offshore_size,
+}
 
 new_project_stage = ['manufacturing','construction','OM','decomissioning']
 
@@ -41,7 +50,7 @@ df_final = pd.concat([df_onshore, df_offshore], ignore_index=True)
 # Reorder the columns for better clarity
 df_final = df_final[['turbine_type', 'project_stage', 'job_type', 'value']]
 
-for turbine in turbinedict.keys():
+for turbine in ['onshore','offshore']:
     turbine_size = turbinedict.get(turbine)
     for stage in new_project_stage:
         if stage == 'manufacturing':

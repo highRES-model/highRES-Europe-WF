@@ -22,7 +22,6 @@ import pathlib
 date_range = ["01-01", "12-31"]
 
 user_mode = config["parameters"]["mode"][0]
-turbine_size_dict = {'onshore' : 3, 'offshore' :5}
 
 inputyears = config["parameters"]["years"]
 
@@ -74,6 +73,8 @@ corine_codes = {
     "onwind_no_buffer": config["parameters"]["onwind_clc_no_buffer"],
     "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
+
+windturbines = config["parameters"]["windturbines"]
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
@@ -251,6 +252,7 @@ rule build_vre_cf_grid:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
+        windturbines=windturbines,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
@@ -648,7 +650,7 @@ rule convert_results_db_parquet:
 
 rule job_creation_model:
     params:
-        turbinedict = turbine_size_dict
+        windturbines=windturbines,
     output:
         employmentfactors=modelpath / "employmentfactors.csv",
     script:
@@ -659,7 +661,7 @@ rule job_creation_output:
         resultsdb=rules.convert_results.output.resultsdb,
         employmentfactors=rules.job_creation_model.output.employmentfactors,
     params:
-        turbinedict = turbine_size_dict
+        windturbines=windturbines,
     output:
         windjobs = modelpath / "windjobs.csv",
     script:
