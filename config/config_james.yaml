@@ -1,9 +1,10 @@
-target: "inputs.finished"
+#target: "inputs.finished"
+target: "results.gdx"
 
 paths:
   gams: D:\utils\GAMS\43\
   shared_input: shared_input
-  abs_shared_code: ../../../../resources/highRES-Europe-GAMS
+  abs_shared_code: resources/highRES-Europe-GAMS/
   results: work
   
 parameters:
