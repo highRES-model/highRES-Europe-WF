@@ -176,7 +176,7 @@ rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/gb_ext_scenarios.xls",
-        "resources/highres_gb_ext_database.ods",
+        "resources/highres_database.ods",
         europecountriescsvlocation="resources/europe_countries.csv",
         europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
