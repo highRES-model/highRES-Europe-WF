@@ -4,13 +4,12 @@ import subprocess
 
 args = [
     snakemake.params.gamspath + "gams",
-    snakemake.params.sharedcodepath + "/highres.gms",
+    snakemake.params.sharedcodepath / "highres.gms",
     "gdxCompress=1",
+    "--codefolderpath="+str(snakemake.params.sharedcodepath),
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
-    # "--vre_restrict="+str(snakemake.wildcards.quantile),
-    # "--fx_trans="+snakemake.wildcards.fix_trans,
-    # "--outname="+snakemake.params.outname
+    "--outname="+snakemake.params.outname
 ]
 
 process = subprocess.Popen(
