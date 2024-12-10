@@ -1,69 +1,241 @@
-Table name	Type of table	table columns	table index columns	Index coulumn 1 name	Index column 1 content	Index column 1 position	Index column 2 name	Index column 2 content	Index column 2 position	Index column 3 name	Index column 3 content	Index column 3 position	Index column 4 name	Index column 4 content	Index column 4 position	Value column 1 name	Value column 1 content	Value Column 1 Unit	Value column 1 position	Value column 2 name	Value column 2 content	Value Column2 Unit	Value Column2 position	Value column 3 name	Value column 3 content	Value Column 3 Unit	Value column 3 position	Value column 4 name	Value column 4 content	Value Column 4 Unit	Value column 4 position
-area	table_input	4	3	vre	technologies (generation/variable renewable)	1	z	upper spatial levels	2	r	lower spatial levels	3	N/A	N/A	N/A	value	Available area to build in	GW if MwtoGW is on	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-costs_gen_capex	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level	Investment costs?		2	lo			3	up			4	marginal			5
-costs_gen_fom	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_gen_varom	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_pgen	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_store_capex	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_store_fom	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_store_varom	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_trans_capex	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-costs_trans_fom	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-demand	table_input	3	2	z	upper spatial levels	1	h	timestep	2	N/A	N/A	N/A	N/A	N/A	N/A	value	Electricity demand	GW	3	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-eq_area_max	table_equation	7	3	eq_area_max	technologies	1	eq_area_max2	upper spatial levels	2	eq_area_max3	lower spatial levels	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_co2_budget	table_equation	5	1	eq_co2_budget		1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_gen_capex	table_equation	5	1	eq_costs_gen_capex	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_gen_fom	table_equation	5	1	eq_costs_gen_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_gen_varom	table_equation	5	1	eq_costs_gen_varom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_store_capex	table_equation	5	1	eq_costs_store_capex	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_store_fom	table_equation	5	1	eq_costs_store_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_store_varom	table_equation	5	1	eq_costs_store_varom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_trans_capes	table_equation	5	1	eq_costs_trans_capes	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_costs_ctrans_fom	table_equation	5	1	eq_costs_ctrans_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_elc_balance	table_equation	6	2	eq_elc_balance	timesteps	1	eq_elc_balance2	upper spatial levels	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_exist_hydro_ecap	table_equation	5	1	eq_exist_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_exist_pcap	table_equation	5	1	eq_exist_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_exist_store_ecap	table_equation	5	1	eq_exist_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_exist_store_pcap	table_equation	5	1	eq_exist_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_exist_vre_pcap_z	table_equation	6	2	eq_exist_vre_pcap_z	upper spatial levels	1	eq_exist_vre_pcap_z2	technologies (generation/variable renewable)		N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_gen_max	table_equation	7	3	eq_gen_max	upper spatial levels	1	eq_gen_max2	technologies (non variable renewable generation)	2	eq_gen_max3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_gen_min	table_equation	7	3	eq_gen_min		1	eq_gen_min2		2	eq_gen_min3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_gen_vre	table_equation	7	3	eq_gen_vre	timesteps	1	eq_gen_vre2	upper spatial levels	2	eq_gen_vre3	technologies (generation/variable renewable)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_gen_vre_r	table_equation	8	4	eq_gen_vre_r	timesteps	1	eq_gen_vre_r2	technologies (generation/variable renewable)	2	eq_gen_vre_r3	upper spatial levels	3	eq_gen_vre_r4	lower spatial levels	4	level			5	lo			6	up			7	marginal			8
-eq_hydro_balance	table_equation	7	3	eq_hydro_balance	timesteps	1	eq_hydro_balance2	upper spatial levels	2	eq_hydro_balance3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_hydro_gen_max	table_equation	7	3	eq_hydro_gen_max	timesteps	1	eq_hydro_gen_max2	upper spatial levels	2	eq_hydro_gen_max3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_hydro_level	table_equation	7	3	eq_hydro_level	timesteps	1	eq_hydro_level2	upper spatial levels	2	eq_hydro_level3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_new_hydro_ecap	table_equation	5	1	eq_new_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_new_pcap	table_equation	5	1	eq_new_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_new_store_ecap	table_equation	5	1	eq_new_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_new_store_pcap	table_equation	5	1	eq_new_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_new_vre_pcap_z	table_equation	6	2	eq_new_vre_pcap_z	upper spatial levels	1	eq_new_vre_pcap_z2	technologies (generation/variable renewable)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_pen_gen	table_equation	5	1	eq_pen_gen	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_ramp_down	table_equation	7	3	eq_ramp_down		1	eq_ramp_down2		2	eq_ramp_down3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_ramp_up	table_equation	7	3	eq_ramp_up		1	eq_ramp_up2		2	eq_ramp_up3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_store_balance	table_equation	7	3	eq_store_balance	timesteps	1	eq_store_balance2	upper spatial levels	2	eq_store_balance3	technologies (storage)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_store_charge_max	table_equation	7	3	eq_store_charge_max	upper spatial levels	1	eq_store_charge_max2	technologies (storage)	2	eq_store_charge_max3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_store_ecap_max	table_equation	6	2	eq_store_ecap_max	upper spatial levels	1	eq_store_ecap_max2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_store_end_level	table_equation	7	3	eq_store_end_level	timesteps (last per technology and zone)	1	eq_store_end_level2	upper spatial levels	2	eq_store_end_level3	technologies (storage)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_store_gen_max1	table_equation	7	3	eq_store_gen_max1	upper spatial levels	1	eq_store_gen_max12	technologies (storage)	2	eq_store_gen_max1	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_store_level	table_equation	7	3	eq_store_level	upper spatial levels	1	eq_store_level2	technologies (storage)	2	eq_store_level3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_tot_hydro_ecap	table_equation	5	1	eq_tot_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_tot_hydro_ecap_z	table_equation	6	2	eq_tot_hydro_ecap_z	upper spatial levels	1	eq_tot_hydro_ecap_z2	technologies (storage/hydro)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_tot_pcap	table_equation	5	1	eq_tot_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_tot_pcap_z	table_equation	6	2	eq_tot_pcap_z	upper spatial levels	1	eq_tot_pcap_z2	technologies (generation)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_tot_store_ecap	table_equation	5	1	eq_tot_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_tot_store_ecap_z	table_equation	6	2	eq_tot_store_ecap_z	upper spatial levels	1	eq_tot_store_ecap_z2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_tot_store_pcap	table_equation	5	1	eq_tot_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
-eq_tot_store_pcap_z	table_equation	6	2	eq_tot_store_pcap_z	upper spatial levels	1	eq_tot_store_pcap_z2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
-eq_trans_bidirect	table_equation	7	3	eq_trans_bidirect	upper spatial levels (from zone?)	1	eq_trans_bidirect2	upper spatial levels (to zone?)	2	eq_trans_bidirect3	transmission types	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
-eq_trans_flow	table_equation	8	4	eq_trans_flow	timesteps	1	eq_trans_flow2	upper spatial levels (from zone?)	2	eq_trans_flow3	upper spatial levels (to zone?)	3	eq_trans_flow4	transmission types	4	level			5	lo			6	up			7	marginal			8
-exist_vre_cap_r	table_input	4	3	vre	technologies (generation/variable renewable)	1	z	upper spatial levels	2	r	lower spatial levels	3	N/A	N/A	N/A	value			4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-flexgen	set	1	1	non_vre	technologies (generation/flexible)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-g	set	1	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_af	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Availability factor	%/100	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_cap2area	table_input	2	1	g	technologies (generation/variable renewable)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Installable capacity of technology per area	GW/km² if MwtoGW is on	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_capex	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Investment cost of technology per power?		2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_emisfac	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Emissions of technology per energy		2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_exist_cap	table_input	2	1	g		1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Existing power capacity of technology	GW if MwtoGW is on	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_exist_ecap_z	table_input	4	3	z	upper spatial levels	1	g	technologies (storage/hydro)	2	lt	type of limit	3	N/A	N/A	N/A	value	Existing energy capacity of technology and zone	Gwh if MwtoGW is on	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
-gen_exist_pcap_z	table_input	4	3	z	upper spatial levels	1	g		2	lt	type of limit	3	N/A	N/A	N/A	value	Existing power capacity of technology and zone	Gwh if MwtoGW is on	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+Subtable name	Table name	can contain multiple different units and variables	Type of table	table columns	table index columns	Index column 1 name	Index column 1 content	Index column 1 position	Index column 2 name	Index column 2 content	Index column 2 position	Index column 3 name	Index column 3 content	Index column 3 position	Index column 4 name	Index column 4 content	Index column 4 position	Value column 1 name	Value column 1 content	Value Column 1 Unit	Value column 1 position	Value column 2 name	Value column 2 content	Value Column2 Unit	Value Column2 position	Value column 3 name	Value column 3 content	Value Column 3 Unit	Value column 3 position	Value column 4 name	Value column 4 content	Value Column 4 Unit	Value column 4 position
+N/A	area	no	table_input	4	3	vre	technologies (generation/variable renewable)	1	z	upper spatial levels	2	r	lower spatial levels	3	N/A	N/A	N/A	value	Available area to build in	Megawatt (MW) divided by value of MWtoGW variable in table scalars	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	costs_gen_capex	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level	Investment costs?		2	lo			3	up			4	marginal			5
+N/A	costs_gen_fom	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_gen_varom	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_pgen	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_store_capex	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_store_fom	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_store_varom	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_trans_capex	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	costs_trans_fom	no	table_input	5	1	z	upper spatial levels	1	N/A	N/A		N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	demand	no	table_input	3	2	z	upper spatial levels	1	h	timestep	2	N/A	N/A	N/A	N/A	N/A	N/A	value	Electricity demand	GW	3	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	eq_area_max	no	table_equation	7	3	eq_area_max	technologies	1	eq_area_max2	upper spatial levels	2	eq_area_max3	lower spatial levels	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_co2_budget	no	table_equation	5	1	eq_co2_budget		1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_gen_capex	no	table_equation	5	1	eq_costs_gen_capex	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_gen_fom	no	table_equation	5	1	eq_costs_gen_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_gen_varom	no	table_equation	5	1	eq_costs_gen_varom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_store_capex	no	table_equation	5	1	eq_costs_store_capex	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_store_fom	no	table_equation	5	1	eq_costs_store_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_store_varom	no	table_equation	5	1	eq_costs_store_varom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_trans_capex	no	table_equation	5	1	eq_costs_trans_capes	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_costs_trans_fom	no	table_equation	5	1	eq_costs_trans_fom	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_elc_balance	no	table_equation	6	2	eq_elc_balance	timesteps	1	eq_elc_balance2	upper spatial levels	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_exist_hydro_ecap	no	table_equation	5	1	eq_exist_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_exist_pcap	no	table_equation	5	1	eq_exist_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_exist_store_ecap	no	table_equation	5	1	eq_exist_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_exist_store_pcap	no	table_equation	5	1	eq_exist_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_exist_vre_pcap_z	no	table_equation	6	2	eq_exist_vre_pcap_z	upper spatial levels	1	eq_exist_vre_pcap_z2	technologies (generation/variable renewable)		N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_gen_max	no	table_equation	7	3	eq_gen_max	upper spatial levels	1	eq_gen_max2	technologies (non variable renewable generation)	2	eq_gen_max3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_gen_min	no	table_equation	7	3	eq_gen_min		1	eq_gen_min2		2	eq_gen_min3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_gen_vre	no	table_equation	7	3	eq_gen_vre	timesteps	1	eq_gen_vre2	upper spatial levels	2	eq_gen_vre3	technologies (generation/variable renewable)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_gen_vre_r	no	table_equation	8	4	eq_gen_vre_r	timesteps	1	eq_gen_vre_r2	technologies (generation/variable renewable)	2	eq_gen_vre_r3	upper spatial levels	3	eq_gen_vre_r4	lower spatial levels	4	level			5	lo			6	up			7	marginal			8
+N/A	eq_hydro_balance	no	table_equation	7	3	eq_hydro_balance	timesteps	1	eq_hydro_balance2	upper spatial levels	2	eq_hydro_balance3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_hydro_gen_max	no	table_equation	7	3	eq_hydro_gen_max	timesteps	1	eq_hydro_gen_max2	upper spatial levels	2	eq_hydro_gen_max3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_hydro_level	no	table_equation	7	3	eq_hydro_level	timesteps	1	eq_hydro_level2	upper spatial levels	2	eq_hydro_level3	technologies (storage/hydro)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_new_hydro_ecap	no	table_equation	5	1	eq_new_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_new_pcap	no	table_equation	5	1	eq_new_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_new_store_ecap	no	table_equation	5	1	eq_new_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_new_store_pcap	no	table_equation	5	1	eq_new_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_new_vre_pcap_z	no	table_equation	6	2	eq_new_vre_pcap_z	upper spatial levels	1	eq_new_vre_pcap_z2	technologies (generation/variable renewable)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_pen_gen	no	table_equation	5	1	eq_pen_gen	upper spatial levels	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_ramp_down	no	table_equation	7	3	eq_ramp_down		1	eq_ramp_down2		2	eq_ramp_down3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_ramp_up	no	table_equation	7	3	eq_ramp_up		1	eq_ramp_up2		2	eq_ramp_up3		3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_store_balance	no	table_equation	7	3	eq_store_balance	timesteps	1	eq_store_balance2	upper spatial levels	2	eq_store_balance3	technologies (storage)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_store_charge_max	no	table_equation	7	3	eq_store_charge_max	upper spatial levels	1	eq_store_charge_max2	technologies (storage)	2	eq_store_charge_max3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_store_ecap_max	no	table_equation	6	2	eq_store_ecap_max	upper spatial levels	1	eq_store_ecap_max2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_store_end_level	no	table_equation	7	3	eq_store_end_level	timesteps (last per technology and zone)	1	eq_store_end_level2	upper spatial levels	2	eq_store_end_level3	technologies (storage)	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_store_gen_max1	no	table_equation	7	3	eq_store_gen_max1	upper spatial levels	1	eq_store_gen_max12	technologies (storage)	2	eq_store_gen_max1	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_store_level	no	table_equation	7	3	eq_store_level	upper spatial levels	1	eq_store_level2	technologies (storage)	2	eq_store_level3	timesteps	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_tot_hydro_ecap	no	table_equation	5	1	eq_tot_hydro_ecap	technologies (storage/hydro)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_tot_hydro_ecap_z	no	table_equation	6	2	eq_tot_hydro_ecap_z	upper spatial levels	1	eq_tot_hydro_ecap_z2	technologies (storage/hydro)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_tot_pcap	no	table_equation	5	1	eq_tot_pcap	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_tot_pcap_z	no	table_equation	6	2	eq_tot_pcap_z	upper spatial levels	1	eq_tot_pcap_z2	technologies (generation)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_tot_store_ecap	no	table_equation	5	1	eq_tot_store_ecap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_tot_store_ecap_z	no	table_equation	6	2	eq_tot_store_ecap_z	upper spatial levels	1	eq_tot_store_ecap_z2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_tot_store_pcap	no	table_equation	5	1	eq_tot_store_pcap	technologies (storage)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level			2	lo			3	up			4	marginal			5
+N/A	eq_tot_store_pcap_z	no	table_equation	6	2	eq_tot_store_pcap_z	upper spatial levels	1	eq_tot_store_pcap_z2	technologies (storage)	2	N/A	N/A	N/A	N/A	N/A	N/A	level			3	lo			4	up			5	marginal			6
+N/A	eq_trans_bidirect	no	table_equation	7	3	eq_trans_bidirect	upper spatial levels (from zone?)	1	eq_trans_bidirect2	upper spatial levels (to zone?)	2	eq_trans_bidirect3	transmission types	3	N/A	N/A	N/A	level			4	lo			5	up			6	marginal			7
+N/A	eq_trans_flow	no	table_equation	8	4	eq_trans_flow	timesteps	1	eq_trans_flow2	upper spatial levels (from zone?)	2	eq_trans_flow3	upper spatial levels (to zone?)	3	eq_trans_flow4	transmission types	4	level			5	lo			6	up			7	marginal			8
+N/A	exist_vre_cap_r	no	table_input	4	3	vre	technologies (generation/variable renewable)	1	z	upper spatial levels	2	r	lower spatial levels	3	N/A	N/A	N/A	value			4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	flexgen	no	set	1	1	non_vre	technologies (generation/flexible)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	g	no	set	1	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_af	no	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Availability factor	%/100	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_cap2area	no	table_input	2	1	g	technologies (generation/variable renewable)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Installable capacity of technology per area	Megawatt (MW)/Kilometer (km)² divided by value of MWtoGW variable in table scalars	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_capex	no	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Investment cost of technology per power?		2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_emisfac	no	table_input	2	1	g	technologies (generation)	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Emissions of technology per energy		2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_exist_cap	no	table_input	2	1	g		1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Existing power capacity of technology	Megawatt (MW) divided by value of MWtoGW variable in table scalars	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_exist_ecap_z	no	table_input	4	3	z	upper spatial levels	1	g	technologies (storage/hydro)	2	lt	type of limit	3	N/A	N/A	N/A	value	Existing energy capacity of technology and zone	Megawatthour (MWh) divided by value of MWtoGW variable in table scalars	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+N/A	gen_exist_pcap_z	no	table_input	4	3	z	upper spatial levels	1	g		2	lt	type of limit	3	N/A	N/A	N/A	value	Existing power capacity of technology and zone	Megawatthour (MWh) divided by value of MWtoGW variable in table scalars	4	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+	gen_fom																																
+	gen_fuelcost																																
+	gen_fx_natcap																																
+	gen_inertia																																
+	gen_lim																																
+	gen_lim_ecap_z																																
+	gen_lim_pcap_z																																
+	gen_lin																																
+	gen_maxramp																																
+	gen_mindown																																
+	gen_mingen																																
+	gen_mingen_lin																																
+	gen_minup																																
+	gen_peakaf																																
+	gen_startupcost																																
+	gen_uc_int																																
+	gen_uc_lin																																
+	gen_unitsize																																
+	gen_varom																																
+	h																																
+	hfirst																																
+	hlast																																
+	hr2yr_map																																
+	hydro_inflow																																
+	hydro_res																																
+	lt																																
+	mingen_on																																
+	non_vre																																
+	o_curtail																																
+	o_emissions																																
+	o_eprice																																
+	o_gen																																
+	o_gen_sum_h																																
+	o_gen_sum_z																																
+	o_gen_sum_zone																																
+	o_gen_tot																																
+	o_grossRet_non_vre																																
+	o_grossRet_store																																
+	o_grossRet_vre																																
+	o_non_vre_gen_out																																
+	o_non_vre_gen_tot																																
+	o_nvre_cap_z_sum																																
+	o_nvre_gen_sum_z																																
+	o_pgen_tot_z																																
+	o_Residual_D																																
+	o_store_gen_all																																
+	o_store_gen_sum																																
+	o_store_gen_sum_h																																
+	o_trans_cap_sum																																
+	o_vre_cap_r_sum																																
+	o_vre_cap_z_sum																																
+	o_vre_gen_out																																
+	o_vre_gen_sum_h																																
+	o_vre_gen_sum_r																																
+	o_vre_gen_sum_r_z																																
+	o_vre_gen_sum_r_zone																																
+	o_vre_gen_sum_z																																
+	o_vre_gen_tot																																
+	r																																
+	ramp_and_mingen																																
+	ramp_on																																
+	s																																
+	s_lim																																
+	scalarequations																																
+MWtoGW	scalars	yes	variable_input	2	1	name	Name of conversion factor	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	value	Conversion factor that all values that are input in Megawatts (MW) are divided by	Megawatt (MW)	2	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A
+co2_budget	scalars	yes	variable_input																														
+emis_price	scalars	yes	variable_input																														
+pgen	scalars	yes	variable_input																														
+hydro_res_initial_fill	scalars	yes	variable_input																														
+hydro_res_min	scalars	yes	variable_input																														
+max_bidir_trans	scalars	yes																															
+now	scalars	yes	variable_output																														
+year	scalars	yes	variable_output																														
+month	scalars	yes	variable_output																														
+day	scalars	yes	variable_output																														
+hour	scalars	yes	variable_output																														
+minute	scalars	yes	variable_output																														
+cplex_absgap	scalars	yes																															
+cplex_relgap	scalars	yes																															
+o_variableC	scalars	yes																															
+o_nonVREVarC	scalars	yes																															
+o_VREVarC	scalars	yes																															
+o_transVarC	scalars	yes																															
+o_capitalC	scalars	yes																															
+o_nonVRECapC	scalars	yes																															
+o_VRECapC	scalars	yes																															
+o_transCapc	scalars	yes																															
+o_variablestoreC	scalars	yes																															
+o_capitalstoreC	scalars	yes																															
+o_capitalC_tot	scalars	yes																															
+o_variableC_tot	scalars	yes																															
+o_emissions_all	scalars	yes																															
+o_pgen_tot	scalars	yes																															
+o_gen_costs	scalars	yes																															
+costs	scalarvariables	yes	table_result	5	1	name	Name of scalar variable	1	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	N/A	level	Costs of resulting power system annualized?	x GBP 2010?	2	lo	bottom limit of costs	same as value column 1 unit	3	up	Upper limit of costs	same as value column 1 unit	4	marginal	marginal value of costs	same as value column 1 unit	5
+	store_af																																
+	store_ecapex																																
+	store_eff_in																																
+	store_eff_out																																
+	store_exist_ecap_z																																
+	store_exist_pcap_z																																
+	store_fom																																
+	store_inertia																																
+	store_lim_ecap_z																																
+	store_lim_pcap_z																																
+	store_loss_per_hr																																
+	store_max_freq																																
+	store_max_res																																
+	store_maxramp																																
+	store_mindown																																
+	store_mingen																																
+	store_minup																																
+	store_p_to_e																																
+	store_pcapex																																
+	store_startupcost																																
+	store_uc_lin																																
+	store_unitsize																																
+	store_varom																																
+	trans																																
+	trans_f																																
+	trans_line_capex																																
+	trans_links																																
+	trans_links_cap																																
+	trans_links_dist																																
+	trans_links_dist_bidir																																
+	trans_loss																																
+	trans_sub_capex																																
+	trans_varom																																
+	var_exist_hydro_ecap																																
+	var_exist_hydro_ecap_z																																
+	var_exist_pcap																																
+	var_exist_pcap_z																																
+	var_exist_store_ecap																																
+	var_exist_store_ecap_z																																
+	var_exist_store_pcap																																
+	var_exist_store_pcap_z																																
+	var_exist_vre_pcap_r																																
+	var_gen																																
+	var_hydro_in																																
+	var_hydro_level																																
+	var_hydro_spill																																
+	var_new_hydro_ecap																																
+	var_new_hydro_ecap_z																																
+	var_new_pcap																																
+	var_new_pcap_z																																
+	var_new_store_ecap																																
+	var_new_store_ecap_z																																
+	var_new_store_pcap																																
+	var_new_store_pcap_z																																
+	var_new_vre_pcap_r																																
+	var_pgen																																
+	var_store																																
+	var_store_gen																																
+	var_store_level																																
+	var_tot_hydro_ecap																																
+	var_tot_hydro_ecap_z																																
+	var_tot_pcap																																
+	var_tot_pcap_z																																
+	var_tot_store_ecap																																
+	var_tot_store_ecap_z																																
+	var_tot_store_pcap																																
+	var_tot_store_pcap_z																																
+	var_trans_flow																																
+	var_trans_pcap																																
+	var_vre_curtail																																
+	var_vre_gen_r																																
+	vre																																
+	vre_curtail																																
+	vre_gen																																
+	vre_lim																																
+	yr																																
+	z																																
