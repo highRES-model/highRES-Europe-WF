@@ -339,7 +339,7 @@ rule build_vre_cf_inputs:
 rule build_hydro_capfac:
     input:
         eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
-        hydroinstalledcap="resources/hydro_installed_cap.tsv",
+        jrchydro="resources/jrc-hydro-power-plant-database.csv",
         euroshape=rules.build_shapes.output.onshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
     output:
