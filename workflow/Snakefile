@@ -175,7 +175,7 @@ rule build_zones_file:
 rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
-        "resources/gb_ext_scenarios.xls",
+        "resources/scenarios.xls",
         "resources/highres_database.ods",
         europecountriescsvlocation="resources/europe_countries.csv",
         europedemandcsvlocation="resources/europe_demand.csv",
