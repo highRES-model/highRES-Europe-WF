@@ -64,10 +64,17 @@ corine_codes = {
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
-concatlist = []
-for spatial in spatials:
-    concatlist.append(scenarios.assign(spatials=spatial))
-scenarios = pd.concat(concatlist).reset_index(drop=True)
+scenarios=pd.DataFrame(
+		list(itertools.product(
+        inputyears,
+        spatials,
+        config["parameters"]["scenicnesss"],
+        )),
+		columns=["years","spatials","scenicnesss"])       
+
+years = scenarios.years.to_list()
+spatials = scenarios.spatials.to_list()
+scenicnesss = scenarios.scenicnesss.to_list()
 
 years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
@@ -106,7 +113,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{spatial}/"
+scenariopart = "{spatial}/{scenicness}"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -136,7 +143,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, year=years, spatial=spatials, scenicness=scenicnesss),
 
 
 rule build_cplex_opt:
@@ -239,6 +246,11 @@ rule build_vre_cf_grid:
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
+def get_landscape_visual(wildcards):
+    if wildcards.scenicness != 'low':
+        return shared_input_path / f"geodata/onshore/wimby/scenicness_{wildcards.scenicness}.tif"
+    else:
+        return []  # Return empty list
 
 rule build_vre_land_avail:
     input:
@@ -249,6 +261,7 @@ rule build_vre_land_avail:
         WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
         slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
+        landscape_visual=lambda wildcards: get_landscape_visual(wildcards),
         euroshape=rules.build_shapes.output.onshoreshape,
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
