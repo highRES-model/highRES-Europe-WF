@@ -125,20 +125,27 @@ localrules:
     build_cplex_opt,
     build_technoeconomic_inputs,
     rename_demand_file,
+    build_shapes,
     build_zones_file,
+    build_vre_land_avail,
     build_vre_areas_file,
     build_vre_file,
+    build_vre_cf_grid,
     build_vre_gdx,
     build_hydro_capfac,
     build_hydrores_inflow,
     link_hydrores_inflow,
     convert_results,
+    build_vre_cf_inputs,
     build_vre_parquet,
     build_vre_csv,
+    build_inputs,
     compress_vre_gdx,
     compress_hydrores_inflow,
     convert_results_db_parquet,
-    run_gams,
+    job_creation_model,
+    job_creation_output,
+
 
 
 rule all:
