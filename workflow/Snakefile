@@ -87,6 +87,7 @@ years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
+job_creation = config["parameters"]["job_creation"]
 
 # Get current working directory
 
@@ -648,21 +649,22 @@ rule convert_results_db_parquet:
     script:
         "scripts/convert_results_sqlite_parquet.py"
 
-rule job_creation_model:
-    params:
-        windturbines=windturbines,
-    output:
-        employmentfactors=modelpath / "employmentfactors.csv",
-    script:
-        "scripts/job_creation_pre.py"
+if job_creation == True:
+    rule job_creation_model:
+        params:
+            windturbines=windturbines,
+        output:
+            employmentfactors=modelpath / "employmentfactors.csv",
+        script:
+            "scripts/job_creation_pre.py"
 
-rule job_creation_output:
-    input:
-        resultsdb=rules.convert_results.output.resultsdb,
-        employmentfactors=rules.job_creation_model.output.employmentfactors,
-    params:
-        windturbines=windturbines,
-    output:
-        windjobs = modelpath / "windjobs.csv",
-    script:
-        "scripts/job_creation_post.py"
+    rule job_creation_output:
+        input:
+            resultsdb=rules.convert_results.output.resultsdb,
+            employmentfactors=rules.job_creation_model.output.employmentfactors,
+        params:
+            windturbines=windturbines,
+        output:
+            windjobs = modelpath / "windjobs.csv",
+        script:
+            "scripts/job_creation_post.py"
