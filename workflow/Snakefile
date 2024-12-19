@@ -673,6 +673,8 @@ if job_creation == True:
 rule build_outputs:
     input:
         rules.convert_results.output.resultsdb,
-        rules.job_creation_output.output.windjobs, if job_creation else []
+        rules.job_creation_output.output.windjobs 
+            if job_creation 
+            else []
     output:
         touch(modelpath / "outputs.finished"),
