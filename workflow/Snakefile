@@ -1,15 +1,3 @@
-# snakemake --resources mem_mb=700000 --slurm --default-resources \
-# slurm_account=ec85 runtime=4320 mem_mb_per_cpu=21000 cpus_per_task=4 \
-# --use-conda --cluster-cancel scancel --keep-going -j 120
-
-# region:
-# snakemake --resources mem_mb=700000 --slurm --default-resources \
-# slurm_account=ec85 runtime=30 mem_mb_per_cpu=1100 cpus_per_task=4 \
-# --use-conda --cluster-cancel scancel --keep-going -j 120
-
-
-# TODO: Default profile is Fox, HPC, profile
-
 
 configfile: "config/config_ci.yaml"
 
@@ -376,13 +364,6 @@ def regionsonlyforgrid(wildcards):
     return returndict
 
 
-# def build_vre_areas_file_func(wildcards):
-#    returndict = {}
-#    if wildcards.neigh != "Extreme":
-#        returndict['areaswindon'] = rules.build_weather.output.areaswindonshore
-#    return returndict
-
-
 rule build_vre_areas_file:
     input:
         areashydro=rules.build_hydro_capfac.output.areashydro,
@@ -396,20 +377,6 @@ rule build_vre_areas_file:
     notebook:
         "notebooks/highRES_build_vre_areas_file.ipynb"
 
-
-# shell:
-#     # TODO platform independence
-#     (
-#         "cat {input[areashydro]} {input[areassolar]} {input[areaswindon]} "
-#         "{input[areaswindoff]} | sort -g | cat {input[vreareaheader]} - "
-#         "{input[genericfooter]} > {output[0]}"
-#     )
-# """ run:
-#     import shutil
-#     with open('unsorted.txt','wb') as wfd:
-#         for f in [input[areashydro],input[areassolar],input[areaswindon],input[areaswindoff]]:
-#             with open(f,'rb') as fd:
-#                 shutil.copyfileobj(fd, wfd) """
 
 
 rule build_hydrores_inflow:
@@ -562,34 +529,6 @@ rule build_inputs:
     output:
         touch(modelpath / "inputs.finished"),
 
-
-# rule run_model:
-# input:
-# modelpath / "cplex.opt",
-# shared_code_path + "highres_data_input.gms",
-# shared_code_path + "highres_hydro.gms",
-# shared_code_path + "highres_results.gms",
-# shared_code_path + "highres_storage_setup.gms",
-# shared_code_path + "highres_storage_uc_setup.gms",
-# shared_code_path + "highres_uc_setup.gms",
-# modelpath / "inputs.finished",
-# modelpath / "vre_{year}_.gdx",
-# gamsfile="resources/highRES-Europe-GAMS/highres.gms",
-# params:
-# gamspath=gamspath,
-# modelpath=str(modelpath),
-# co2intensity=co2target,
-# sharedcodepath=abs_shared_code_path,
-# # retries: 3
-# log:
-# str(modelpath) + "/highres.lst",
-# str(modelpath) + "/highres.log",
-# output:
-# modelresults=protected(modelpath / "results.gdx"),
-# modelresultsdd=protected(modelpath / "results.db"),
-# script:
-# # TODO platform independence
-# "scripts/run_gams.sh"
 
 
 rule run_gams:
