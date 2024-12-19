@@ -74,6 +74,8 @@ corine_codes = {
     "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
 
+windturbines = config["parameters"]["windturbines"]
+
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
 concatlist = []
@@ -85,6 +87,7 @@ years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
+job_creation = config["parameters"]["job_creation"]
 
 # Get current working directory
 
@@ -144,6 +147,9 @@ localrules:
     compress_hydrores_inflow,
     convert_results_db_parquet,
     run_gams,
+    job_creation_model,
+    job_creation_output,
+    build_outputs,
 
 
 rule all:
@@ -248,6 +254,7 @@ rule build_vre_cf_grid:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
+        windturbines=windturbines,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
@@ -642,3 +649,32 @@ rule convert_results_db_parquet:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
+
+if job_creation == True:
+    rule job_creation_model:
+        params:
+            windturbines=windturbines,
+        output:
+            employmentfactors=modelpath / "employmentfactors.csv",
+        script:
+            "scripts/job_creation_pre.py"
+
+    rule job_creation_output:
+        input:
+            resultsdb=rules.convert_results.output.resultsdb,
+            employmentfactors=rules.job_creation_model.output.employmentfactors,
+        params:
+            windturbines=windturbines,
+        output:
+            windjobs = modelpath / "windjobs.csv",
+        script:
+            "scripts/job_creation_post.py"
+
+rule build_outputs:
+    input:
+        rules.convert_results.output.resultsdb,
+        rules.job_creation_output.output.windjobs 
+            if job_creation 
+            else []
+    output:
+        touch(modelpath / "outputs.finished"),
