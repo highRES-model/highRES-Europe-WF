@@ -20,6 +20,11 @@ parameters:
     "region",
     # "nuts2",
   ]
+  scenicnesss: [
+    #"low",
+    "medium",
+    #"high",
+  ]
   bias_correction: False
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
