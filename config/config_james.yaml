@@ -21,6 +21,11 @@ parameters:
     # "region",
      "nuts2",
   ]
+  scenicnesss: [
+    #"low",
+    "medium",
+    #"high",
+  ]
   bias_correction: False
   elevation_excl: False
   cutoff_solar: 0.09
