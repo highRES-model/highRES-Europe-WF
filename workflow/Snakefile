@@ -173,7 +173,6 @@ rule build_technoeconomic_inputs:
         "envs/build_technoeconomic.yml"
     output:
         modelpath / "{year}_temporal.dd",
-        modelpath / "BASE_co2_budget.dd",
         modelpath / "BASE_gen.dd",
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
@@ -522,7 +521,6 @@ rule build_inputs:
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
-        modelpath / "BASE_co2_budget.dd",
         modelpath / "BASE_gen.dd",
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
