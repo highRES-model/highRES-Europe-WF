@@ -107,3 +107,13 @@ parameters:
   co2target : [
     0 # gCO2/kWh
   ]
+
+cplex_options:
+  lpmethod: 4
+  solutiontype: 2
+  threads: 4
+  predual: -1
+  aggind: 50
+  BarColNZ: 150
+  barstartalg: 3
+  BarOrder: 3
