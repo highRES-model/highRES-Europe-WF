@@ -89,13 +89,13 @@ jobs:
         if: steps.cache-resources.outputs.cache-hit != 'true'
         run: |
           mkdir -p resources
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1&preview=1" | zstd -d - | tar x -C resources
+          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" -o resources && unzip -d resources resources.zip
           
       - name: Download & Extract shared_input
         if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
         run: |
           mkdir -p shared_input
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1&preview=1" | tar x -C shared_input
+          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" -o shared_input && unzip -d shared_input shared_input.zip
         
       - name: Test snakemake workflow
         run: |
