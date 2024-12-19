@@ -73,6 +73,7 @@ years = scenarios.years.to_list()
 spatials = scenarios.spatials.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
+elevation_excl = config["parameters"]["elevation_excl"]
 
 # Get current working directory
 
@@ -289,6 +290,7 @@ rule build_vre_land_avail:
         aggregated_regions=aggregated_regions,
         cutoffs=cutoff_values,
         corine_codes=corine_codes,
+elevation_excl=elevation_excl,
     notebook:
         "notebooks/highRES-build_vre_land_avail.ipynb"
 
