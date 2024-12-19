@@ -104,6 +104,11 @@ parameters:
     2 : 1000,
     6 : 5000,
   }
+  windturbines : {
+    "onshore" : "Vestas_V112_3MW",
+    "offshore_bottom" : "oedb:V164",
+    "offshore_float" : "oedb:V164",
+  }
   co2target : [
     0 # gCO2/kWh
   ]
