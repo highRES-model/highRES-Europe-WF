@@ -149,6 +149,7 @@ localrules:
     run_gams,
     job_creation_model,
     job_creation_output,
+    build_outputs,
 
 
 rule all:
@@ -668,3 +669,10 @@ if job_creation == True:
             windjobs = modelpath / "windjobs.csv",
         script:
             "scripts/job_creation_post.py"
+
+rule build_outputs:
+    input:
+        rules.convert_results.output.resultsdb,
+        rules.job_creation_output.output.windjobs, if job_creation else []
+    output:
+        touch(modelpath / "outputs.finished"),
