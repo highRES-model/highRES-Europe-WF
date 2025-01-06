@@ -1,5 +1,5 @@
 
-configfile: "config/config_oskar.yaml"
+configfile: "config/config_ci.yaml"
 
 
 import itertools
