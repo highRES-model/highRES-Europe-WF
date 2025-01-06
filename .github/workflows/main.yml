@@ -96,6 +96,9 @@ jobs:
         run: |
           mkdir -p shared_input
           curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" -o shared_input.zip && unzip -d shared_input shared_input.zip
+          # Move contents up if nested
+          mv shared_input/shared_input/* shared_input/ || true
+          rm -r shared_input/shared_input || true
         
       - name: Test snakemake workflow
         run: |
