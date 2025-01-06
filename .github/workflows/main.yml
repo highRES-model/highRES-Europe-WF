@@ -89,7 +89,8 @@ jobs:
         if: steps.cache-resources.outputs.cache-hit != 'true'
         run: |
           mkdir -p resources
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" -o resources.zip && unzip -d resources resources.zip
+          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" -o resources.zip && unzip -d resources_temp resources.zip
+          mv resources/resources resources/resources_ci
           
       - name: Download & Extract shared_input
         if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
