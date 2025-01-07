@@ -9,7 +9,10 @@ args = [
     "--codefolderpath="+str(snakemake.params.sharedcodepath),
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
-    "--outname="+snakemake.params.outname
+    "--codefolderpath=" + str(snakemake.params.sharedcodepath),
+    #"--vre_restrict="+str(snakemake.wildcards.quantile),
+    # "--fx_trans="+snakemake.wildcards.fix_trans,
+    # "--outname="+snakemake.params.outname
 ]
 
 process = subprocess.Popen(
