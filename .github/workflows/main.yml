@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -89,7 +89,7 @@ jobs:
         if: steps.cache-resources.outputs.cache-hit != 'true'
         run: |
           mkdir -p resources
-          curl -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EbnzXa6zZZlLqsULAlq_likBrY9oxQ4ZA75Jy9Eo_cPi9g?e=VZOsuU&download=1" | zstd -d - | tar x -C resources
+          curl -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EbnzXa6zZZlLqsULAlq_likBrY9oxQ4ZA75Jy9Eo_cPi9g?e=VZOsuU&download=1" | zstd -d - | tar x --wildcards '*/resources_ci/*' -C resources
           
       - name: Download & Extract shared_input
         if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
