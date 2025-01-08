@@ -85,21 +85,21 @@ jobs:
           cache-environment: true
           cache-downloads: true
 
+      - name: Install bsdtar tool
+        if: steps.cache-resources.outputs.cache-hit != 'true' || steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libarchive-tools
+
       - name: Download & Extract resources
         if: steps.cache-resources.outputs.cache-hit != 'true'
         run: |
-          mkdir -p resources
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" -o resources.zip && unzip -d resources resources.zip
-          mv resources/resources/* resources/ || true
+          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" | bsdtar -xvf-
           
       - name: Download & Extract shared_input
         if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
         run: |
-          mkdir -p shared_input
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" -o shared_input.zip && unzip -d shared_input shared_input.zip
-          # Move contents up if nested
-          mv shared_input/shared_input/* shared_input/ || true
-          rm -r shared_input/shared_input || true
+          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" | bsdtar -xvf-
         
       - name: Test snakemake workflow
         run: |
