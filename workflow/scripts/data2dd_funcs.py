@@ -313,7 +313,7 @@ def scen2dd(
     exist_cap=False,
     exist_agg="region",
 ):
-    co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
+    #co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
     scen = pd.read_excel(scen_db, sheet_name="scenario_tech_definition", skiprows=0)
 
