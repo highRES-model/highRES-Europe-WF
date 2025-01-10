@@ -546,7 +546,7 @@ rule run_gams:
         modelpath=str(modelpath),
         co2intensity=config["parameters"]["co2target"][0],
         sharedcodepath=abs_gams_code_path,
-        outname="results.gdx",
+        outname="results",
     resources:
         mem_mb=50000,
     log:
