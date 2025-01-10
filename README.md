@@ -8,10 +8,10 @@ highRES is written in GAMS and its objective is to minimise power system investm
 
 ## Getting started
 
-To run the full workflow, two datapackages are needed they can be downloaded from:
+To run the full workflow, two datapackages are needed they can be downloaded from [Zenodo](https://zenodo.org/records/14223618):
 
-1. (~80MB compressed, ~300MB uncompressed) <https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1>.
-2. (~10GB) <https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1>
+1. Resources (3.1 MB compressed, 6.3 MB uncompressed) <https://zenodo.org/records/14223618/files/resources.zip?download=1>.
+2. Shared input (4.4 GB) <https://zenodo.org/records/14223618/files/shared_input.zip?download=1>
 
 ## Windows
 1. Clone the repository
@@ -29,15 +29,13 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 4. Navigate to the repository in your snakemake conda environment shell
 5. Get the required input files
     ```
-   curl -o shared_input.tar -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1" -o resources.tar.zst -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1"
+   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" 
+   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1"
    ```
 6. Extract the required input files
     ```
-    zstd -d resources.tar.zst
-    mkdir resources
-    tar xf resources.tar -C resources
-    mkdir shared_input
-    tar xf shared_input.tar -C shared_input
+    unzip resources.zip
+    unzip shared_input.zip
     ```
 7. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
 8. Run `snakemake -c all --use-conda`
