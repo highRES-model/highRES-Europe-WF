@@ -9,6 +9,7 @@ args = [
     "--codefolderpath="+str(snakemake.params.sharedcodepath),
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
+    "--codefolderpath=" + str(snakemake.params.sharedcodepath),
     "--outname="+snakemake.params.outname
 ]
 
