@@ -21,6 +21,7 @@ parameters:
     # "nuts2",
   ]
   bias_correction: False
+  elevation_excl: False
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
   cutoff_offwind: 0.20
