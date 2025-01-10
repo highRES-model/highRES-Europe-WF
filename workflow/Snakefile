@@ -165,10 +165,10 @@ rule build_zones_file:
 rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
-        "resources/gb_ext_scenarios.xls",
-        "resources/highres_gb_ext_database.ods",
+        "resources/highres_scenarios.xls",
+        "resources/highres_technoeconomic_database.ods",
         europecountriescsvlocation="resources/europe_countries.csv",
-        europedemandcsvlocation="resources/europe_demand_2006-2015.csv",
+        europedemandcsvlocation="resources/europe_demand.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
