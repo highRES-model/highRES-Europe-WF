@@ -28,14 +28,6 @@ jobs:
             shared_input
           key: shared_inputs
 
-      - name: Cache resources folders
-        id: cache-resources
-        uses: actions/cache@v4
-        with:
-          path: |
-            resources
-          key: resources
-      
       - name: Cache GAMS
         id: cache-gams
         uses: actions/cache@v4
@@ -86,13 +78,11 @@ jobs:
           cache-downloads: true
 
       - name: Install bsdtar tool
-        if: steps.cache-resources.outputs.cache-hit != 'true' || steps.cache-shared-inputs.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install libarchive-tools
 
       - name: Download & Extract resources
-        if: steps.cache-resources.outputs.cache-hit != 'true'
         run: |
           curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" | bsdtar -xvf-
           
