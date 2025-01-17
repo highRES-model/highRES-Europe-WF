@@ -24,8 +24,8 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
     - Download miniforge windows exe <https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe>
     - Install Miniforge
     - Open Miniforge Prompt from the start menu
-    - Run the minimal install of the snakemake environment `mamba create -c bioconda -c conda-forge -n snakemake snakemake-minimal pandas zstd`
-3. Activate the snakemake environment `mamba activate snakemake`
+    - Install the environment from the provided yaml file `mamba env create -f workflow/envs/highres_environment.yaml`
+3. Activate the snakemake environment `mamba activate highres`
 4. Navigate to the repository in your snakemake conda environment shell
 5. Get the required input files
     ```
@@ -38,7 +38,7 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
     unzip shared_input.zip
     ```
 7. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
-8. Run `snakemake -c all --use-conda`
+8. Run `snakemake -c all`
 
 
 ## Documentation 
