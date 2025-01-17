@@ -29,8 +29,8 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 4. Navigate to the repository in your snakemake conda environment shell
 5. Get the required input files
     ```
-   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" 
-   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1"
+   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" --output resources.zip
+   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" --output shared_input.zip
    ```
 6. Extract the required input files
     ```
