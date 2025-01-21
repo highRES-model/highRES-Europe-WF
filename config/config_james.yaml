@@ -22,8 +22,8 @@ parameters:
      "nuts2",
   ]
   scenicnesss: [
-    #"low",
-    "medium",
+    "low",
+    #"medium",
     #"high",
   ]
   bias_correction: False
