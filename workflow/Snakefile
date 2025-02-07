@@ -62,6 +62,10 @@ corine_codes = {
     "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
 
+windturbines = config["parameters"]["windturbines"]
+
+windturbines = config["parameters"]["windturbines"]
+
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
 concatlist = []
@@ -236,6 +240,7 @@ rule build_vre_cf_grid:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
+        windturbines=windturbines,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
