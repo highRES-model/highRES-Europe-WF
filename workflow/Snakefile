@@ -7,7 +7,7 @@ import itertools
 import pandas as pd
 import pathlib
 
-date_range = ["01-01", "12-31"]
+date_range = config["parameters"]["date_range"]
 
 user_mode = config["parameters"]["mode"][0]
 
