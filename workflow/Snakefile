@@ -39,6 +39,8 @@ corine_codes = {
     "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
 
+
+
 windturbines = config["parameters"]["windturbines"]
 wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
