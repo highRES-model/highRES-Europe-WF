@@ -64,8 +64,6 @@ corine_codes = {
 
 windturbines = config["parameters"]["windturbines"]
 
-windturbines = config["parameters"]["windturbines"]
-
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
 concatlist = []
