@@ -26,6 +26,7 @@ parameters:
   cutoff_solar: 0.09
   cutoff_onwind: 0.1
   cutoff_offwind: 0.20
+  date_range: ["01-01", "12-31"]
   aggregated_regions: [
     "AT",
     "BE",
