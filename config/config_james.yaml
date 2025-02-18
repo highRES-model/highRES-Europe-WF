@@ -108,8 +108,8 @@ parameters:
   }
   windturbines : {
     "onshore" : "Vestas_V112_3MW",
-    "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_5.5MW",
-    "offshore_float" : "NREL_ReferenceTurbine_2020ATB_5.5MW",
+    "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
+    "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
   }
   co2target : [
     0 # gCO2/kWh
