@@ -24,6 +24,9 @@ pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
 
 spatials = config["parameters"]["spatials"]
 
+social_scenario = config["parameters"]["social"]
+environmental_scenario = config["parameters"]["environmental"]
+
 cutoff_values = {
     "solar": config["parameters"]["cutoff_solar"],
     "onwind": config["parameters"]["cutoff_onwind"],
@@ -38,15 +41,14 @@ corine_codes = {
 
 windturbines = config["parameters"]["windturbines"]
 
-scenarios = pd.DataFrame(inputyears, columns=["years"])
+# Generate all combinations of years, spatials, social, and environmental scenarios
+combinations = list(itertools.product(inputyears, spatials, social_scenario, environmental_scenario))
+scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "social", "environmental"])
 
-concatlist = []
-for spatial in spatials:
-    concatlist.append(scenarios.assign(spatials=spatial))
-scenarios = pd.concat(concatlist).reset_index(drop=True)
-
-years = scenarios.years.to_list()
-spatials = scenarios.spatials.to_list()
+years = scenarios.year.to_list()
+spatials = scenarios.spatial.to_list()
+socials = scenarios.social.to_list()
+environmentals = scenarios.environmental.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -82,7 +84,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to the built model and built inputs
 yearonlypart = "models/{year}/"
-scenariopart = "{spatial}/"
+scenariopart = "{spatial}/{socials}_{environmentals}"
 modelpathyearonly = resultspath / yearonlypart
 modelpath = modelpathyearonly / scenariopart
 allyearpath = resultspath / "models/allyears/"
@@ -111,7 +113,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, year=years, spatial=spatials, socials=socials, environmentals=environmentals),
 
 
 rule build_cplex_opt:
@@ -209,6 +211,9 @@ rule build_vre_land_avail:
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
         slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
+        social_excl=shared_input_path / "geodata/onshore/wimby/social_{socials}.tif",
+        env_excl=shared_input_path / "geodata/onshore/wimby/environmental_{environmentals}.tif",
+        techn_excl=shared_input_path / "geodata/onshore/wimby/technical_exclusions.tif",
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         cfdata=rules.build_vre_cf_grid.output.cf_file,
