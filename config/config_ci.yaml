@@ -27,6 +27,13 @@ parameters:
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
   cutoff_offwind: 0.20
+  co2target: 2 # gCO2/kWh
+  emis_price: 0
+  store_initial_level: 0.5
+  store_final_level: 0.5
+  hydro_res_initial_fill: 0.8
+  hydro_res_min: 0.5
+  pgen: 20.0
   date_range: ["01-01", "06-30"]
   aggregated_regions: [
     #"AT",
@@ -112,9 +119,6 @@ parameters:
     "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
     "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
   }
-  co2target : [
-    2 # gCO2/kWh
-  ]
 
 cplex_options:
   lpmethod: 4

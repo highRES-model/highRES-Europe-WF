@@ -549,9 +549,15 @@ rule run_gams:
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),
-        co2intensity=config["parameters"]["co2target"][0],
+        co2intensity=config["parameters"]["co2target"],
         sharedcodepath=abs_gams_code_path,
         outname="results",
+        store_initial_level = config["parameters"]["store_initial_level"],
+        store_final_level = config["parameters"]["store_final_level"],
+        hydro_res_initial_fill = config["parameters"]["hydro_res_initial_fill"],
+        hydro_res_min = config["parameters"]["hydro_res_min"],
+        pgen = config["parameters"]["pgen"],
+        emis_price = config["parameters"]["emis_price"],
     resources:
         mem_mb=50000,
     log:

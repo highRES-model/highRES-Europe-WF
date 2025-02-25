@@ -10,7 +10,13 @@ args = [
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
     "--codefolderpath=" + str(snakemake.params.sharedcodepath),
-    "--outname="+snakemake.params.outname
+    "--outname=" + snakemake.params.outname,
+    "--store_initial_level=" + str(snakemake.params.store_initial_level),
+    "--store_final_level=" + str(snakemake.params.store_final_level),
+    "--hydro_res_initial_fill=" + str(snakemake.params.hydro_res_initial_fill),
+    "--hydro_res_min=" + str(snakemake.params.hydro_res_min),
+    "--pgen=" + str(snakemake.params.pgen),
+    "--emis_price=" + str(snakemake.params.emis_price)
 ]
 
 process = subprocess.Popen(
