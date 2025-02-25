@@ -19,7 +19,15 @@ parameters:
   spatials: [
     # "grid",
     # "region",
-     "nuts2",
+    "nuts2",
+  ]
+  environmental: [
+    #"medium",
+    "high",
+  ]
+  social: [
+    #"medium",
+    "high",
   ]
   bias_correction: False
   elevation_excl: False
@@ -112,7 +120,7 @@ parameters:
     "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
   }
   co2target : [
-    0 # gCO2/kWh
+    2 # gCO2/kWh
   ]
 
 cplex_options:
