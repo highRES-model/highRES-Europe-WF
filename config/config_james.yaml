@@ -22,13 +22,16 @@ parameters:
     "nuts2",
   ]
   environmental: [
-    #"medium",
+    "low",
     "high",
   ]
   social: [
-    #"medium",
+    "low,
     "high",
   ]
+  
+  wimby_outputs: False
+  
   bias_correction: False
   elevation_excl: False
   cutoff_solar: 0.09
@@ -126,9 +129,10 @@ parameters:
 cplex_options:
   lpmethod: 4
   solutiontype: 2
-  threads: 4
-  predual: -1
+  threads: 8
+  predual: 1
   aggind: 50
   BarColNZ: 150
   barstartalg: 3
-  BarOrder: 3
+  BarOrder: 0
+  barepcomp: 1E-7
