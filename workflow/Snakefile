@@ -53,6 +53,8 @@ environmentals = scenarios.environmental.to_list()
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
 
+wimby_outputs=config["parameters"]["wimby_outputs"]
+
 # Get current working directory
 
 cwd = pathlib.Path().resolve()
@@ -284,8 +286,14 @@ rule build_vre_cf_inputs:
             if user_mode == "developer"
             else temp(modelpath / "areas_wind_offshore.csv")
         ),
+        wimby_outputs=(
+            modelpath / "wimby_outputs.csv"
+            if wimby_outputs
+            else []
+        ),
     params:
         date_range=date_range,
+        wimby_outputs=wimby_outputs,
     notebook:
         "notebooks/highRES-build_vre_cf_inputs.ipynb"
 
