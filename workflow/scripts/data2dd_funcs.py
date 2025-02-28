@@ -524,8 +524,12 @@ def euro_demand2dd(
 
 
     d = pd.read_csv(europedemandcsvlocation)
-
-    d["datetime"] = pd.to_datetime(d["datetime"])
+    
+    try:
+        d["datetime"] = pd.to_datetime(d["datetime"],format="%d/%m/%Y %H:%M")
+    except ValueError:
+        d["datetime"] = pd.to_datetime(d["datetime"],format="%Y-%m-%d %H:%M:%S")
+        
     d = d.set_index("datetime")
 
     d = d.loc[:, d.columns.isin(aggregated_regions)]
