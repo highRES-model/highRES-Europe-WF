@@ -21,32 +21,6 @@ aggregated_regions = config["parameters"]["aggregated_regions"]
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
     "resources/zones.csv", index=None
 )
-# TODO: maybe at some stage remove the need for this redundant file
-pd.DataFrame(aggregated_regions).assign(
-    Country="",
-    ISO3="",
-    ETM=1,
-    ETM_reg="",
-    EU_simpl="",
-    gb_ext="",
-    UTC="",
-    JRC_EUTIMES="",
-).rename(columns={0: "ISO2"}).loc[
-    :,
-    [
-        "Country",
-        "ISO3",
-        "ISO2",
-        "ETM",
-        "ETM_reg",
-        "EU_simpl",
-        "gb_ext",
-        "UTC",
-        "JRC_EUTIMES",
-    ],
-].to_csv(
-    "resources/europe_countries.csv", index=None
-)
 
 spatials = config["parameters"]["spatials"]
 
@@ -169,7 +143,6 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europecountriescsvlocation="resources/europe_countries.csv",
         europedemandcsvlocation="resources/europe_demand.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:

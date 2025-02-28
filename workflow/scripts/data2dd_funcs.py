@@ -511,7 +511,7 @@ def scen2dd(
 
 def euro_demand2dd(
     europedemandcsvlocation,
-    europecountriescsvlocation,
+    aggregated_regions,
     dpath,
     opath,
     dstart,
@@ -522,24 +522,20 @@ def euro_demand2dd(
     rescale="annual",
     zones="yes",
 ):
-    # 2010 demand is ~ 3216 TWh over the 31 countries in ETM
-    #
 
-    countries = pd.read_csv(europecountriescsvlocation)
-    # pd.read_csv(dpath/"zonal_def"/"europe_countries.csv")
-
-    c_sel = countries.loc[countries["ETM"] == 1, "ISO2"]
 
     d = pd.read_csv(europedemandcsvlocation)
 
     d["datetime"] = pd.to_datetime(d["datetime"])
     d = d.set_index("datetime")
 
-    d = d.loc[:, d.columns.isin(c_sel)]
+    d = d.loc[:, d.columns.isin(aggregated_regions)]
 
     d = d[dstart:dstop]
 
-    if d.shape[1] != c_sel.shape[0]:
+    # TODO a better warning than below
+
+    if d.shape[1] != len(aggregated_regions):
         print("Countries missing...")
 
     d[(d == 0)] = np.nan
