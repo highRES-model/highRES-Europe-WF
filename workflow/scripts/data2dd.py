@@ -129,5 +129,4 @@ for yr in years:
         scen_db,
         esys_scen,
         yr,
-        "norescale",
     )

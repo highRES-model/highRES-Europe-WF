@@ -519,7 +519,6 @@ def euro_demand2dd(
     scen_db,
     esys_scen,
     yr,
-    rescale="annual",
     zones="yes",
 ):
 
@@ -551,23 +550,6 @@ def euro_demand2dd(
     if calendar.isleap(yr):
         d = pd.concat((d, d.iloc[0:24, :]))
 
-    if rescale == "annual":
-        out_flg = "annual"
-        if d.shape[0] >= 8760.0:
-            scen = pd.read_excel(scen_db, sheet_name="scenario_annual_dem", skiprows=0)
-
-            euro31_dem = scen[scen["Esys Scenario"] == esys_scen][
-                "Annual demand (2050)"
-            ].iloc[0]
-
-            d = d * (euro31_dem * 1e6 / d.sum().sum())
-
-    #        else:
-    #            dem_scaling=1.511
-    #            demand=demand*dem_scaling
-
-    else:
-        out_flg = "norescale"
 
     t = np.arange(d.shape[0])
     z = d.columns.values
@@ -576,5 +558,5 @@ def euro_demand2dd(
         data2dd(d.values.T, [z, t], all_combin=True),
         "demand",
         "parameter",
-        outfile=opath / (esys_scen + "_" + out_flg + "_demand_" + str(yr) + ".dd"),
+        outfile=opath / (esys_scen + "_demand_" + str(yr) + ".dd"),
     )

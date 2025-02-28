@@ -93,7 +93,6 @@ localrules:
     all,
     build_cplex_opt,
     build_technoeconomic_inputs,
-    rename_demand_file,
     build_zones_file,
     build_vre_areas_file,
     build_vre_file,
@@ -152,29 +151,13 @@ rule build_technoeconomic_inputs:
         modelpath / "BASE_gen.dd",
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
-        demandfile=(
-            modelpath / "BASE_norescale_demand_{year}.dd"
-            if user_mode == "developer"
-            else temp(modelpath / "BASE_norescale_demand_{year}.dd")
-        ),
+        demandfile=modelpath / "BASE_demand_{year}.dd",
     params:
         aggregated_regions=aggregated_regions,
         date_range=date_range,
         user_mode=user_mode,
     script:
         "scripts/data2dd.py"
-
-
-rule rename_demand_file:
-    input:
-        rules.build_technoeconomic_inputs.output.demandfile,
-    output:
-        modelpath / "BASE_demand_{year}.dd",
-    run:
-        import shutil
-
-        shutil.copy2(input[0], output[0])
-
 
 rule build_shapes:
     input:
@@ -495,7 +478,7 @@ rule build_inputs:
         modelpath / "zones.dd",
         modelpath / "{year}_temporal.dd",
         modelpath / "vre_areas_{year}_.dd",
-        modelpath / "BASE_demand_{year}.dd",
+        rules.build_technoeconomic_inputs.output.demandfile,
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
