@@ -189,7 +189,7 @@ rule build_technoeconomic_inputs:
         date_range=date_range,
         user_mode=user_mode,
     script:
-        "scripts/gb_ext_data2dd.py"
+        "scripts/data2dd.py"
 
 
 rule rename_demand_file:
