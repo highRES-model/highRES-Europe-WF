@@ -21,32 +21,6 @@ aggregated_regions = config["parameters"]["aggregated_regions"]
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
     "resources/zones.csv", index=None
 )
-# TODO: maybe at some stage remove the need for this redundant file
-pd.DataFrame(aggregated_regions).assign(
-    Country="",
-    ISO3="",
-    ETM=1,
-    ETM_reg="",
-    EU_simpl="",
-    gb_ext="",
-    UTC="",
-    JRC_EUTIMES="",
-).rename(columns={0: "ISO2"}).loc[
-    :,
-    [
-        "Country",
-        "ISO3",
-        "ISO2",
-        "ETM",
-        "ETM_reg",
-        "EU_simpl",
-        "gb_ext",
-        "UTC",
-        "JRC_EUTIMES",
-    ],
-].to_csv(
-    "resources/europe_countries.csv", index=None
-)
 
 spatials = config["parameters"]["spatials"]
 
@@ -119,7 +93,6 @@ localrules:
     all,
     build_cplex_opt,
     build_technoeconomic_inputs,
-    rename_demand_file,
     build_zones_file,
     build_vre_areas_file,
     build_vre_file,
@@ -180,9 +153,9 @@ rule build_technoeconomic_inputs:
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
         demandfile=(
-            modelpath / "BASE_norescale_demand_{year}.dd"
+            modelpath / "BASE_demand_{year}.dd"
             if user_mode == "developer"
-            else temp(modelpath / "BASE_norescale_demand_{year}.dd")
+            else temp(modelpath / "BASE_demand_{year}.dd")
         ),
     params:
         aggregated_regions=aggregated_regions,
@@ -190,18 +163,6 @@ rule build_technoeconomic_inputs:
         user_mode=user_mode,
     script:
         "scripts/data2dd.py"
-
-
-rule rename_demand_file:
-    input:
-        rules.build_technoeconomic_inputs.output.demandfile,
-    output:
-        modelpath / "BASE_demand_{year}.dd",
-    run:
-        import shutil
-
-        shutil.copy2(input[0], output[0])
-
 
 rule build_shapes:
     input:

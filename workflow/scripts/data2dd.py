@@ -121,7 +121,7 @@ for yr in years:
 
     euro_demand2dd(
         snakemake.input["europedemandcsvlocation"],
-        snakemake.input["europecountriescsvlocation"],
+        snakemake.params.aggregated_regions,
         root,
         root / out,
         dstart,
@@ -129,5 +129,4 @@ for yr in years:
         scen_db,
         esys_scen,
         yr,
-        "norescale",
     )

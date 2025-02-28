@@ -511,35 +511,33 @@ def scen2dd(
 
 def euro_demand2dd(
     europedemandcsvlocation,
-    europecountriescsvlocation,
+    aggregated_regions,
     dpath,
     opath,
     dstart,
     dstop,
     scen_db,
     esys_scen,
-    yr,
-    rescale="annual",
-    zones="yes",
+    yr
 ):
-    # 2010 demand is ~ 3216 TWh over the 31 countries in ETM
-    #
 
-    countries = pd.read_csv(europecountriescsvlocation)
-    # pd.read_csv(dpath/"zonal_def"/"europe_countries.csv")
-
-    c_sel = countries.loc[countries["ETM"] == 1, "ISO2"]
 
     d = pd.read_csv(europedemandcsvlocation)
-
-    d["datetime"] = pd.to_datetime(d["datetime"])
+    
+    try:
+        d["datetime"] = pd.to_datetime(d["datetime"],format="%d/%m/%Y %H:%M")
+    except ValueError:
+        d["datetime"] = pd.to_datetime(d["datetime"],format="%Y-%m-%d %H:%M:%S")
+        
     d = d.set_index("datetime")
 
-    d = d.loc[:, d.columns.isin(c_sel)]
+    d = d.loc[:, d.columns.isin(aggregated_regions)]
 
     d = d[dstart:dstop]
 
-    if d.shape[1] != c_sel.shape[0]:
+    # TODO a better warning than below
+
+    if d.shape[1] != len(aggregated_regions):
         print("Countries missing...")
 
     d[(d == 0)] = np.nan
@@ -552,26 +550,11 @@ def euro_demand2dd(
 
         print("Zero demands for: ", d.columns[pd.isnull(d).any(axis=0)])
 
-    if calendar.isleap(yr):
+    # TODO check this leap year stuff is actually working
+
+    if calendar.isleap(yr) and d.shape[0]!=8784:
         d = pd.concat((d, d.iloc[0:24, :]))
 
-    if rescale == "annual":
-        out_flg = "annual"
-        if d.shape[0] >= 8760.0:
-            scen = pd.read_excel(scen_db, sheet_name="scenario_annual_dem", skiprows=0)
-
-            euro31_dem = scen[scen["Esys Scenario"] == esys_scen][
-                "Annual demand (2050)"
-            ].iloc[0]
-
-            d = d * (euro31_dem * 1e6 / d.sum().sum())
-
-    #        else:
-    #            dem_scaling=1.511
-    #            demand=demand*dem_scaling
-
-    else:
-        out_flg = "norescale"
 
     t = np.arange(d.shape[0])
     z = d.columns.values
@@ -580,5 +563,5 @@ def euro_demand2dd(
         data2dd(d.values.T, [z, t], all_combin=True),
         "demand",
         "parameter",
-        outfile=opath / (esys_scen + "_" + out_flg + "_demand_" + str(yr) + ".dd"),
+        outfile=opath / (esys_scen + "_demand_" + str(yr) + ".dd"),
     )
