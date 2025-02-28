@@ -518,8 +518,7 @@ def euro_demand2dd(
     dstop,
     scen_db,
     esys_scen,
-    yr,
-    zones="yes",
+    yr
 ):
 
 
