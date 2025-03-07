@@ -11,6 +11,8 @@ date_range = config["parameters"]["date_range"]
 
 user_mode = config["parameters"]["mode"][0]
 
+include_rooftop=config["parameters"]["include_rooftop"]
+
 inputyears = config["parameters"]["years"]
 
 # TODO: make grid_regions work
@@ -258,6 +260,7 @@ rule build_vre_land_avail:
         cutoffs=cutoff_values,
         corine_codes=corine_codes,
         elevation_excl=elevation_excl,
+        include_rooftop=include_rooftop,
     notebook:
         "notebooks/highRES-build_vre_land_avail.ipynb"
 
@@ -266,6 +269,7 @@ rule build_vre_cf_inputs:
     input:
         cf_file=rules.build_vre_cf_grid.output.cf_file,
         grid_areas=rules.build_vre_land_avail.output.grid_areas,
+        rooftop_areas="resources/rooftop_pv_km2.csv",
     output:
         capfacfile=(
             modelpath / "capacity-factors_solar_{year}.csv"
@@ -294,6 +298,7 @@ rule build_vre_cf_inputs:
         ),
     params:
         date_range=date_range,
+        include_rooftop=include_rooftop,
         wimby_outputs=wimby_outputs,
     notebook:
         "notebooks/highRES-build_vre_cf_inputs.ipynb"
