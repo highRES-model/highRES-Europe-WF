@@ -95,7 +95,7 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate highres
-          snakemake -c all
+          snakemake -c all --configfile=config/config_ci.yaml
       
       - name: Archive log files
         if: always()
