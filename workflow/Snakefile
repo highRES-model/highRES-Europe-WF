@@ -1,5 +1,5 @@
 
-configfile: "config/config_ci.yaml"
+
 
 
 import itertools
@@ -119,6 +119,7 @@ rule all:
 rule build_cplex_opt:
     output:
         modelpath / "cplex.opt",
+    params: config["cplex_options"],
     run:
         cplex_options = config["cplex_options"]
 

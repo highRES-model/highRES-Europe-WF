@@ -21,8 +21,28 @@ parameters:
     # "region",
      "nuts2",
   ]
+  environmental: [
+    #"low",
+    "high",
+  ]
+  social: [
+    #"low",
+    "high",
+  ]
+  
+  wimby_outputs: False
+  include_rooftop: True
+  
   bias_correction: False
   elevation_excl: False
+  
+  emis_price: 0
+  store_initial_level: 0.5
+  store_final_level: 0.5
+  hydro_res_initial_fill: 0.8
+  hydro_res_min: 0.5
+  pgen: 20.0
+  
   cutoff_solar: 0.09
   cutoff_onwind: 0.1
   cutoff_offwind: 0.20
@@ -118,9 +138,7 @@ parameters:
 cplex_options:
   lpmethod: 4
   solutiontype: 2
-  threads: 4
-  predual: -1
-  aggind: 50
-  BarColNZ: 150
-  barstartalg: 3
-  BarOrder: 3
+  threads: 10
+  predual: 1
+  BarOrder: 0
+  barepcomp: 1E-7
