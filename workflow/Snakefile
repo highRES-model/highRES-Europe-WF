@@ -470,7 +470,8 @@ rule compress_vre_gdx:
     returndict['transparamsfile'] = modelpath / "trans.dd"
     return returndict """
 
-
+# This rule exists so users can stop the workflow after the input creation, to
+# not have it automatically run the model as well, in case this is not desired.
 rule build_inputs:
     input:
         # unpack(inputfilelist)
@@ -489,7 +490,10 @@ rule build_inputs:
         touch(modelpath / "inputs.finished"),
 
 
-
+# Files that are marked temporary upon creation, but can only be deleted after
+# the model has run, need to be listed as an input both here and in the rule
+# "build_inputs". If they are only listed in "build_inputs", but not here, they
+# would be deleted before the model runs and so the run breaks.
 rule run_gams:
     input:
         modelpath / "cplex.opt",
