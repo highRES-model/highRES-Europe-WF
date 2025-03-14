@@ -1,5 +1,5 @@
-#target: "inputs.finished"
-target: "results.gdx"
+target: "inputs.finished"
+#target: "results.gdx"
 
 paths:
   gams: D:\utils\GAMS\43\
@@ -81,14 +81,21 @@ parameters:
   solar_clc : [
     1,
     2,
+    3,
     4,
     5,
     6,
+    7,
+    8,
+    9,
     10,
     11,
     23,
     24,
     25,
+    30,
+    31,
+    33,
     34,
     35,
     36,
