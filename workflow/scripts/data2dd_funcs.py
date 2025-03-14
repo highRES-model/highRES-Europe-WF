@@ -546,11 +546,6 @@ def euro_demand2dd(
 
         print("Zero demands for: ", d.columns[pd.isnull(d).any(axis=0)])
 
-    # TODO check this leap year stuff is actually working
-
-    if calendar.isleap(yr) and d.shape[0] != 8784:
-        d = pd.concat((d, d.iloc[0:24, :]))
-
     t = np.arange(d.shape[0])
     z = d.columns.values
 
