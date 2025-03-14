@@ -35,6 +35,7 @@ parameters:
   
   bias_correction: False
   elevation_excl: False
+  onshore_slope_excl: True
   
   emis_price: 0
   store_initial_level: 0.5
