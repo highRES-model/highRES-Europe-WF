@@ -159,10 +159,7 @@ def trans_links(root, f, aggregated_regions, out="work"):
             wrapdd(data2dd(links_allowed[od].values, [links_out]), out_par, "parameter")
         )
 
-    params = pd.read_excel(f, 
-                           sheet_name="transmission", 
-                           skiprows=1,
-                           engine="calamine")
+    params = pd.read_excel(f, sheet_name="transmission", skiprows=1, engine="calamine")
 
     nans = params.isnull()
     params = params.where(~nans, other=0.0)
@@ -313,7 +310,7 @@ def scen2dd(
     exist_cap=False,
     exist_agg="region",
 ):
-    #co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
+    # co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
     scen = pd.read_excel(scen_db, sheet_name="scenario_tech_definition", skiprows=0)
 
@@ -326,10 +323,9 @@ def scen2dd(
         set_outdd = []
         param_outdd = []
 
-        params = pd.read_excel(fin,
-                               sheet_name=None, 
-                               skiprows=1,
-                               engine="calamine")[tech_type]
+        params = pd.read_excel(fin, sheet_name=None, skiprows=1, engine="calamine")[
+            tech_type
+        ]
 
         params = params[params["Technology Name (highRES)"].isin(techs)]
 
@@ -342,11 +338,9 @@ def scen2dd(
 
         param_outdd.append(
             getzlims(
-                pd.read_excel(fin, 
-                              sheet_name=tech_type + "_lim_z", 
-                              skiprows=0,
-                              engine="calamine"
-                              ),
+                pd.read_excel(
+                    fin, sheet_name=tech_type + "_lim_z", skiprows=0, engine="calamine"
+                ),
                 techs,
                 zones,
             )
@@ -354,10 +348,12 @@ def scen2dd(
 
         if exist_cap:
             zlims = getzlims(
-                pd.read_excel(fin, 
-                              sheet_name=tech_type + "_exist_z", 
-                              skiprows=0,
-                              engine="calamine"),
+                pd.read_excel(
+                    fin,
+                    sheet_name=tech_type + "_exist_z",
+                    skiprows=0,
+                    engine="calamine",
+                ),
                 techs,
                 zones,
             )
@@ -367,10 +363,12 @@ def scen2dd(
 
             if tech_type == "gen":
                 rlims = getrlims(
-                    pd.read_excel(fin, 
-                                  sheet_name=tech_type + "_exist_r", 
-                                  skiprows=0,
-                                  engine="calamine"),
+                    pd.read_excel(
+                        fin,
+                        sheet_name=tech_type + "_exist_r",
+                        skiprows=0,
+                        engine="calamine",
+                    ),
                     techs,
                     zones,
                     exist_agg,
@@ -518,17 +516,15 @@ def euro_demand2dd(
     dstop,
     scen_db,
     esys_scen,
-    yr
+    yr,
 ):
-
-
     d = pd.read_csv(europedemandcsvlocation)
-    
+
     try:
-        d["datetime"] = pd.to_datetime(d["datetime"],format="%d/%m/%Y %H:%M")
+        d["datetime"] = pd.to_datetime(d["datetime"], format="%d/%m/%Y %H:%M")
     except ValueError:
-        d["datetime"] = pd.to_datetime(d["datetime"],format="%Y-%m-%d %H:%M:%S")
-        
+        d["datetime"] = pd.to_datetime(d["datetime"], format="%Y-%m-%d %H:%M:%S")
+
     d = d.set_index("datetime")
 
     d = d.loc[:, d.columns.isin(aggregated_regions)]
@@ -552,9 +548,8 @@ def euro_demand2dd(
 
     # TODO check this leap year stuff is actually working
 
-    if calendar.isleap(yr) and d.shape[0]!=8784:
+    if calendar.isleap(yr) and d.shape[0] != 8784:
         d = pd.concat((d, d.iloc[0:24, :]))
-
 
     t = np.arange(d.shape[0])
     z = d.columns.values

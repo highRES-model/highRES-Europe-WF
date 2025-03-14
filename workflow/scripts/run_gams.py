@@ -6,7 +6,7 @@ args = [
     snakemake.params.gamspath + "gams",
     snakemake.params.sharedcodepath / "highres.gms",
     "gdxCompress=1",
-    "--codefolderpath="+str(snakemake.params.sharedcodepath),
+    "--codefolderpath=" + str(snakemake.params.sharedcodepath),
     "--co2intensity=" + str(snakemake.params.co2intensity),
     "--weather_yr=" + str(snakemake.wildcards.year),
     "--outname=" + snakemake.params.outname,
@@ -15,7 +15,7 @@ args = [
     "--hydro_res_initial_fill=" + str(snakemake.params.hydro_res_initial_fill),
     "--hydro_res_min=" + str(snakemake.params.hydro_res_min),
     "--pgen=" + str(snakemake.params.pgen),
-    "--emis_price=" + str(snakemake.params.emis_price)
+    "--emis_price=" + str(snakemake.params.emis_price),
 ]
 
 process = subprocess.Popen(

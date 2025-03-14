@@ -65,7 +65,7 @@ shared_input_path = cwd / pathlib.Path(config["paths"]["shared_input"])
 # Relative path the model code that is the same across all versions
 shared_code_path = config["paths"]["abs_shared_code"]
 
-abs_gams_code_path= cwd / pathlib.Path(config["paths"]["abs_shared_code"])
+abs_gams_code_path = cwd / pathlib.Path(config["paths"]["abs_shared_code"])
 
 # Relative path to the geodata files that differentiate the scenarios
 scenario_exclusions_path = "resources/scenario_exclusions/"
@@ -119,12 +119,11 @@ rule build_cplex_opt:
         modelpath / "cplex.opt",
     run:
         cplex_options = config["cplex_options"]
-        
+
         # Open the file in write mode
         with open(output[0], "w") as f:
             for option, value in cplex_options.items():
                 f.write(f"{option} {value}\n")
-
 
 
 rule build_zones_file:
@@ -159,6 +158,7 @@ rule build_technoeconomic_inputs:
     script:
         "scripts/data2dd.py"
 
+
 rule build_shapes:
     input:
         euroshape=shared_input_path
@@ -181,9 +181,9 @@ rule build_vre_cf_grid:
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         biaswinddata=(
             shared_input_path / "weatherdata/ratio_gwa2_era5.nc"
-                if bias_correction
-                else []
-        )
+            if bias_correction
+            else []
+        ),
     output:
         cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
     resources:
@@ -338,7 +338,6 @@ rule build_vre_areas_file:
         "notebooks/highRES_build_vre_areas_file.ipynb"
 
 
-
 rule build_hydrores_inflow:
     input:
         rules.build_hydro_capfac.output.hydroresinfl,
@@ -470,6 +469,7 @@ rule compress_vre_gdx:
     returndict['transparamsfile'] = modelpath / "trans.dd"
     return returndict """
 
+
 # This rule exists so users can stop the workflow after the input creation, to
 # not have it automatically run the model as well, in case this is not desired.
 rule build_inputs:
@@ -512,12 +512,12 @@ rule run_gams:
         co2intensity=config["parameters"]["co2target"],
         sharedcodepath=abs_gams_code_path,
         outname="results",
-        store_initial_level = config["parameters"]["store_initial_level"],
-        store_final_level = config["parameters"]["store_final_level"],
-        hydro_res_initial_fill = config["parameters"]["hydro_res_initial_fill"],
-        hydro_res_min = config["parameters"]["hydro_res_min"],
-        pgen = config["parameters"]["pgen"],
-        emis_price = config["parameters"]["emis_price"],
+        store_initial_level=config["parameters"]["store_initial_level"],
+        store_final_level=config["parameters"]["store_final_level"],
+        hydro_res_initial_fill=config["parameters"]["hydro_res_initial_fill"],
+        hydro_res_min=config["parameters"]["hydro_res_min"],
+        pgen=config["parameters"]["pgen"],
+        emis_price=config["parameters"]["emis_price"],
     resources:
         mem_mb=50000,
     log:
