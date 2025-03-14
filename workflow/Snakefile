@@ -204,19 +204,18 @@ rule build_vre_cf_grid:
 
 rule build_vre_land_avail:
     input:
-        WDPA1a=shared_input_path / "geodata/onshore/WDPA_Ia_100.tiff",
-        WDPA1b=shared_input_path / "geodata/onshore/WDPA_Ib_100.tiff",
-        WDPA2=shared_input_path / "geodata/onshore/WDPA_II_100.tiff",
-        WDPA3=shared_input_path / "geodata/onshore/WDPA_III_100.tiff",
-        WDPA4=shared_input_path / "geodata/onshore/WDPA_IV_100.tiff",
+        solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
+        solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
         onshore_slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
-        solar_slope=shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_low.tif",
+        env_excl=shared_input_path / "geodata/onshore/environmental_low.tif",
+        techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
+        corine=shared_input_path / "geodata/onshore/corine.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         cfdata=rules.build_vre_cf_grid.output.cf_file,
-        corine=shared_input_path / "geodata/onshore/corine.tif",
     output:
         # FIXME the file indreg is only necessary when we run on grid cell
         # currently when we run with region, we create an empty file
