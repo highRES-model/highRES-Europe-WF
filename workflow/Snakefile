@@ -54,6 +54,7 @@ environmentals = scenarios.environmental.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
+onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
 
 wimby_outputs=config["parameters"]["wimby_outputs"]
 
@@ -206,12 +207,12 @@ rule build_vre_land_avail:
     input:
         solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
+        corine=shared_input_path / "geodata/onshore/corine.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
-        onshore_slope=shared_input_path / "geodata/onshore/euro_slope_40degs.tif",
+        onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
         social_excl=shared_input_path / "geodata/wimby/social_{socials}.tif",
         env_excl=shared_input_path / "geodata/wimby/environmental_{environmentals}.tif",
         techn_excl=shared_input_path / "geodata/wimby/technical_exclusions.tif",
-        corine=shared_input_path / "geodata/onshore/corine.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
@@ -253,6 +254,7 @@ rule build_vre_land_avail:
         cutoffs=cutoff_values,
         corine_codes=corine_codes,
         elevation_excl=elevation_excl,
+        onshore_slope_excl=onshore_slope_excl,
         include_rooftop=include_rooftop,
     notebook:
         "notebooks/highRES-build_vre_land_avail.ipynb"
