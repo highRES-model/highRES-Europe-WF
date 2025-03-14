@@ -206,6 +206,7 @@ rule build_vre_cf_grid:
 rule build_vre_land_avail:
     input:
         solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
+        solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
