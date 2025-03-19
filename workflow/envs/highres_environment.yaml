@@ -3,6 +3,8 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
+  - conda # added here since some people might install using micromamba, but
+#             snakemake seems to require conda specifically.
   - python
   - jupyter
   - jupyterlab_code_formatter
