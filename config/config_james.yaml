@@ -140,6 +140,12 @@ parameters:
     "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
     "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
   }
+  
+  wind_smooth: False
+  windon_af: 0.95
+  windoff_bottom_af: 0.95
+  
+  
   co2target : [
     2 # gCO2/kWh
   ]
