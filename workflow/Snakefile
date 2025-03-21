@@ -39,6 +39,9 @@ corine_codes = {
 }
 
 windturbines = config["parameters"]["windturbines"]
+wind_smooth = config["parameters"]["wind_smooth"]
+windon_af = config["parameters"]["windon_af"]
+windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
 scenarios = pd.DataFrame(inputyears, columns=["years"])
 
@@ -199,6 +202,9 @@ rule build_vre_cf_grid:
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
         windturbines=windturbines,
+        wind_smooth=wind_smooth,
+        windon_af=windon_af,
+        windoff_bottom_af=windoff_bottom_af,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
