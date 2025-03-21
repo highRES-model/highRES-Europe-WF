@@ -30,10 +30,11 @@ parameters:
     "high",
   ]
   
-  wimby_outputs: False
+  wimby_outputs: True
+  wimby_outputs_hourly: False
   include_rooftop: True
   
-  bias_correction: False
+  bias_correction: True
   elevation_excl: False
   onshore_slope_excl: True
   

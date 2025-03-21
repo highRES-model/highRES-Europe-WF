@@ -57,6 +57,7 @@ elevation_excl = config["parameters"]["elevation_excl"]
 onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
 
 wimby_outputs=config["parameters"]["wimby_outputs"]
+wimby_outputs_hourly=config["parameters"]["wimby_outputs_hourly"]
 
 # Get current working directory
 
@@ -288,7 +289,7 @@ rule build_vre_cf_inputs:
             else temp(modelpath / "areas_wind_offshore.csv")
         ),
         wimby_outputs=(
-            modelpath / "wimby_outputs.csv"
+            modelpath / "wimby_outputs_{socials}_{environmentals}.csv"
             if wimby_outputs
             else []
         ),
@@ -296,6 +297,7 @@ rule build_vre_cf_inputs:
         date_range=date_range,
         include_rooftop=include_rooftop,
         wimby_outputs=wimby_outputs,
+        wimby_outputs_hourly=wimby_outputs_hourly,
     notebook:
         "notebooks/highRES-build_vre_cf_inputs.ipynb"
 
