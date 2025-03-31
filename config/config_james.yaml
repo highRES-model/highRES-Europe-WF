@@ -22,21 +22,24 @@ parameters:
     "nuts2",
   ]
   environmental: [
-    #"low",
+   # "low",
+   # "medium",
     "high",
   ]
   social: [
-    #"low",
+   # "low",
+   # "medium",
     "high",
   ]
   
-  wimby_outputs: True
-  wimby_outputs_hourly: False
-  include_rooftop: True
-  
+  wimby_outputs: False
+  wimby_outputs_hourly: True
+ 
   bias_correction: True
+
   elevation_excl: False
   onshore_slope_excl: True
+  include_rooftop: True
   
   emis_price: 0
   store_initial_level: 0.5
