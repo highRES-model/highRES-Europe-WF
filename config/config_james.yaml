@@ -32,6 +32,7 @@ parameters:
     "high",
   ]
   
+ windoff_floating: True
   # Options: "OFF","TYNDP","USER"
   trans_inv: "TYNDP"
   
@@ -153,6 +154,7 @@ parameters:
   wind_smooth: False
   windon_af: 0.95
   windoff_bottom_af: 0.95
+  windoff_floating_af: 0.95
   
   
   co2target : [

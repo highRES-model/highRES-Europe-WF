@@ -41,10 +41,12 @@ corine_codes = {
     "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
 
+windoff_floating = config["parameters"]["windoff_floating"]
 windturbines = config["parameters"]["windturbines"]
 wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
+windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
 # Generate all combinations of years, spatials, social, and environmental scenarios
 combinations = list(itertools.product(inputyears, spatials, social_scenario, environmental_scenario))
@@ -172,7 +174,7 @@ rule build_shapes:
         euroshape=shared_input_path
         / "geodata/onshore/shapes/NUTS_RG_01M_2021_4326.geojson",
         eurooffshoreshape=shared_input_path
-        / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
+        / ("geodata/offshore/europe_eez_nuts0_depth_class.gpkg"),
     output:
         onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
         offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
@@ -203,9 +205,11 @@ rule build_vre_cf_grid:
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
         windturbines=windturbines,
+        windoff_floating=windoff_floating,
         wind_smooth=wind_smooth,
         windon_af=windon_af,
         windoff_bottom_af=windoff_bottom_af,
+        windoff_floating_af=windoff_floating_af,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 
@@ -246,6 +250,13 @@ rule build_vre_land_avail:
             if user_mode == "developer"
             else temp(modelpath / "cf_exclusion_windoff.tif")
         ),
+        cf_exclusion_windoff_floating=(
+            modelpath / "cf_exclusion_windoff_floating.tif"
+            if user_mode == "developer" and windoff_floating
+            else temp(modelpath / "cf_exclusion_windoff_floating.tif")
+            if windoff_floating
+            else []
+        ),
         indreg=(
             modelpath / "indices_region.csv"
             if user_mode == "developer"
@@ -264,6 +275,7 @@ rule build_vre_land_avail:
         elevation_excl=elevation_excl,
         onshore_slope_excl=onshore_slope_excl,
         include_rooftop=include_rooftop,
+        windoff_floating=windoff_floating,
     notebook:
         "notebooks/highRES-build_vre_land_avail.ipynb"
 
@@ -294,6 +306,13 @@ rule build_vre_cf_inputs:
             if user_mode == "developer"
             else temp(modelpath / "areas_wind_offshore.csv")
         ),
+        areaswindoffshore_floating=(
+            modelpath / "areas_wind_offshore_floating.csv"
+            if user_mode == "developer" and windoff_floating
+            else temp(modelpath / "areas_wind_offshore_floating.csv")
+            if windoff_floating
+            else []
+        ),
         wimby_outputs=(
             modelpath / "wimby_outputs_{socials}_{environmentals}.csv"
             if wimby_outputs
@@ -302,6 +321,7 @@ rule build_vre_cf_inputs:
     params:
         date_range=date_range,
         include_rooftop=include_rooftop,
+        windoff_floating=windoff_floating,
         wimby_outputs=wimby_outputs,
         wimby_outputs_hourly=wimby_outputs_hourly,
     notebook:
@@ -353,6 +373,11 @@ rule build_vre_areas_file:
         areassolar=rules.build_vre_cf_inputs.output.areassolar,
         areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
         areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
+        areaswindoff_floating=(
+            rules.build_vre_cf_inputs.output.areaswindoffshore_floating
+            if windoff_floating
+            else []
+        ),
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
         technoeconomic_database="resources/highres_technoeconomic_database.ods",
     output:
