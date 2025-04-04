@@ -533,6 +533,8 @@ rule run_gams:
         hydro_res_min=config["parameters"]["hydro_res_min"],
         pgen=config["parameters"]["pgen"],
         emis_price=config["parameters"]["emis_price"],
+        trans_inv=config["parameters"]["trans_inv"],
+        trans_cap_lim=config["parameters"]["trans_cap_lim"],
     resources:
         mem_mb=50000,
     log:

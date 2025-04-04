@@ -16,6 +16,8 @@ args = [
     "--hydro_res_min=" + str(snakemake.params.hydro_res_min),
     "--pgen=" + str(snakemake.params.pgen),
     "--emis_price=" + str(snakemake.params.emis_price),
+    "--trans_inv=" + str(snakemake.params.trans_inv),
+    "--trans_cap_lim=" + str(snakemake.params.trans_cap_lim),
 ]
 
 process = subprocess.Popen(

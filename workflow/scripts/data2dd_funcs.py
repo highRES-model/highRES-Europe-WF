@@ -150,7 +150,7 @@ def trans_links(root, f, aggregated_regions, out="work"):
 
     # data2dd(links_out,[],outfile=root/out/(tech_type+"_links.dd"))
 
-    out_data = ["links_dist", "links_cap"]
+    out_data = ["links_dist", "links_cap","links_lim_cap"]
 
     for od in out_data:
         out_par = tech_type + "_" + od
