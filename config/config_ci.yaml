@@ -21,6 +21,11 @@ parameters:
     # "nuts2",
   ]
   
+  # Options: "OFF","TYNDP","USER"
+  trans_inv: "TYNDP"
+  
+  # Only used if trans_inv set to USER
+  trans_cap_lim: 20
   
   bias_correction: True
 
