@@ -271,9 +271,11 @@ def getrlims(lim, techs, zones, exist_agg):
             )
 
         if exist_agg == "region":
-            limval = limval.groupby(["zone"], as_index=False).agg(
+            #limval = limval.groupby(["zone"], as_index=False).agg(
+            # to consider the other technologies
+            limval = limval.groupby(["Technology","zone"], as_index=False).agg(
                 {
-                    "Technology": "first",
+                    #"Technology": "first", # removed because is already in groupby
                     "Year": "first",
                     "parameter": "first",
                     "limtype": "first",
