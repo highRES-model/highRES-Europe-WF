@@ -150,6 +150,7 @@ rule build_technoeconomic_inputs:
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
         europedemandcsvlocation="resources/europe_demand.csv",
+        co2_targets_db="resources/europe_co2_targets.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
@@ -158,11 +159,15 @@ rule build_technoeconomic_inputs:
         modelpath / "BASE_gen.dd",
         modelpath / "BASE_store.dd",
         modelpath / "trans.dd",
+        co2_target=modelpath / "BASE_co2_target.dd",
         demandfile=modelpath / "BASE_demand_{year}.dd",
     params:
         aggregated_regions=aggregated_regions,
         date_range=date_range,
         user_mode=user_mode,
+        co2_target_type=config["parameters"]["co2_target_type"],
+        co2_target_extent=config["parameters"]["co2_target_extent"],
+        co2_target_scenario="{socials}_{environmentals}",
     script:
         "scripts/data2dd.py"
 
@@ -533,7 +538,9 @@ rule run_gams:
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),
-        co2intensity=config["parameters"]["co2target"],
+        #co2intensity=config["parameters"]["co2target"],
+        co2_target_type=config["parameters"]["co2_target_type"],
+        co2_target_extent=config["parameters"]["co2_target_extent"],
         sharedcodepath=abs_gams_code_path,
         outname="results",
         store_initial_level=config["parameters"]["store_initial_level"],
