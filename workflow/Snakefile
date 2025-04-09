@@ -346,6 +346,7 @@ rule build_vre_areas_file:
         areaswindon=rules.build_vre_cf_inputs.output.areaswindonshore,
         areaswindoff=rules.build_vre_cf_inputs.output.areaswindoffshore,
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
+        technoeconomic_database="resources/highres_technoeconomic_database.ods",
     output:
         modelpath / "vre_areas_{year}_.dd",
         regionsdd=modelpath / "_regions.dd",
