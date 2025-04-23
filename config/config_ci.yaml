@@ -1,7 +1,7 @@
 target: "results.db.compressed"
 
 paths:
-  gams: /opt/gams/gams46.5_linux_x64_64_sfx/
+  gams: /opt/gams/gams49.4_linux_x64_64_sfx/
   shared_input: shared_input
   abs_shared_code: /home/runner/work/highRES-Europe-WF/highRES-Europe-WF/resources/highRES-Europe-GAMS/
   results: work
@@ -36,34 +36,34 @@ parameters:
   pgen: 20.0
   date_range: ["01-01", "06-30"]
   aggregated_regions: [
-    #"AT",
+    "AT",
     #"BE",
-    "BG",
-    #"CH",
-    #"CZ",
-    #"DE",
+    #"BG",
+    "CH",
+    "CZ",
+    "DE",
     #"DK",
-    "EE",
-    "ES",
-    "FI",
+    #"EE",
+    #"ES",
+    #"FI",
     "FR",
-    "UK",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    #"LU",
-    "LV",
+    #"UK",
+    #"GR",
+    #"HR",
+    #"HU",
+    #"IE",
+    #"IT",
+    #"LT",
+    "LU",
+    #"LV",
     #"NL",
-    "NO",
+    #"NO",
     "PL",
-    "PT",
-    "RO",
+    #"PT",
+    #"RO",
     #"SE",
     #"SI",
-    "SK",
+    #"SK",
   ]
   solar_clc : [
     1,
