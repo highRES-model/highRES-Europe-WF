@@ -537,7 +537,7 @@ rule convert_results:
         resultsdb=ensure(protected(modelpath / "results.db"), non_empty=True),
     shell:
         # TODO platform independence
-        gamspath + "gdx2sqlite -i {input} -o {output} -fast"
+        gamspath + "gamstool sqlitewrite gdxIn={input} o={output}"
 
 
 rule convert_results_db_parquet:
