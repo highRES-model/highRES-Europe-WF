@@ -54,11 +54,14 @@ parameters:
   ]
   cmip_windspeed: True
   cmip_solar: True
+  cmip_runoff: True
   
   cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
   # cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
   cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
   # cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
+  cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
+  # cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
 
   # Wind options
   bias_correction: False
@@ -77,7 +80,7 @@ parameters:
   cutoff_solar: 0.09
   
   # General options
-  co2target: 2 # gCO2/kWh
+  co2target: 0 # gCO2/kWh
   emis_price: 0
   pgen: 20.0
   date_range: ["01-01", "12-31"]
