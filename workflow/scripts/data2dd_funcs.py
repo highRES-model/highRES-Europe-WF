@@ -202,13 +202,16 @@ def co2target2dd(co2targets_db,
     dout = (pd.read_csv(co2targets_db)
             .query("(case == @esys_scen) \
                    and (type == @co2_target_type) \
-                   and (extent == @co2_target_extent)")
-            ["target"].values[0])
+                   and (extent == @co2_target_extent)"))
+
                    
     if co2_target_extent == "all":
-        wrapdd(dout, "co2_target", "scalar", outfile=co2target_out)
-
-
+        wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
+    if co2_target_extent == "zonal":
+        wrapdd(data2dd(dout["target"].values,
+                       [dout["zone"].values])
+               ,"co2_target", "parameter", outfile=co2target_out)
+        
 
 def getzlims(lim, techs, zones):
     lim = lim.loc[(lim["Year"] == 2050) & (lim["Technology"].isin(techs)), :]
