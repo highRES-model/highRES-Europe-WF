@@ -29,6 +29,8 @@ spatials = config["parameters"]["spatials"]
 social_scenario = config["parameters"]["social"]
 environmental_scenario = config["parameters"]["environmental"]
 
+psys_scenarios = config["parameters"]["power_system_scenario"]
+
 cutoff_values = {
     "solar": config["parameters"]["cutoff_solar"],
     "onwind": config["parameters"]["cutoff_onwind"],
@@ -47,13 +49,22 @@ windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
 # Generate all combinations of years, spatials, social, and environmental scenarios
-combinations = list(itertools.product(inputyears, spatials, social_scenario, environmental_scenario))
-scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "social", "environmental"])
+#combinations = list(itertools.product(inputyears, spatials, social_scenario, environmental_scenario))
 
+combinations = list(zip(psys_scenarios*len(social_scenario),
+                        inputyears*len(social_scenario),
+                        spatials*len(social_scenario), 
+                        social_scenario, 
+                        environmental_scenario))
+
+scenarios = pd.DataFrame(combinations, columns=["psys_scenario","year", "spatial", "social", "environmental"])
+
+psys_scenarios = scenarios.psys_scenario.to_list()
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 socials = scenarios.social.to_list()
 environmentals = scenarios.environmental.to_list()
+
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -93,7 +104,7 @@ scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 # Relative path to workdir
 
-modelpath=resultspath / "{year}_{spatial}_{socials}_{environmentals}"
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}"
 
 
 localrules:
@@ -118,7 +129,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, year=years, spatial=spatials, socials=socials, environmentals=environmentals),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals),
 
 
 rule build_cplex_opt:
@@ -149,15 +160,15 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/europe_demand.csv",
-        co2_targets_db="resources/europe_co2_targets.csv",
+        europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
+        co2_targets_db="resources/TIMES_250429_co2_targets.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
     output:
         modelpath / "{year}_temporal.dd",
-        modelpath / "BASE_gen.dd",
-        modelpath / "BASE_store.dd",
+        modelpath / "{psys_scenario}_gen.dd",
+        modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         co2_target=modelpath / "BASE_co2_target.dd",
         demandfile=modelpath / "BASE_demand_{year}.dd",
@@ -243,13 +254,17 @@ rule build_vre_land_avail:
         ),
         cf_exclusion_windon=(
             modelpath / "cf_exclusion_windon.tif"
-            if user_mode == "developer"
+            if user_mode == "developer" and cutoff_values["onwind"] > 0.
             else temp(modelpath / "cf_exclusion_windon.tif")
+            if cutoff_values["onwind"] > 0.
+            else []
         ),
         cf_exclusion_windoff=(
             modelpath / "cf_exclusion_windoff.tif"
-            if user_mode == "developer"
+            if user_mode == "developer" and cutoff_values["offwind"] > 0.
             else temp(modelpath / "cf_exclusion_windoff.tif")
+            if cutoff_values["offwind"] > 0.
+            else []
         ),
         indreg=(
             modelpath / "indices_region.csv"
@@ -512,9 +527,10 @@ rule build_inputs:
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
-        modelpath / "BASE_gen.dd",
-        modelpath / "BASE_store.dd",
+        modelpath / "{psys_scenario}_gen.dd",
+        modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
+        modelpath / "cplex.opt",
     output:
         touch(modelpath / "inputs.finished"),
 
@@ -525,7 +541,6 @@ rule build_inputs:
 # would be deleted before the model runs and so the run breaks.
 rule run_gams:
     input:
-        modelpath / "cplex.opt",
         shared_code_path + "highres.gms",
         shared_code_path + "highres_data_input.gms",
         shared_code_path + "highres_hydro.gms",
