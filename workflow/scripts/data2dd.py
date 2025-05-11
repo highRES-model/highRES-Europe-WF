@@ -36,6 +36,7 @@ params_to_write["gen"]["set"] = [
     "hydro_res",
     "uc_int",
     "uc_lin",
+    "quick"
 ]
 params_to_write["gen"]["parameter"] = {}
 params_to_write["gen"]["parameter"]["all"] = [
@@ -57,7 +58,7 @@ params_to_write["gen"]["parameter"]["all"] = [
 ]
 
 params_to_write["store"] = {}
-params_to_write["store"]["set"] = ["s", "uc_lin"]
+params_to_write["store"]["set"] = ["s", "uc_lin","quick"]
 params_to_write["store"]["parameter"] = {}
 params_to_write["store"]["parameter"]["all"] = [
     "max_freq",

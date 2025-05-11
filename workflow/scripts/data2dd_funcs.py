@@ -441,11 +441,16 @@ def scen2dd(
 
                 # outsets.append(wrapdd(data2dd(vals,[])))
                 # set_outdd.append(wrapdd(data2dd(vals,[],s,"set"))
-            elif "uc" in s:
-                vals = params.loc[(~params[s].isnull()), "Technology Name (highRES)"]
+            elif s == "non_vre" or s == "vre" or s == "hydro_res":
+                vals = params[params["set"] == s]["Technology Name (highRES)"]
 
-                # if vals.empty:
-                #    continue
+                set_outdd.append(
+                    wrapdd(data2dd(vals, []), s + "(" + sets[0] + ")", "set")
+                )
+                
+                
+            else:
+                vals = params.loc[(~params[s].isnull()), "Technology Name (highRES)"]
 
                 set_outdd.append(
                     wrapdd(
@@ -454,21 +459,7 @@ def scen2dd(
                         "set",
                     )
                 )
-                # else:
-                #   set_outdd.append(wrapdd(data2dd(
-                #       vals,
-                #       [],
-                #       root/out/(run+"_"+tech_type+"_set_"+s+".dd"))))
-
-            else:
-                vals = params[params["set"] == s]["Technology Name (highRES)"]
-
-                set_outdd.append(
-                    wrapdd(data2dd(vals, []), s + "(" + sets[0] + ")", "set")
-                )
-
-                # data2dd(vals,[],root/out/(run+"_"+tech_type+"_set_"+s+".dd"))
-
+                
         for s in data_out:
             for p in data_out[s]:
                 if "varom" in p or "fuel" in p:
