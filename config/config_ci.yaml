@@ -22,7 +22,7 @@ parameters:
   ]
   
   
-  bias_correction: False
+  bias_correction: True
   elevation_excl: False
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
