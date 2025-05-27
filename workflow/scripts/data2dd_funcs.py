@@ -193,13 +193,25 @@ def trans_links(root, f, aggregated_regions, out="work"):
     np.savetxt(root / out / (tech_type + ".dd"), outdd, delimiter=" ", fmt="%s")
 
 
-def co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=""):
-    scen = pd.read_excel(scen_db, sheet_name="scenario_co2_cap", skiprows=1)
+def co2target2dd(co2targets_db, 
+                 co2target_out, 
+                 esys_scen, 
+                 co2_target_type,
+                 co2_target_extent):
+    
+    dout = (pd.read_csv(co2targets_db)
+            .query("(case == @esys_scen) \
+                   and (type == @co2_target_type) \
+                   and (extent == @co2_target_extent)"))
 
-    dout = scen.loc[scen["Esys Scenario"] == esys, 2050].values
-
-    wrapdd(dout, "co2_budget", "scalar", outfile=co2budgetddlocation)
-
+                   
+    if co2_target_extent == "all":
+        wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
+    if co2_target_extent == "zonal":
+        wrapdd(data2dd(dout["target"].values,
+                       [dout["zone"].values])
+               ,"co2_target", "parameter", outfile=co2target_out)
+        
 
 def getzlims(lim, techs, zones):
     lim = lim.loc[(lim["Year"] == 2050) & (lim["Technology"].isin(techs)), :]
