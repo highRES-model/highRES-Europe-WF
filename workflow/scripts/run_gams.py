@@ -12,6 +12,7 @@ args = [
     "--co2_target_type=" + str(snakemake.params.co2_target_type),
     "--co2_target_extent=" + str(snakemake.params.co2_target_extent),
     "--weather_yr=" + str(snakemake.wildcards.year),
+    "--dem_yr=" + str(snakemake.wildcards.year),
     "--outname=" + snakemake.params.outname,
     "--store_initial_level=" + str(snakemake.params.store_initial_level),
     "--store_final_level=" + str(snakemake.params.store_final_level),
