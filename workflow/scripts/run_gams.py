@@ -7,7 +7,10 @@ args = [
     snakemake.params.sharedcodepath / "highres.gms",
     "gdxCompress=1",
     "--codefolderpath=" + str(snakemake.params.sharedcodepath),
-    "--co2intensity=" + str(snakemake.params.co2intensity),
+    # May bring this back at some stage but commented for now
+    #"--co2intensity=" + str(snakemake.params.co2intensity),
+    "--co2_target_type=" + str(snakemake.params.co2_target_type),
+    "--co2_target_extent=" + str(snakemake.params.co2_target_extent),
     "--weather_yr=" + str(snakemake.wildcards.year),
     "--outname=" + snakemake.params.outname,
     "--store_initial_level=" + str(snakemake.params.store_initial_level),

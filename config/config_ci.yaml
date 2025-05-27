@@ -20,7 +20,13 @@ parameters:
     "region",
     # "nuts2",
   ]
+
+  # Options: "intensity", "budget"
+  co2_target_type: "intensity"
   
+  # Options: "all"
+  co2_target_extent: "all"
+
   # Options: "OFF","TYNDP","USER"
   trans_inv: "TYNDP"
   
@@ -139,11 +145,6 @@ parameters:
   wind_smooth: False
   windon_af: 0.95
   windoff_bottom_af: 0.95
-
-
-  co2target : [
-    0 # gCO2/kWh
-  ]
 
 cplex_options:
   lpmethod: 4

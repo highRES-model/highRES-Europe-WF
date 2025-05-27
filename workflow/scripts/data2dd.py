@@ -4,11 +4,22 @@ import pathlib
 
 import pandas as pd
 
-from data2dd_funcs import euro_demand2dd, scen2dd, temporal2dd, trans_links
+from data2dd_funcs import (euro_demand2dd, scen2dd, temporal2dd, trans_links,
+                           co2target2dd)
+                           
 
 root = pathlib.Path(snakemake.output[0]).parent
 data_root = root
 out = pathlib.Path(".")
+
+
+co2target2dd(
+    snakemake.input.co2_targets_db,
+    snakemake.output.co2_target,
+    snakemake.params.co2_target_scenario,
+    snakemake.params.co2_target_type,
+    snakemake.params.co2_target_extent)
+
 
 pscens = ["BASE"]
 
