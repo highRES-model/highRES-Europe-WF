@@ -21,6 +21,8 @@ parameters:
     # "nuts2",
   ]
 
+  power_system_scenario: ["BASE"]
+
   # Options: "intensity", "budget"
   co2_target_type: "intensity"
   

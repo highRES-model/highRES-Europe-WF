@@ -11,6 +11,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env: 
+  gamsversion: "50.1.0"
+  # Only works in one place and need to be hardcodes in two places as of 25 June 2025. 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,7 +48,7 @@ jobs:
           sudo apt-get install wget curl
           cd ~
           pwd
-          wget https://d37drm4t2jghv5.cloudfront.net/distributions/49.4.0/linux/linux_x64_64_sfx.exe
+          wget https://d37drm4t2jghv5.cloudfront.net/distributions/$gamsversion/linux/linux_x64_64_sfx.exe
           chmod 755 linux_x64_64_sfx.exe
           sudo mkdir /opt/gams
           cd /opt/gams
@@ -52,7 +56,7 @@ jobs:
           ~/linux_x64_64_sfx.exe
           cd ~
           pwd
-          ls /opt/gams/gams49.4_linux_x64_64_sfx
+          ls /opt/gams/gams50.1_linux_x64_64_sfx
 
       # Courtesy of PyPSA-EUR
       #- name: Setup secrets
@@ -64,8 +68,8 @@ jobs:
         env:
           GAMS_ACCESS_CODE: ${{ secrets.GAMS_ACCESS_CODE }}
         run: |
-          sudo /opt/gams/gams49.4_linux_x64_64_sfx/gamsgetkey $GAMS_ACCESS_CODE -o /opt/gams/gams49.4_linux_x64_64_sfx/gamslice.txt
-          
+          sudo -i
+          echo $GAMS_LICENSE | base64 --decode > /opt/gams/gams50.1_linux_x64_64_sfx/gamslice.txt
 
       - name: Setup micromamba
         uses: mamba-org/setup-micromamba@v1
@@ -84,12 +88,24 @@ jobs:
 
       - name: Download & Extract resources
         run: |
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" | bsdtar -xvf-
+          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/resources.zip?download=1" | bsdtar -xvf-
           
-      - name: Download & Extract shared_input
+      - name: Download & Extract geodata
         if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
         run: |
-          curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" | bsdtar -xvf-
+          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/geodata.zip?download=1" | bsdtar -xvf-  
+
+      - name: Download & Extract weatherdata
+        if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        run: |
+          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/weatherdata.zip?download=1" | bsdtar -xvf-
+
+      - name: Create shared_input
+        if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        run: |
+          mkdir shared_input
+          mv geodata shared_input
+          mv weatherdata shared_input
         
       - name: Test snakemake workflow
         run: |
