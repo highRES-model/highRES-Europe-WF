@@ -8,10 +8,11 @@ highRES is written in GAMS and its objective is to minimise power system investm
 
 ## Getting started
 
-To run the full workflow, two datapackages are needed they can be downloaded from [Zenodo](https://zenodo.org/records/14223618):
+To run the full workflow, two datapackages are needed they can be downloaded from [Zenodo](https://zenodo.org/records/15536457):
 
-1. Resources (3.1 MB compressed, 6.3 MB uncompressed) <https://zenodo.org/records/14223618/files/resources.zip?download=1>.
-2. Shared input (4.4 GB) <https://zenodo.org/records/14223618/files/shared_input.zip?download=1>
+1. Resources (3.1 MB compressed, 6.3 MB uncompressed) <https://zenodo.org/records/15536457/files/resources.zip?download=1>.
+2. Weatherdata (4.3 GB) <https://zenodo.org/records/15536457/files/weatherdata.zip?download=1>
+3. Geodata (260 MB compressed, 517 MB uncompressed) <https://zenodo.org/records/15536457/files/geodata.zip?download=1>
 
 ## Windows
 1. Clone the repository
@@ -29,16 +30,24 @@ To run the full workflow, two datapackages are needed they can be downloaded fro
 4. Navigate to the repository in your snakemake conda environment shell
 5. Get the required input files
     ```
-   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/resources.zip?download=1" --output resources.zip
-   curl -L -b cookies.txt "https://zenodo.org/records/14223618/files/shared_input.zip?download=1" --output shared_input.zip
+   curl -L -b cookies.txt "https://zenodo.org/records/15536457/files/resources.zip?download=1" --output resources.zip
+   curl -L -b cookies.txt "https://zenodo.org/records/15536457/files/weatherdata.zip?download=1" --output weatherdata.zip
+   curl -L -b cookies.txt "https://zenodo.org/records/15536457/files/geodata.zip?download=1" --output geodata.zip
    ```
 6. Extract the required input files
     ```
     unzip resources.zip
     unzip shared_input.zip
+    unzip geodata.zip
     ```
-7. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
-8. Run `snakemake -c all`
+7. Create a folder for shared input and move the geodata and weatherdata to that folder.
+    ```
+    mkdir shared_input
+    mv geodata shared_input
+    mv weatherdata shared_input
+    ```
+8. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
+9. Run `snakemake -c all`
 
 
 ## Documentation 
