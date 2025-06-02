@@ -49,7 +49,7 @@ windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
 # Generate all combinations of years, spatials, social, and environmental scenarios
-#combinations = list(itertools.product(inputyears, spatials, social_scenario, environmental_scenario))
+#combinations = list(itertools.product(psys_scenarios,inputyears, spatials, social_scenario, environmental_scenario))
 
 combinations = list(zip(psys_scenarios*len(social_scenario),
                         inputyears*len(social_scenario),
@@ -100,7 +100,13 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 
 # Write scenarios to file, so results analysis script can check if they are all
 # available.
-scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
+#scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
+
+run_name=["psys_scenario","year","spatial","social","environmental"]
+
+scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
+
+scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=False,header=False)
 
 # Relative path to workdir
 
@@ -161,7 +167,7 @@ rule build_technoeconomic_inputs:
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
         europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
-        co2_targets_db="resources/TIMES_250429_co2_targets.csv",
+        co2_targets_db="resources/TIMES_250513_co2_targets.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
@@ -229,7 +235,7 @@ rule build_vre_cf_grid:
 rule build_vre_land_avail:
     input:
         solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
-        solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_high_intens.tif",
+        solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
@@ -478,7 +484,7 @@ rule build_vre_gdx:
         bigvregdx=(
             modelpath / "vre_{year}_.gdx"
             if user_mode == "developer"
-            else temp(modelpath / "vre_{year}_.gdx")
+            else modelpath / "vre_{year}_.gdx"
         ),
     shell:
         # TODO platform independence
