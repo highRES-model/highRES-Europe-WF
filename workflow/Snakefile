@@ -136,12 +136,21 @@ rule build_zones_file:
         "scripts/build_zones.py"
 
 
+rule build_demand:
+    input:
+        europedemand="resources/europe_demand.csv",
+    output:
+        europedemand="intermediate_data/{spatial}/demand/europe_demand.csv"
+    notebook:
+        "notebooks/highRES_build_demand.ipynb"
+
+
 rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/europe_demand.csv",
+        europedemandcsvlocation=rules.build_demand.output.europedemand,
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
