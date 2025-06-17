@@ -64,21 +64,17 @@ parameters:
     #"SE",
     #"SI",
     #"SK",
-    "NO0A1", # Rogaland
-    "NO0A2", # Vestland
-    "NO0A3", # Møre og Romsdal
-    "NO020", # Innlandet
-    "NO060", # Trøndelag
-    "NO071", # Nordland
-    "NO072", # Troms
-    "NO073", # Finnmark
-    "NO081", # Oslo
-    "NO083", # Østfold
-    "NO084", # Akershus
-    "NO085", # Buskerud
-    "NO092", # Agder
-    "NO093", # Vestfold
-    "NO094", # Telemark
+    "NO03",
+    "NO11",
+    "NO15",
+    "NO18",
+    "NO30",
+    "NO34",
+    "NO38",
+    "NO42",
+    "NO46",
+    "NO50",
+    "NO54",
   ]
   solar_clc : [
     1,
