@@ -46,11 +46,11 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
 # Generate all combinations of years, spatials
 combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
-scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenarios"])
+scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario"])
 
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
-psys_scenarios = scenarios.psys_scenarios.to_list()
+psys_scenarios = scenarios.psys_scenario.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -83,7 +83,13 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 
 # Write scenarios to file, so results analysis script can check if they are all
 # available.
-scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
+#scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
+
+run_name=["psys_scenario","year","spatial"]
+
+scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
+
+scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=False,header=False)
 
 # Relative path to workdir
 
@@ -212,7 +218,7 @@ rule build_vre_cf_grid:
 rule build_vre_land_avail:
     input:
         solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
-        solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_high_intens.tif",
+        solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         elevation=shared_input_path / "geodata/onshore/2000m.shp.zip",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
@@ -454,7 +460,7 @@ rule build_vre_gdx:
         bigvregdx=(
             modelpath / "vre_{year}_.gdx"
             if user_mode == "developer"
-            else temp(modelpath / "vre_{year}_.gdx")
+            else modelpath / "vre_{year}_.gdx"
         ),
     shell:
         # TODO platform independence
