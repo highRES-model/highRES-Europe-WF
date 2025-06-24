@@ -25,6 +25,7 @@ pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
 )
 
 spatials = config["parameters"]["spatials"]
+psys_scenarios = config["parameters"]["power_system_scenario"]
 
 cutoff_values = {
     "solar": config["parameters"]["cutoff_solar"],
@@ -43,15 +44,13 @@ wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
-scenarios = pd.DataFrame(inputyears, columns=["years"])
+# Generate all combinations of years, spatials
+combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
+scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenarios"])
 
-concatlist = []
-for spatial in spatials:
-    concatlist.append(scenarios.assign(spatials=spatial))
-scenarios = pd.concat(concatlist).reset_index(drop=True)
-
-years = scenarios.years.to_list()
-spatials = scenarios.spatials.to_list()
+years = scenarios.year.to_list()
+spatials = scenarios.spatial.to_list()
+psys_scenarios = scenarios.psys_scenarios.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -86,13 +85,9 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 # available.
 scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
-# Relative path to the built model and built inputs
-yearonlypart = "models/{year}/"
-scenariopart = "{spatial}/"
-modelpathyearonly = resultspath / yearonlypart
-modelpath = modelpathyearonly / scenariopart
-allyearpath = resultspath / "models/allyears/"
-logpath = yearonlypart + scenariopart
+# Relative path to workdir
+
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}"
 
 
 localrules:
@@ -117,7 +112,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials),
 
 
 rule build_cplex_opt:
@@ -155,8 +150,8 @@ rule build_technoeconomic_inputs:
         "envs/build_technoeconomic.yml"
     output:
         modelpath / "{year}_temporal.dd",
-        modelpath / "BASE_gen.dd",
-        modelpath / "BASE_store.dd",
+        modelpath / "{psys_scenario}_gen.dd",
+        modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         co2_target=modelpath / "BASE_co2_target.dd",
         demandfile=modelpath / "BASE_demand_{year}.dd",
@@ -242,13 +237,17 @@ rule build_vre_land_avail:
         ),
         cf_exclusion_windon=(
             modelpath / "cf_exclusion_windon.tif"
-            if user_mode == "developer"
+            if user_mode == "developer" and cutoff_values["onwind"] > 0.
             else temp(modelpath / "cf_exclusion_windon.tif")
+            if cutoff_values["onwind"] > 0.
+            else []
         ),
         cf_exclusion_windoff=(
             modelpath / "cf_exclusion_windoff.tif"
-            if user_mode == "developer"
+            if user_mode == "developer" and cutoff_values["offwind"] > 0.
             else temp(modelpath / "cf_exclusion_windoff.tif")
+            if cutoff_values["offwind"] > 0.
+            else []
         ),
         indreg=(
             modelpath / "indices_region.csv"
@@ -504,9 +503,10 @@ rule build_inputs:
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
-        modelpath / "BASE_gen.dd",
-        modelpath / "BASE_store.dd",
+        modelpath / "{psys_scenario}_gen.dd",
+        modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
+        modelpath / "cplex.opt",
     output:
         touch(modelpath / "inputs.finished"),
 
@@ -517,7 +517,6 @@ rule build_inputs:
 # would be deleted before the model runs and so the run breaks.
 rule run_gams:
     input:
-        modelpath / "cplex.opt",
         shared_code_path + "highres.gms",
         shared_code_path + "highres_data_input.gms",
         shared_code_path + "highres_hydro.gms",
