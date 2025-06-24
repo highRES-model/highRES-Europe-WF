@@ -13,8 +13,8 @@ parameters:
     "developer", # Use this mode to run the model in developer mode
   ]
   years: [
-    # "1995",
-    "2010",
+    "1995",
+    #"2010",
   ]
   spatials: [
     # "grid",
@@ -22,18 +22,20 @@ parameters:
      "nuts2",
   ]
   environmental: [
-   # "low",
-   # "medium",
-    "high",
+   "low",
+   #"medium",
+   #"high",
   ]
   social: [
-   # "low",
-   # "medium",
-    "high",
+   "low",
+   #"medium",
+   #"high",
   ]
   
+  power_system_scenario: ["BECCSnolim"]
+  
   # Options: "intensity", "budget"
-  co2_target_type: "intensity"
+  co2_target_type: "budget"
   
   # Options: "all"
   co2_target_extent: "all"
@@ -42,7 +44,7 @@ parameters:
   trans_inv: "TYNDP"
   
   # Only used if trans_inv set to USER
-  trans_cap_lim: 20
+  trans_cap_lim: 15
   
   wimby_outputs: False
   wimby_outputs_hourly: False
@@ -61,8 +63,8 @@ parameters:
   pgen: 20.0
   
   cutoff_solar: 0.09
-  cutoff_onwind: 0.1
-  cutoff_offwind: 0.20
+  cutoff_onwind: 0.00
+  cutoff_offwind: 0.00
   date_range: ["01-01", "01-31"]
   aggregated_regions: [
     "AT",
@@ -164,6 +166,6 @@ cplex_options:
   lpmethod: 4
   solutiontype: 2
   threads: 10
-  predual: 1
+  predual: 0
   BarOrder: 0
   barepcomp: 1E-7

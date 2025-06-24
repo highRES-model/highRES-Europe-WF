@@ -7,6 +7,7 @@ args = [
     snakemake.params.sharedcodepath / "highres.gms",
     "gdxCompress=1",
     "--codefolderpath=" + str(snakemake.params.sharedcodepath),
+    "--psys_scen=" + str(snakemake.wildcards.psys_scenario),
     # May bring this back at some stage but commented for now
     #"--co2intensity=" + str(snakemake.params.co2intensity),
     "--co2_target_type=" + str(snakemake.params.co2_target_type),
