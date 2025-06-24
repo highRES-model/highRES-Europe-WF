@@ -20,94 +20,89 @@ co2target2dd(
     snakemake.params.co2_target_type,
     snakemake.params.co2_target_extent)
 
+psys_scen = snakemake.wildcards.psys_scenario
+esys_scen = "BASE"
 
-pscens = ["BASE"]
+scen_db = snakemake.input[1]
+f_techno = snakemake.input[2]
 
+params_to_write = {}
 
-for psys in pscens:
-    psys_scen = psys
-    esys_scen = "BASE"
+params_to_write["gen"] = {}
+params_to_write["gen"]["set"] = [
+    "g",
+    "non_vre",
+    "vre",
+    "hydro_res",
+    "uc_int",
+    "uc_lin",
+]
+params_to_write["gen"]["parameter"] = {}
+params_to_write["gen"]["parameter"]["all"] = [
+    "emis fac",
+    "max ramp",
+    "min down",
+    "min up",
+    "startup cost",
+    "inertia",
+    "unit size",
+    "capex2050",
+    "varom",
+    "fom",
+    "fuelcost2050",
+    "cap2area",
+    "af",
+    "min gen",
+    "peak af",
+]
 
-    scen_db = snakemake.input[1]
-    f_techno = snakemake.input[2]
+params_to_write["store"] = {}
+params_to_write["store"]["set"] = ["s", "uc_lin"]
+params_to_write["store"]["parameter"] = {}
+params_to_write["store"]["parameter"]["all"] = [
+    "max_freq",
+    "max_res",
+    "eff_in",
+    "eff_out",
+    "loss_per_hr",
+    "p_to_e",
+    "varom",
+    "e capex2050",
+    "p capex2050",
+    "fom",
+    "af",
+    "min down",
+    "min up",
+    "startup cost",
+    "inertia",
+    "unit size",
+    "min gen",
+    "max ramp",
+]
 
-    params_to_write = {}
+zones = pd.read_csv(snakemake.input[0]).loc[:, "zone"]
 
-    params_to_write["gen"] = {}
-    params_to_write["gen"]["set"] = [
-        "g",
-        "non_vre",
-        "vre",
-        "hydro_res",
-        "uc_int",
-        "uc_lin",
-    ]
-    params_to_write["gen"]["parameter"] = {}
-    params_to_write["gen"]["parameter"]["all"] = [
-        "emis fac",
-        "max ramp",
-        "min down",
-        "min up",
-        "startup cost",
-        "inertia",
-        "unit size",
-        "capex2050",
-        "varom",
-        "fom",
-        "fuelcost2050",
-        "cap2area",
-        "af",
-        "min gen",
-        "peak af",
-    ]
+scen2dd(
+    snakemake.output[1],
+    root,
+    f_techno,
+    params_to_write,
+    scen_db,
+    psys_scen,
+    esys_scen,
+    zones,
+    out=out,
+    esys_cap=False,
+    exist_cap=True,
+    exist_agg=snakemake.wildcards.spatial,
+)
 
-    params_to_write["store"] = {}
-    params_to_write["store"]["set"] = ["s", "uc_lin"]
-    params_to_write["store"]["parameter"] = {}
-    params_to_write["store"]["parameter"]["all"] = [
-        "max_freq",
-        "max_res",
-        "eff_in",
-        "eff_out",
-        "loss_per_hr",
-        "p_to_e",
-        "varom",
-        "e capex2050",
-        "p capex2050",
-        "fom",
-        "af",
-        "min down",
-        "min up",
-        "startup cost",
-        "inertia",
-        "unit size",
-        "min gen",
-        "max ramp",
-    ]
-
-    zones = pd.read_csv(snakemake.input[0]).loc[:, "zone"]
-
-    scen2dd(
-        snakemake.output[1],
-        root,
-        f_techno,
-        params_to_write,
-        scen_db,
-        psys_scen,
-        esys_scen,
-        zones,
-        out=out,
-        esys_cap=False,
-        exist_cap=True,
-        exist_agg=snakemake.wildcards.spatial,
-    )
-
-    trans_links(
-        root,
-        f_techno,
-        aggregated_regions=snakemake.params.aggregated_regions,
-        out=out,
-    )
+trans_links(
+    root,
+    f_techno,
+    aggregated_regions=snakemake.params.aggregated_regions,
+    out=out,
+)
 
 
 years = [snakemake.wildcards.year]
