@@ -106,7 +106,6 @@ localrules:
     build_vre_gdx,
     build_hydro_capfac,
     build_hydrores_inflow,
-    link_hydrores_inflow,
     convert_results,
     build_vre_parquet,
     build_vre_csv,
@@ -380,22 +379,10 @@ rule compress_hydrores_inflow:
     input:
         rules.build_hydrores_inflow.output.inflowgdx,
     output:
-        compressdone=touch(modelpathyearonly / "hydrores_inflow_gdx.compressed"),
+        compressdone=touch(modelpath / "hydrores_inflow_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
 
-
-rule link_hydrores_inflow:
-    input:
-        rules.compress_hydrores_inflow.output.compressdone,
-        rules.build_hydrores_inflow.output.inflowgdx,
-    output:
-        inflowgdx=modelpath / "hydro_res_inflow_{year}.gdx",
-    run:
-        # copy instead of link due to missing privileges on windows
-        import shutil
-
-        shutil.copy2(input[1], output[0])
 
 
 rule build_vre_file:
@@ -509,6 +496,7 @@ rule build_inputs:
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
+        rules.compress_hydrores_inflow.output.compressdone,
         modelpath / "{psys_scenario}_gen.dd",
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
