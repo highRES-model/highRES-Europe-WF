@@ -236,8 +236,10 @@ rule build_vre_land_avail:
         # wildcard spatial for that rule
         cf_exclusion_solar=(
             modelpath / "cf_exclusion_solar.tif"
-            if user_mode == "developer"
+            if user_mode == "developer" and cutoff_values["solar"] > 0.
             else temp(modelpath / "cf_exclusion_solar.tif")
+            if cutoff_values["solar"] > 0.
+            else []
         ),
         cf_exclusion_windon=(
             modelpath / "cf_exclusion_windon.tif"
