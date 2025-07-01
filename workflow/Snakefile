@@ -537,6 +537,9 @@ rule run_gams:
         emis_price=config["parameters"]["emis_price"],
         trans_inv=config["parameters"]["trans_inv"],
         trans_cap_lim=config["parameters"]["trans_cap_lim"],
+        unit_commitment=config["parameters"]["unit_commitment"],
+        frequency_response=config["parameters"]["frequency_response"],
+        store_uc=config["parameters"]["store_uc"],
     resources:
         mem_mb=50000,
     log:
