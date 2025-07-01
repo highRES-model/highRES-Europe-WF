@@ -41,6 +41,10 @@ parameters:
   onshore_slope_excl: True
   include_rooftop: True
 
+  unit_commitment: "OFF"
+  frequency_response: "OFF"
+  store_uc: "OFF"
+
   emis_price: 0
   store_initial_level: 0.5
   store_final_level: 0.5
@@ -53,7 +57,6 @@ parameters:
   cutoff_offwind: 0.20
   date_range: ["01-01", "06-30"]
   aggregated_regions: [
-    "AT",
     "AT",
     #"BE",
     #"BG",
