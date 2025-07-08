@@ -2,7 +2,7 @@
 target: "results.gdx"
 
 paths:
-  gams: D:\utils\GAMS\43\
+  gams: D:\utils\GAMS\43\  # (back)slash at the end is required
   shared_input: shared_input
   abs_shared_code: resources/highRES-Europe-GAMS/
   results: work
