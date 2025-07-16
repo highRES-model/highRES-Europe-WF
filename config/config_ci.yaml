@@ -17,18 +17,49 @@ parameters:
   ]
   spatials: [
     # "grid",
-    "region",
-    # "nuts2",
+    # "region",
+    "nuts2",
   ]
-  
+
+  environmental: [
+   # "low",
+   "medium",
+    # "high",
+  ]
+  social: [
+   # "low",
+   "medium",
+    # "high",
+  ]  
+  wimby_outputs: False
+  wimby_outputs_hourly: True
   
   bias_correction: False
   elevation_excl: False
   #CMIP - PECD
-  cmip_year: 2050 # this year is only available
-  cmip_windspeed: False
-  cmip_solar: False
+  cmip_years: [
+    # 2010, # only with cmip_models ERA5
+    2050,
+    # 2051,
+  ]
+  cmip_models: [
+    # "ERA5",
+    "CMCC_CMR5",
+    # "MPI-_MEHR",
+  ]
+  cmip_windspeed: True
+  cmip_solar: True
+  cmip_windspeed_path: "/fp/homes01/u01/ec-guillerv/wimby/Europe_v1/data/PECD/cmip/ssp245/"
+  # cmip_windspeed_path: "/fp/homes01/u01/ec-guillerv/wimby/Europe_v1/data/PECD/ERA5/"
+  cmip_solar_cf_path: "/fp/homes01/u01/ec-guillerv/wimby/Europe_v1/data/PECD/cmip/ssp245/"
+  # cmip_solar_cf_path: "/fp/homes01/u01/ec-guillerv/wimby/Europe_v1/data/PECD/ERA5/"
 
+  wind_smooth: False
+  windon_af: 0.95
+  windoff_bottom_af: 0.95
+
+  onshore_slope_excl: True
+  include_rooftop: True
   cutoff_solar: 0.09
   cutoff_onwind: 0.15
   cutoff_offwind: 0.20

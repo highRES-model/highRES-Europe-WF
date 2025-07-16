@@ -1,4 +1,4 @@
-
+configfile: "config/config_ci.yaml"
 
 
 
@@ -15,9 +15,13 @@ include_rooftop=config["parameters"]["include_rooftop"]
 
 inputyears = config["parameters"]["years"]
 
-cmip_year = config["parameters"]["cmip_year"]
 cmip_windspeed = config["parameters"]["cmip_windspeed"]
 cmip_solar = config["parameters"]["cmip_solar"]
+input_cmip_years = config["parameters"]["cmip_years"]
+input_cmip_models = config["parameters"]["cmip_models"]
+
+cmip_windspeed_path = config["parameters"]["cmip_windspeed_path"]
+cmip_solar_cf_path = config["parameters"]["cmip_solar_cf_path"]
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = config["parameters"]["aggregated_regions"]
@@ -51,23 +55,29 @@ wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
-# Generate all combinations of years, spatials, social, and environmental scenarios
-#combinations = list(itertools.product(psys_scenarios,inputyears, spatials, social_scenario, environmental_scenario))
+# Generate all combinations of years, spatials, social, and environmental scenarios, cmip_years, cmip_models
+combinations = list(itertools.product(psys_scenarios, inputyears, spatials, social_scenario, environmental_scenario,input_cmip_years,input_cmip_models))
+scenarios = pd.DataFrame(combinations, columns=["psys_scenario", "year", "spatial", "social", "environmental","cmip_years","cmip_models"])
 
-combinations = list(zip(psys_scenarios*len(social_scenario),
-                        inputyears*len(social_scenario),
-                        spatials*len(social_scenario), 
-                        social_scenario, 
-                        environmental_scenario))
+# # cmip years
+# concatlist = []
+# for cmip_year_value in input_cmip_years:
+#     concatlist.append(scenarios.assign(cmip_years=cmip_year_value))
+# scenarios = pd.concat(concatlist).reset_index(drop=True)
 
-scenarios = pd.DataFrame(combinations, columns=["psys_scenario","year", "spatial", "social", "environmental"])
+# # cmip models
+# concatlist = []
+# for cmip_model_name in input_cmip_models:
+#     concatlist.append(scenarios.assign(cmip_models=cmip_model_name))
+# scenarios = pd.concat(concatlist).reset_index(drop=True)
 
 psys_scenarios = scenarios.psys_scenario.to_list()
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 socials = scenarios.social.to_list()
 environmentals = scenarios.environmental.to_list()
-
+cmip_years = scenarios.cmip_years.to_list() # cmip years
+cmip_models = scenarios.cmip_models.to_list() # cmip models
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -113,13 +123,17 @@ scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=Fals
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}"
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}" / "{cmip_year}" / "{cmip_model}"
 
 
 localrules:
     all,
     build_cplex_opt,
+    build_shapes,
     build_technoeconomic_inputs,
+    build_vre_cf_grid,
+    build_vre_land_avail,
+    build_vre_cf_inputs,
     build_zones_file,
     build_vre_areas_file,
     build_vre_file,
@@ -133,12 +147,12 @@ localrules:
     compress_vre_gdx,
     compress_hydrores_inflow,
     convert_results_db_parquet,
-    run_gams,
+    # run_gams,
 
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals, cmip_year=cmip_years, cmip_model=cmip_models),
 
 
 rule build_cplex_opt:
@@ -218,7 +232,7 @@ rule build_vre_cf_grid:
             else []
         ),
     output:
-        cf_file="intermediate_data/{spatial}/weather/europe_cf_{year}.nc",
+        cf_file="intermediate_data/{spatial}/{cmip_model}/{cmip_year}/weather/europe_cf_{year}.nc",
     resources:
         mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -228,9 +242,12 @@ rule build_vre_cf_grid:
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
         windturbines=windturbines,
-        cmip_year = cmip_year,
         windspeed=cmip_windspeed,
         solar=cmip_solar,
+        windspeed_path=cmip_windspeed_path,
+        solar_cf_path=cmip_solar_cf_path,
+        cmip_model=lambda wildcards: wildcards.cmip_model,
+        cmip_year=lambda wildcards: wildcards.cmip_year,
         wind_smooth=wind_smooth,
         windon_af=windon_af,
         windoff_bottom_af=windoff_bottom_af,
