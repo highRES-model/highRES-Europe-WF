@@ -17,10 +17,12 @@ inputyears = config["parameters"]["years"]
 
 cmip_windspeed = config["parameters"]["cmip_windspeed"]
 cmip_solar = config["parameters"]["cmip_solar"]
+cmip_runoff = config["parameters"]["cmip_runoff"]
 input_cmip_years = config["parameters"]["cmip_years"]
 input_cmip_models = config["parameters"]["cmip_models"]
 
 cmip_windspeed_path = config["parameters"]["cmip_windspeed_path"]
+cmip_runoff_path = config["parameters"]["cmip_runoff_path"]
 cmip_solar_cf_path = config["parameters"]["cmip_solar_cf_path"]
 # TODO: make grid_regions work
 grid_regions = []
@@ -385,6 +387,8 @@ rule build_hydro_capfac:
         sharedinputpath=shared_input_path,
         aggregated_regions=aggregated_regions,
         date_range=date_range,
+        runoff=cmip_runoff,
+        runoff_path=cmip_runoff_path,
     notebook:
         "notebooks/highRES_build_hydro.py.ipynb"
 
