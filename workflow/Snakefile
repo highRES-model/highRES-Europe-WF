@@ -15,6 +15,9 @@ include_rooftop=config["parameters"]["include_rooftop"]
 
 inputyears = config["parameters"]["years"]
 
+cmip_year = config["parameters"]["cmip_year"]
+cmip_windspeed = config["parameters"]["cmip_windspeed"]
+cmip_solar = config["parameters"]["cmip_solar"]
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = config["parameters"]["aggregated_regions"]
@@ -225,6 +228,9 @@ rule build_vre_cf_grid:
         aggregated_regions=aggregated_regions,
         bias_correction=bias_correction,
         windturbines=windturbines,
+        cmip_year = cmip_year,
+        windspeed=cmip_windspeed,
+        solar=cmip_solar,
         wind_smooth=wind_smooth,
         windon_af=windon_af,
         windoff_bottom_af=windoff_bottom_af,
