@@ -1,7 +1,9 @@
-target: "results.db.compressed"
+target: "inputs.finished"
+# target: "results.gdx"
+# target: "results.db.compressed"
 
 paths:
-  gams: /opt/gams/gams46.5_linux_x64_64_sfx/
+  gams: /opt/gams/gams49.4_linux_x64_64_sfx/
   shared_input: shared_input
   abs_shared_code: /home/runner/work/highRES-Europe-WF/highRES-Europe-WF/resources/highRES-Europe-GAMS/
   results: work
@@ -31,17 +33,26 @@ parameters:
    # "low",
    "medium",
     # "high",
-  ]  
-  wimby_outputs: False
-  wimby_outputs_hourly: True
+  ]
+
+  power_system_scenario: ["BASE"]
+
+  # Options: "intensity", "budget"
+  co2_target_type: "budget"
+
+  # Options: "all"
+  co2_target_extent: "zonal"
 
   # Options: "OFF","TYNDP","USER"
   trans_inv: "TYNDP"
-  
+
   # Only used if trans_inv set to USER
   trans_cap_lim: 20
 
-  #CMIP - PECD
+  wimby_outputs: False
+  wimby_outputs_hourly: True
+
+  ## CMIP - PECD options
   cmip_years: [
     # 2010, # only with cmip_models ERA5
     2050,
@@ -55,71 +66,60 @@ parameters:
   cmip_windspeed: True
   cmip_solar: True
   cmip_runoff: True
-  
-  cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
-  # cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
-  cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
-  # cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
-  cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/cmip/ssp245/"
-  # cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/ERA5/"
 
-  # Wind options
+  cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ssp370/"
+  # cmip_windspeed_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ERA5/"
+  cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ssp370/"
+  # cmip_solar_cf_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ERA5/"
+  cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ssp370/"
+  # cmip_runoff_path: "/fp/projects01/ec285/Europe_v1/data/PECD/v4.2/ERA5/"
+
   bias_correction: False
-  
-  wind_smooth: False
-  windon_af: 0.95
-  windoff_bottom_af: 0.95
 
   elevation_excl: False
   onshore_slope_excl: True
-  cutoff_onwind: 0.15
-  cutoff_offwind: 0.20
-
-  # Solar options
   include_rooftop: True
-  cutoff_solar: 0.09
-  
-  # General options
-  co2target: 0 # gCO2/kWh
-  emis_price: 0
-  pgen: 20.0
-  date_range: ["01-01", "12-31"]
 
-  # Storage options
+  emis_price: 0
   store_initial_level: 0.5
   store_final_level: 0.5
   hydro_res_initial_fill: 0.8
   hydro_res_min: 0.5
-  
+  pgen: 20.0
+
+  cutoff_solar: 0.09
+  cutoff_onwind: 0.00
+  cutoff_offwind: 0.00
+  date_range: ["01-01", "12-31"]
   aggregated_regions: [
-    #"AT",
+    "AT",
     #"BE",
-    "BG",
-    #"CH",
-    #"CZ",
-    #"DE",
+    #"BG",
+    "CH",
+    "CZ",
+    "DE",
     #"DK",
-    "EE",
-    "ES",
-    "FI",
+    #"EE",
+    #"ES",
+    #"FI",
     "FR",
-    "UK",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    #"LU",
-    "LV",
+    #"UK",
+    #"GR",
+    #"HR",
+    #"HU",
+    #"IE",
+    #"IT",
+    #"LT",
+    "LU",
+    #"LV",
     #"NL",
-    "NO",
+    #"NO",
     "PL",
-    "PT",
-    "RO",
+    #"PT",
+    #"RO",
     #"SE",
     #"SI",
-    "SK",
+    #"SK",
   ]
   solar_clc : [
     1,
@@ -171,17 +171,31 @@ parameters:
     6 : 5000,
   }
   windturbines : {
-    "onshore" : "Vestas_V112_3MW",
-    "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
-    "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
+      "onshore" : {
+         'POW': [0.0, 0.03496563, 0.11828025, 0.25567794, 0.46064829,
+                           0.74670582, 1.1273325 , 1.61041088, 2.13039893, 2.5061411,
+                           2.67739981, 2.73205574, 2.74598743, 2.74913521, 2.75],
+         'V': [0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 25],
+         'P': 2.7,
+         'hub_height': 100,
+      },
+      "offshore_bottom" : "Vestas_V164_7MW_offshore",
+      "offshore_float" : "Vestas_V164_7MW_offshore",
   }
+
+  wind_smooth: False
+  windon_af: 0.95
+  windoff_bottom_af: 0.95
+
+
+  co2target : [
+    2 # gCO2/kWh
+  ]
 
 cplex_options:
   lpmethod: 4
   solutiontype: 2
-  threads: 4
-  predual: -1
-  aggind: 50
-  BarColNZ: 150
-  barstartalg: 3
-  BarOrder: 3
+  threads: 10
+  predual: 0
+  BarOrder: 0
+  barepcomp: 1E-7
