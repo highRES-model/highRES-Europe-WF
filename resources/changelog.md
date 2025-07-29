@@ -21,4 +21,4 @@
 | 24.06.2025 13:51 | europe_2010.nc | Initialise file | 1ce2b592b22e929158a1bd37bd1c3508788bab08c95b953ed1db9732cb84bab7 |
 | 24.06.2025 13:52 | ratio_gwa2_era5.nc | Initialise file | 15a24fd2379029204a99bdd9c638ceecd3ca87a18170d743c47308bdc17d7d64 |
 | 26.06.2025 12:27 | highres_scenarios.xls | Update default technologies | f98e1af6cfd27f3abab39929a96fb3d8489d13e056109fcc32af8435a84c4940 |
-
+| 29.07.2025 10:02 | NUTS_RG_60M_2024_4326.geojson | NUTS 2024 from EuroStat in lower resolution for centroid calculation | fb15d3f1258b82714e2020e0160cf97c44d5e691003684e33455f4c5ee0f20f1 |
