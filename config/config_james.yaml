@@ -22,15 +22,17 @@ parameters:
      "nuts2",
   ]
   environmental: [
-   "low",
+   #"low",
    #"medium",
-   #"high",
+   "high",
   ]
   social: [
-   "low",
+   #"low",
    #"medium",
-   #"high",
+   "high",
   ]
+  
+  windoff_floating: True
   
   power_system_scenario: ["BASE"]
   
@@ -161,6 +163,7 @@ parameters:
   wind_smooth: False
   windon_af: 0.95
   windoff_bottom_af: 0.95
+  windoff_floating_af: 0.95
 
 cplex_options:
   lpmethod: 4
