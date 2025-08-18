@@ -170,8 +170,10 @@ rule build_technoeconomic_inputs:
 
 rule build_shapes:
     input:
-        euroshape=shared_input_path
+        euroshape_24=shared_input_path
         / "geodata/onshore/shapes/NUTS_RG_01M_2024_4326.geojson",
+        euroshape_21=shared_input_path
+        / "geodata/onshore/shapes/NUTS_RG_01M_2021_4326.geojson",
         eurooffshoreshape=shared_input_path
         / ("geodata/offshore/BOTTOM_MOUNTED_EUROPE_NUTS0" "_NORWAY_NUTS3.geojson"),
     output:
