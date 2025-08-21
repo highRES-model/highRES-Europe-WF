@@ -185,8 +185,10 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
-        co2_targets_db="resources/TIMES_250513_co2_targets.csv",
+        # europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
+        europedemandcsvlocation="resources/demand_wimby/europe_demand.csv",
+        # co2_targets_db="resources/TIMES_250513_co2_targets.csv",
+        co2_targets_db="resources/europe_co2_targets.csv",
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
         "envs/build_technoeconomic.yml"
