@@ -20,6 +20,8 @@ cmip_solar = config["parameters"]["cmip_solar"]
 cmip_runoff = config["parameters"]["cmip_runoff"]
 input_cmip_years = config["parameters"]["cmip_years"]
 input_cmip_models = config["parameters"]["cmip_models"]
+input_cmip_scenarios = config["parameters"]["cmip_scenarios"]
+pv_type_pecd = config["parameters"]["pv_type_pecd"]
 
 cmip_windspeed_path = config["parameters"]["cmip_windspeed_path"]
 cmip_runoff_path = config["parameters"]["cmip_runoff_path"]
@@ -58,8 +60,8 @@ windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 
 # Generate all combinations of years, spatials, social, and environmental scenarios, cmip_years, cmip_models
-combinations = list(itertools.product(psys_scenarios, inputyears, spatials, social_scenario, environmental_scenario,input_cmip_years,input_cmip_models))
-scenarios = pd.DataFrame(combinations, columns=["psys_scenario", "year", "spatial", "social", "environmental","cmip_years","cmip_models"])
+combinations = list(itertools.product(psys_scenarios, inputyears, spatials, social_scenario, environmental_scenario,input_cmip_scenarios,input_cmip_years,input_cmip_models))
+scenarios = pd.DataFrame(combinations, columns=["psys_scenario", "year", "spatial", "social", "environmental","cmip_scenarios","cmip_years","cmip_models"])
 
 # # cmip years
 # concatlist = []
@@ -80,6 +82,7 @@ socials = scenarios.social.to_list()
 environmentals = scenarios.environmental.to_list()
 cmip_years = scenarios.cmip_years.to_list() # cmip years
 cmip_models = scenarios.cmip_models.to_list() # cmip models
+cmip_scenarios = scenarios.cmip_scenarios.to_list() # cmip models
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -125,7 +128,8 @@ scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=Fals
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}" / "{cmip_year}" / "{cmip_model}"
+# modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}" / "{cmip_year}" / "{cmip_model}"
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{socials}_{environmentals}" / "{cmip_scenario}" / "{cmip_year}" / "{cmip_model}"
 
 
 localrules:
@@ -154,7 +158,7 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals, cmip_year=cmip_years, cmip_model=cmip_models),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals, cmip_scenario=cmip_scenarios, cmip_year=cmip_years, cmip_model=cmip_models),
 
 
 rule build_cplex_opt:
@@ -236,7 +240,7 @@ rule build_vre_cf_grid:
             else []
         ),
     output:
-        cf_file="intermediate_data/{spatial}/{cmip_model}/{cmip_year}/weather/europe_cf_{year}.nc",
+        cf_file="intermediate_data/{spatial}/{cmip_scenario}/{cmip_model}/{cmip_year}/weather/europe_cf_{year}.nc",
     resources:
         mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -250,8 +254,10 @@ rule build_vre_cf_grid:
         solar=cmip_solar,
         windspeed_path=cmip_windspeed_path,
         solar_cf_path=cmip_solar_cf_path,
-        cmip_model=lambda wildcards: wildcards.cmip_model,
-        cmip_year=lambda wildcards: wildcards.cmip_year,
+        # cmip_model=lambda wildcards: wildcards.cmip_model,
+        # cmip_year=lambda wildcards: wildcards.cmip_year,
+        # cmip_scenario=lambda wildcards: wildcards.cmip_scenario,
+        pv_type_pecd = pv_type_pecd,
         wind_smooth=wind_smooth,
         windon_af=windon_af,
         windoff_bottom_af=windoff_bottom_af,
@@ -620,7 +626,8 @@ rule convert_results:
         resultsdb=ensure(protected(modelpath / "results.db"), non_empty=True),
     shell:
         # TODO platform independence
-        gamspath + "gdx2sqlite -i {input} -o {output} -fast"
+        gamspath + "gamstool sqlitewrite gdxIn={input} o={output}"
+        # gamspath + "gdx2sqlite -i {input} -o {output} -fast"
 
 
 rule convert_results_db_parquet:
