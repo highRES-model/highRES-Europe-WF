@@ -35,6 +35,4 @@ Moore, A., Price, J., & Zeyringer, M. (2018). The role of floating offshore wind
 
 Zeyringer, M., Price, J., Fais, B., Li, P.-H., & Sharp, E. (2018). Designing low-carbon power systems for Great Britain in 2050 that are robust to the spatiotemporal and inter-annual variability of weather. Nature Energy, 3(5), Article 5. https://doi.org/10.1038/s41560-018-0128-x
 
-Price, J., Zeyringer, M., Konadu, D., Sobral Mourão, Z., Moore, A., & Sharp, E. (2018). Low carbon electricity systems for Great Britain in 2050: An energy-land-water perspective. Applied Energy, 228, 928–941. https://doi.org/10.1016/j.apenergy.2018.06.127
-
 Zeyringer, M., Fais, B., & Price, J. (2016). “New” or “old” technologies to decarbonize UK’s electricity system? 2016 13th International Conference on the European Energy Market (EEM), 1–5. https://doi.org/10.1109/EEM.2016.7521318
