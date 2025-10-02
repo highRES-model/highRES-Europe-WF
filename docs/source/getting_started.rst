@@ -11,35 +11,55 @@ To use highRES, a GAMS license is required. See the `GAMS website <https://www.g
 Data bundle
 ------------
 
-To run the full workflow, two datapackages are needed they can be downloaded from:
+To run the full workflow, three datapackages are needed:
 
-1. (~80MB compressed, ~300MB uncompressed) https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1.
-2. (~10GB) https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1
+1. Resources (3.2 MB compressed, 6.4 MB uncompressed)
+2. Weatherdata (4.3 GB)
+3. Geodata (260 MB compressed, 518 MB uncompressed)
+
+The datapackages can be downloaded from Zenodo https://doi.org/10.5281/zenodo.14223617.
 
 Windows
 ----------------
 1. Clone the repository
-2. Install snakemake
+   - To also get the submodule, go into the cloned folder and run these two commands
+   .. code-block:: console
+      git submodule init
+      git submodule update
 
+2. Install snakemake
    - Download miniforge windows exe https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe
    - Install Miniforge
-   - Run the minimal install of the snakemake environment mamba create -c bioconda -c conda-forge -n snakemake snakemake-minimal pandas zstd
+   - Open Miniforge Prompt from the start menu
+   - Install the environment from the provided yaml file
+   .. code-block:: console
+      mamba env create -f workflow/envs/highres_environment.yaml
+
 3. Activate the snakemake environment
-4. Navigate to the repository in your snakemake conda environment shell
-5. Get the required input files
-
 .. code-block:: console
+   mamba activate highres
 
-   curl -o shared_input.tar -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/tobiasvh_uio_no/EdEmFkUQoL5Imy3-   OumK_o0BcFqilpjB3CQOCbUwi_1T8g?e=O0kq50&download=1" -o resources.tar.zst -L -b cookies.txt "https://uio-my.sharepoint.com/:u:/g/personal/   tobiasvh_uio_no/Eftsg10mEK9Mpi4TSN8aS9kBWlooGJ_99YDDaYcGiQvrYQ?e=xeu9Lk&download=1"
+4. Navigate to the repository in your snakemake conda environment shell
+
+5. Get the required input files
+.. code-block:: console
+   zenodo_get 10.5281/zenodo.14223617
 
 6. Extract the required input files
-
 .. code-block:: console
+   unzip resources.zip
+   unzip weatherdata.zip
+   unzip geodata.zip
 
-    zstd -d resources.tar.zst
-    mkdir resources
-    tar xf resources.tar -C resources
-    mkdir shared_input
-    tar xf shared_input.tar -C shared_input
+7. Create a folder for shared input and move the geodata and weatherdata to that folder
+.. code-block:: console
+   mkdir shared_input
+   mv geodata shared_input
+   mv weatherdata shared_input
 
-5. Run snakemake -c --use-conda
+8. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
+
+9. Run
+   .. code-block:: console
+      snakemake -c all --configfile config/config_ci.yaml
+   - Specify your own config file by changing the file name
