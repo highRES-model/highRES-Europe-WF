@@ -191,7 +191,42 @@ def trans_links(root, f, aggregated_regions, out="work"):
     #    outdd=np.concatenate(outdd,axis=0)
 
     np.savetxt(root / out / (tech_type + ".dd"), outdd, delimiter=" ", fmt="%s")
-
+    
+def add_vre_connection_costs(
+            root,
+            out,
+            f_techno,
+            psys_scen,
+            vre_connection_dists
+            ):
+    
+    dists=pd.read_csv(vre_connection_dists,index_col=0)
+    
+    capex=pd.read_excel(f_techno, 
+                             sheet_name="transmission", 
+                             skiprows=1, 
+                             engine="calamine")
+    
+    conn_costs=(dists.div(100)
+            .mul(capex.loc[capex["Technology Name (highRES)"]=="HVDC_Windoffshore","line_capex"].values[0]))
+    
+    conn_costs.loc[(dists["dist"]>0.0),"dist"]+=capex.loc[capex["Technology Name (highRES)"]=="HVDC_Windoffshore","sub_capex"].values[0]
+    
+    conn_costs=pd.DataFrame(wrapdd(conn_costs.round(1).reset_index().values,
+                 "gen_vreconnection","parameter"))
+    
+    conn_costs["out"]=conn_costs[0]+" "+conn_costs[1].astype(str)
+    
+    d=pd.read_csv(root / out / (psys_scen+"_gen.dd"),skip_blank_lines=False,header=None)
+    
+    d_out=np.concatenate(
+        (d.values,
+        conn_costs.loc[:,["out"]].values),
+        axis=0)
+    
+    np.savetxt(
+            root / out / (psys_scen+"_gen.dd"), d_out, delimiter=" ", fmt="%s"
+        )
 
 def co2target2dd(co2targets_db, 
                  co2target_out, 
