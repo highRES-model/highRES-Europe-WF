@@ -143,32 +143,6 @@ rule build_zones_file:
         "scripts/build_zones.py"
 
 
-rule build_technoeconomic_inputs:
-    input:
-        "resources/zones.csv",
-        "resources/highres_scenarios.xls",
-        "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/europe_demand.csv",
-        co2_targets_db="resources/europe_co2_targets.csv",
-        data2dd="workflow/scripts/data2dd_funcs.py",
-    conda:
-        "envs/build_technoeconomic.yml"
-    output:
-        modelpath / "{year}_temporal.dd",
-        modelpath / "{psys_scenario}_gen.dd",
-        modelpath / "{psys_scenario}_store.dd",
-        modelpath / "trans.dd",
-        co2_target=modelpath / "BASE_co2_target.dd",
-        demandfile=modelpath / "BASE_demand_{year}.dd",
-    params:
-        aggregated_regions=aggregated_regions,
-        date_range=date_range,
-        user_mode=user_mode,
-        co2_target_type=config["parameters"]["co2_target_type"],
-        co2_target_extent=config["parameters"]["co2_target_extent"],
-        co2_target_scenario="BASE",
-    script:
-        "scripts/data2dd.py"
 
 
 rule build_shapes:
@@ -303,11 +277,45 @@ rule build_vre_cf_inputs:
             if user_mode == "developer"
             else temp(modelpath / "areas_wind_offshore.csv")
         ),
+        vre_connection_dists=(
+            modelpath / "vre_connection_dists.csv"
+            if user_mode == "developer"
+            else temp(modelpath / "vre_connection_dists.csv")
+        ),
     params:
         date_range=date_range,
         include_rooftop=include_rooftop,
     notebook:
         "notebooks/highRES-build_vre_cf_inputs.ipynb"
+
+
+rule build_technoeconomic_inputs:
+    input:
+        "resources/zones.csv",
+        "resources/highres_scenarios.xls",
+        "resources/highres_technoeconomic_database.ods",
+        europedemandcsvlocation="resources/europe_demand.csv",
+        co2_targets_db="resources/europe_co2_targets.csv",
+        vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
+        data2dd="workflow/scripts/data2dd_funcs.py",
+    conda:
+        "envs/build_technoeconomic.yml"
+    output:
+        modelpath / "{year}_temporal.dd",
+        modelpath / "{psys_scenario}_gen.dd",
+        modelpath / "{psys_scenario}_store.dd",
+        modelpath / "trans.dd",
+        co2_target=modelpath / "BASE_co2_target.dd",
+        demandfile=modelpath / "BASE_demand_{year}.dd",
+    params:
+        aggregated_regions=aggregated_regions,
+        date_range=date_range,
+        user_mode=user_mode,
+        co2_target_type=config["parameters"]["co2_target_type"],
+        co2_target_extent=config["parameters"]["co2_target_extent"],
+        co2_target_scenario="BASE",
+    script:
+        "scripts/data2dd.py"
 
 
 rule build_hydro_capfac:
