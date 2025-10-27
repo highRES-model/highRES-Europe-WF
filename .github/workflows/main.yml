@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env: 
-  gamsversion: "50.1.0"
+  gamsversion: "50.5.0"
   # Only works in one place and need to be hardcodes in two places as of 25 June 2025. 
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
           ~/linux_x64_64_sfx.exe
           cd ~
           pwd
-          ls /opt/gams/gams50.1_linux_x64_64_sfx
+          ls /opt/gams/gams50.5_linux_x64_64_sfx
 
       # Courtesy of PyPSA-EUR
       #- name: Setup secrets
@@ -68,7 +68,7 @@ jobs:
         env:
           GAMS_ACCESS_CODE: ${{ secrets.GAMS_ACCESS_CODE }}
         run: |
-          sudo /opt/gams/gams50.1_linux_x64_64_sfx/gamsgetkey $GAMS_ACCESS_CODE -o /opt/gams/gams50.1_linux_x64_64_sfx/gamslice.txt
+          sudo /opt/gams/gams50.5_linux_x64_64_sfx/gamsgetkey $GAMS_ACCESS_CODE -o /opt/gams/gams50.5_linux_x64_64_sfx/gamslice.txt
           
 
       - name: Setup micromamba
