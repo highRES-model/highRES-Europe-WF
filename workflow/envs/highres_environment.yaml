@@ -30,8 +30,8 @@ dependencies:
   - git
   - rasterio=1.3.11
   - python-calamine
+  - zenodo_get
   - pip
   - pip:
     - cdsapi
     - git+https://github.com/absolute-afloat/atlite.git@hr
-    - zenodo-get
