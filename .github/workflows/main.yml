@@ -98,6 +98,8 @@ jobs:
       - name: Download Zenodo
         if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate highres
           zenodo_get 10.5281/zenodo.14223617
 
       - name: Extract Zenodo
