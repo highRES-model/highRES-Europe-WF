@@ -95,19 +95,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install libarchive-tools
 
-      - name: Download & Extract resources
-        run: |
-          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/resources.zip?download=1" | bsdtar -xvf-
-          
-      - name: Download & Extract geodata
+      - name: Download Zenodo
         if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
-          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/geodata.zip?download=1" | bsdtar -xvf-  
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate highres
+          zenodo_get 10.5281/zenodo.14223617
 
-      - name: Download & Extract weatherdata
+      - name: Extract Zenodo
         if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
-          curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/weatherdata.zip?download=1" | bsdtar -xvf-
+          bsdtar -xvf resources.zip
+          bsdtar -xvf geodata.zip
+          bsdtar -xvf weatherdata.zip
 
       - name: Create shared_input
         if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
