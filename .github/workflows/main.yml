@@ -25,23 +25,23 @@ jobs:
           submodules: 'true'
 
       - name: Cache shared input
-        id: cache-shared-inputs
-        uses: actions/cache@v4
+        id: cache-shared-inputs-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             shared_input
           key: shared_inputs
 
       - name: Cache GAMS
-        id: cache-gams
-        uses: actions/cache@v4
+        id: cache-gams-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             /opt/gams
           key: ${{ runner.os }}-gams
 
       - name: Install GAMS
-        if: steps.cache-gams.outputs.cache-hit != 'true'
+        if: steps.cache-gams-restore.outputs.cache-hit != 'true'
         run: |
           pwd
           sudo apt-get update
@@ -62,6 +62,15 @@ jobs:
       #- name: Setup secrets
       #  run: |
       #    echo -ne "url: ${CDSAPI_URL}\nkey: ${CDSAPI_TOKEN}\n" > ~/.cdsapirc
+
+      - name: Always Cache GAMS
+        id: cache-gams-save
+        if: always() && steps.cache-gams-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-gams-restore.outputs.cache-primary-key }}
+          path: |
+            /opt/gams
 
       # Courtesy of PyPSA-EUR
       - name: Setup GAMS license
@@ -91,21 +100,30 @@ jobs:
           curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/resources.zip?download=1" | bsdtar -xvf-
           
       - name: Download & Extract geodata
-        if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
           curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/geodata.zip?download=1" | bsdtar -xvf-  
 
       - name: Download & Extract weatherdata
-        if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
           curl -L -b cookies.txt "https://zenodo.org/records/15735203/files/weatherdata.zip?download=1" | bsdtar -xvf-
 
       - name: Create shared_input
-        if: steps.cache-shared-inputs.outputs.cache-hit != 'true'
+        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
           mkdir shared_input
           mv geodata shared_input
           mv weatherdata shared_input
+
+      - name: Always save shared input
+        id: cache-shared-inputs-save
+        if: always() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-shared-inputs-restore.outputs.cache-primary-key }}
+          path: |
+            shared_input
         
       - name: Test snakemake workflow
         run: |
