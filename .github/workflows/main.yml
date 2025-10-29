@@ -139,12 +139,13 @@ jobs:
           name: logs
           path: |
             .snakemake/log/*.log
-            work/models/2010/region/highres.log
-            work/models/2010/region/highres.lst
+            work/BASE_2010_region/highres.log
+            work/BASE_2010_region/highres.lst
+            work/BASE_2010_region/test_log
       
       - name: Archive results
         uses: actions/upload-artifact@v4
         with:
           name: results
           path: |
-            work/models/2010/region/results.db
+            work/BASE_2010_region/results.db
