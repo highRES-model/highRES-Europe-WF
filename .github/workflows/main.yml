@@ -110,6 +110,7 @@ jobs:
           bsdtar -xvf resources.zip
           bsdtar -xvf geodata.zip
           bsdtar -xvf weatherdata.zip
+          rm resources.zip geodata.zip weatherdata.zip
 
       - name: Create shared_input
         if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
