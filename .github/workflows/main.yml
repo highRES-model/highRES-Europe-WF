@@ -30,6 +30,7 @@ jobs:
         with:
           path: |
             shared_input
+            resources
           key: shared_inputs
 
       - name: Cache GAMS
