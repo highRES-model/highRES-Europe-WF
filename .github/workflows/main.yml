@@ -125,6 +125,7 @@ jobs:
           key: ${{ steps.cache-shared-inputs-restore.outputs.cache-primary-key }}
           path: |
             shared_input
+            resources
         
       - name: Test snakemake workflow
         run: |
