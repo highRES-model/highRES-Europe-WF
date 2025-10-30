@@ -33,6 +33,54 @@ jobs:
             resources
           key: shared_inputs-${{ hashFiles('shared_input', 'resources') }}
 
+      - name: Install bsdtar tool
+        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libarchive-tools
+
+      - name: Setup micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: latest
+          environment-file: workflow/envs/highres_environment.yaml
+          # log-level: debug
+          init-shell: bash
+          cache-environment: true
+          cache-downloads: true
+
+      - name: Download Zenodo
+        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate highres
+          zenodo_get -R 5 10.5281/zenodo.14223617 # R5 because downloads sometimes fail
+
+      - name: Extract Zenodo
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true' # success to not do this step if any of the previous have failed
+        run: |
+          bsdtar -xvf resources.zip
+          bsdtar -xvf geodata.zip
+          bsdtar -xvf weatherdata.zip
+          rm resources.zip geodata.zip weatherdata.zip
+
+      - name: Create shared_input
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        run: |
+          mkdir shared_input
+          mv geodata shared_input
+          mv weatherdata shared_input
+
+      - name: Always save shared input
+        id: cache-shared-inputs-save
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.cache-shared-inputs-restore.outputs.cache-primary-key }}
+          path: |
+            shared_input
+            resources
+
       - name: Cache GAMS
         id: cache-gams-restore
         uses: actions/cache/restore@v4
@@ -79,62 +127,13 @@ jobs:
           GAMS_ACCESS_CODE: ${{ secrets.GAMS_ACCESS_CODE }}
         run: |
           sudo /opt/gams/gams50.5_linux_x64_64_sfx/gamsgetkey $GAMS_ACCESS_CODE -o /opt/gams/gams50.5_linux_x64_64_sfx/gamslice.txt
-          
 
-      - name: Setup micromamba
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          micromamba-version: latest
-          environment-file: workflow/envs/highres_environment.yaml
-          # log-level: debug
-          init-shell: bash
-          cache-environment: true
-          cache-downloads: true
-
-      - name: Install bsdtar tool
-        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install libarchive-tools
-
-      - name: Download Zenodo
-        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
-        run: |
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba activate highres
-          zenodo_get -R 5 10.5281/zenodo.14223617 # R5 because downloads sometimes fail
-
-      - name: Extract Zenodo
-        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true' # success to not do this step if any of the previous have failed
-        run: |
-          bsdtar -xvf resources.zip
-          bsdtar -xvf geodata.zip
-          bsdtar -xvf weatherdata.zip
-          rm resources.zip geodata.zip weatherdata.zip
-
-      - name: Create shared_input
-        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
-        run: |
-          mkdir shared_input
-          mv geodata shared_input
-          mv weatherdata shared_input
-
-      - name: Always save shared input
-        id: cache-shared-inputs-save
-        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ steps.cache-shared-inputs-restore.outputs.cache-primary-key }}
-          path: |
-            shared_input
-            resources
-        
       - name: Test snakemake workflow
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate highres
           snakemake -c all --configfile=config/config_ci.yaml
-      
+
       - name: Archive log files
         if: always()
         uses: actions/upload-artifact@v4
