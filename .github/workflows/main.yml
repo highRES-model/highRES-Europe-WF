@@ -30,7 +30,8 @@ jobs:
         with:
           path: |
             shared_input
-          key: shared_inputs
+            resources
+          key: shared_inputs-${{ hashFiles('shared_input', 'resources') }}
 
       - name: Cache GAMS
         id: cache-gams-restore
