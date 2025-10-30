@@ -102,10 +102,10 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate highres
-          zenodo_get 10.5281/zenodo.14223617
+          zenodo_get -R 5 10.5281/zenodo.14223617 # R5 because downloads sometimes fail
 
       - name: Extract Zenodo
-        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true' # success to not do this step if any of the previous have failed
         run: |
           bsdtar -xvf resources.zip
           bsdtar -xvf geodata.zip
@@ -113,7 +113,7 @@ jobs:
           rm resources.zip geodata.zip weatherdata.zip
 
       - name: Create shared_input
-        if: steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         run: |
           mkdir shared_input
           mv geodata shared_input
@@ -121,7 +121,7 @@ jobs:
 
       - name: Always save shared input
         id: cache-shared-inputs-save
-        if: always() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
+        if: success() && steps.cache-shared-inputs-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
           key: ${{ steps.cache-shared-inputs-restore.outputs.cache-primary-key }}
