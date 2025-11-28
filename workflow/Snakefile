@@ -18,6 +18,7 @@ inputyears = config["parameters"]["years"]
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = config["parameters"]["aggregated_regions"]
+#aggregated_regions = config["parameters"]["test_regions"]
 
 # TODO: worry about zones vs regions later this only works for all aggregated
 pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
@@ -25,6 +26,9 @@ pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
 )
 
 spatials = config["parameters"]["spatials"]
+
+bird_scenarios = config["parameters"]["birds"]
+
 psys_scenarios = config["parameters"]["power_system_scenario"]
 
 cutoff_values = {
@@ -47,12 +51,16 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
 # Generate all combinations of years, spatials
-combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
-scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario"])
-
+combinations = list(itertools.product(inputyears, spatials, psys_scenarios, bird_scenarios))
+#combinations = list(zip(psys_scenarios*len(bird_scenarios),
+#                        inputyears*len(bird_scenarios),
+#                        spatials*len(bird_scenarios), 
+#                        bird_scenarios))
+scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario", "bird"])
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
+birds = scenarios.bird.to_list()
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -87,7 +95,7 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 # available.
 #scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
-run_name=["psys_scenario","year","spatial"]
+run_name=["psys_scenario","year","spatial","bird"]
 
 scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
 
@@ -95,31 +103,34 @@ scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=Fals
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{year}_{spatial}"
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{bird}"
 
 
 localrules:
     all,
     build_cplex_opt,
-    build_technoeconomic_inputs,
-    build_zones_file,
-    build_vre_areas_file,
-    build_vre_file,
-    build_vre_gdx,
     build_hydro_capfac,
     build_hydrores_inflow,
-    convert_results,
-    build_vre_parquet,
+    build_inputs,
+    build_shapes,
+    build_technoeconomic_inputs,
+    build_vre_areas_file,
+    build_vre_cf_grid,
+    build_vre_cf_inputs,
     build_vre_csv,
-    compress_vre_gdx,
+    build_vre_file,
+    build_vre_gdx,
+    build_vre_land_avail,
+    build_vre_parquet,
+    build_zones_file,
     compress_hydrores_inflow,
+    compress_vre_gdx,
+    convert_results,
     convert_results_db_parquet,
-    run_gams,
-
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, bird=birds),
 
 
 rule build_cplex_opt:
@@ -198,8 +209,9 @@ rule build_vre_land_avail:
         solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
-        social_excl=shared_input_path / "geodata/onshore/social_low.tif",
-        env_excl=shared_input_path / "geodata/onshore/environmental_low.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_medium.tif",
+        env_excl=shared_input_path / "geodata/wimby/environmental_medium_noBirds.tif",
+        bird_excl=shared_input_path / "geodata/wimby/birds_{bird}.tif",
         techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
@@ -314,8 +326,8 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/europe_demand.csv",
-        co2_targets_db="resources/europe_co2_targets.csv",
+        europedemandcsvlocation="resources/medium_medium_demand_1995.csv",
+        co2_targets_db="resources/TIMES_250513_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
     conda:
