@@ -23,7 +23,9 @@ Windows
 ----------------
 1. Clone the repository
    - To also get the submodule, go into the cloned folder and run these two commands
+
    .. code-block:: console
+
       git submodule init
       git submodule update
 
@@ -32,27 +34,37 @@ Windows
    - Install Miniforge
    - Open Miniforge Prompt from the start menu
    - Install the environment from the provided yaml file
+
    .. code-block:: console
+
       mamba env create -f workflow/envs/highres_environment.yaml
 
 3. Activate the snakemake environment
+
 .. code-block:: console
+
    mamba activate highres
 
 4. Navigate to the repository in your snakemake conda environment shell
 
 5. Get the required input files
+
 .. code-block:: console
+
    zenodo_get 10.5281/zenodo.14223617
 
 6. Extract the required input files
+
 .. code-block:: console
+
    unzip resources.zip
    unzip weatherdata.zip
    unzip geodata.zip
 
 7. Create a folder for shared input and move the geodata and weatherdata to that folder
+
 .. code-block:: console
+
    mkdir shared_input
    mv geodata shared_input
    mv weatherdata shared_input
@@ -60,6 +72,8 @@ Windows
 8. Make sure GAMS is installed and licensed and that gamspath is set correctly in the config file
 
 9. Run
+
    .. code-block:: console
+
       snakemake -c all --configfile config/config_ci.yaml
    - Specify your own config file by changing the file name
