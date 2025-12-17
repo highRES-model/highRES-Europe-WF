@@ -40,7 +40,7 @@ parameters:
 
   elevation_excl: False
   onshore_slope_excl: True
-  include_rooftop: True
+  include_rooftop: False # currently not working for highRES-Norway (norway_release)
 
   unit_commitment: "OFF"
   frequency_response: "OFF"
