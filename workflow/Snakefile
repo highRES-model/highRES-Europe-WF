@@ -1,28 +1,17 @@
-
-
-
-
+# Load packages
 import itertools
-
 import pandas as pd
 import pathlib
 
+# -------------- Fetch mandatory parameters from config --------------
 date_range = config["parameters"]["date_range"]
-
 user_mode = config["parameters"]["mode"][0]
-
 include_rooftop=config["parameters"]["include_rooftop"]
-
-inputyears = config["parameters"]["years"]
+mga_run=config["parameters"]["mga_workflow"]
 
 # TODO: make grid_regions work
 grid_regions = []
-aggregated_regions = config["parameters"]["aggregated_regions"]
-
-# TODO: worry about zones vs regions later this only works for all aggregated
-pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
-    "resources/zones.csv", index=None
-)
+aggregated_regions = config["parameters"]["test_regions"]
 
 spatials = config["parameters"]["spatials"]
 psys_scenarios = config["parameters"]["power_system_scenario"]
@@ -45,6 +34,21 @@ wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
+bias_correction = config["parameters"]["bias_correction"]
+elevation_excl = config["parameters"]["elevation_excl"]
+onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
+
+# -------------- Get wildcards from config --------------
+inputyears = config["parameters"]["years"]
+spatials = config["parameters"]["spatials"]
+psys_scenarios = config["parameters"]["power_system_scenario"]
+
+# -------------- Preamble --------------
+
+# TODO: worry about zones vs regions later this only works for all aggregated
+pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
+    "resources/zones.csv", index=None
+)
 
 # Generate all combinations of years, spatials
 combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
@@ -53,12 +57,7 @@ scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenari
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
-
 ev_scenario = config["parameters"]["EV_scenario"]
-
-bias_correction = config["parameters"]["bias_correction"]
-elevation_excl = config["parameters"]["elevation_excl"]
-onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
 
 # Get current working directory
 
