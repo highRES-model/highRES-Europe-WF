@@ -54,6 +54,8 @@ years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
 
+ev_scenario = config["parameters"]["EV_scenario"]
+
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
 onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
@@ -519,29 +521,26 @@ rule compress_vre_gdx:
 
 rule build_ev_inputs:
     input:
-        # "resources/ev_data/connected_vehicles.tsv",
         "resources/ev_data/EV_grid_connected_power_kW.csv",
-        # "resources/ev_data/demand_driving_MWh.tsv",
         "resources/ev_data/EV_driving_demand_kWh.csv",
-        # "resources/ev_data/demand_ev_charging_MWh.tsv",
-        # "resources/ev_data/EV_charging_demand_from_grid_kWh.csv",
         "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
-        "resources/ev_data/ev_scalars.tsv",
-        "resources/ev_data/raw_data/estat_road_eqs_carage.tsv",
-        # "resources/ev_data/vehicles_zones.tsv",
+        "resources/ev_data/ev_scalars.dd",
+        ev_scenarios = "resources/ev_data/ev_scenarios.csv",
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         euroshape=rules.build_shapes.output.onshoreshape,
+        data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
-        modelpath / "ev_data" / "grid_connected_vehicles.tsv",
-        modelpath / "ev_data" / "demand_driving_MWh.tsv",
-        modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
-        modelpath / "ev_data" / "ev_scalars.tsv",
-        modelpath / "ev_data" / "vehicles_zones.tsv",
+        modelpath / "ev_data" / "grid_connected_vehicles.dd",
+        modelpath / "ev_data" / "demand_driving_MWh.dd",
+        modelpath / "ev_data" / "demand_ev_charging_MWh.dd",
+        modelpath / "ev_data" / "ev_scalars.dd",
+        vehicles = modelpath / "ev_data" / "vehicles_zones.dd",
     conda:
         "envs/build_ev_inputs.yml"
     params:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
+        ev_scenario=ev_scenario,
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
@@ -564,11 +563,11 @@ rule build_inputs:
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
-        modelpath / "ev_data" / "grid_connected_vehicles.tsv",
-        modelpath / "ev_data" / "demand_driving_MWh.tsv",
-        modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
-        modelpath / "ev_data" / "ev_scalars.tsv",
-        modelpath / "ev_data" / "vehicles_zones.tsv",
+        modelpath / "ev_data" / "grid_connected_vehicles.dd",
+        modelpath / "ev_data" / "demand_driving_MWh.dd",
+        modelpath / "ev_data" / "demand_ev_charging_MWh.dd",
+        modelpath / "ev_data" / "ev_scalars.dd",
+        modelpath / "ev_data" / "vehicles_zones.dd",
     output:
         touch(modelpath / "inputs.finished"),
 
