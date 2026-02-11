@@ -56,11 +56,15 @@ parameters:
   cutoff_solar: 0.09
   cutoff_onwind: 0.1
   cutoff_offwind: 0.20
-  date_range: ["01-01", "06-30"]
+
   EV: "ON"
   EV_scenario: ["BASE"]
   EV_flex: 100
   V2G: "OFF"
+  EV_pcap: 0.022
+  EV_soc_min: 0.2
+  EV_soc_max: 0.8
+
   aggregated_regions: [
     "AT",
     #"BE",

@@ -29,6 +29,9 @@ args = [
     "--EV=" + snakemake.params.EV,
     "--EV_flex=" + str(snakemake.params.EV_flex),
     "--V2G=" + snakemake.params.V2G,
+    "--EV_pcap=" + str(snakemake.params.EV_pcap),
+    "--EV_soc_min="  + str(snakemake.params.EV_soc_min),
+    "--EV_soc_max="  + str(snakemake.params.EV_soc_max),
 ]
 
 process = subprocess.Popen(

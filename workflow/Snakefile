@@ -530,11 +530,7 @@ rule build_ev_inputs:
         euroshape=rules.build_shapes.output.onshoreshape,
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
-        modelpath / "ev_data" / "grid_connected_vehicles.dd",
-        modelpath / "ev_data" / "demand_driving_MWh.dd",
-        modelpath / "ev_data" / "demand_ev_charging_MWh.dd",
-        modelpath / "ev_data" / "ev_scalars.dd",
-        vehicles = modelpath / "ev_data" / "vehicles_zones.dd",
+        modelpath / "ev_data.dd",
     conda:
         "envs/build_ev_inputs.yml"
     params:
@@ -563,11 +559,7 @@ rule build_inputs:
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
-        modelpath / "ev_data" / "grid_connected_vehicles.dd",
-        modelpath / "ev_data" / "demand_driving_MWh.dd",
-        modelpath / "ev_data" / "demand_ev_charging_MWh.dd",
-        modelpath / "ev_data" / "ev_scalars.dd",
-        modelpath / "ev_data" / "vehicles_zones.dd",
+        modelpath / "ev_data.dd",
     output:
         touch(modelpath / "inputs.finished"),
 
@@ -609,6 +601,9 @@ rule run_gams:
         EV=config["parameters"]["EV"],
         EV_flex = config["parameters"]["EV_flex"],
         V2G=config["parameters"]["V2G"],
+        EV_pcap=config["parameters"]["EV_pcap"],
+        EV_soc_min=config["parameters"]["EV_soc_min"],
+        EV_soc_max=config["parameters"]["EV_soc_max"],
     resources:
         mem_mb=50000,
     log:
