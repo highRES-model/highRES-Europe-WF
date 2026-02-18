@@ -43,6 +43,16 @@ inputyears = config["parameters"]["years"]
 spatials = config["parameters"]["spatials"]
 psys_scenarios = config["parameters"]["power_system_scenario"]
 
+# MGA parameters
+if mga_run == True:
+    slacks = config["mga_parameters"]["slacks"]
+    objectives = config["mga_parameters"]["objectives"]
+    tech_groups = config["mga_parameters"]["tech_groups"]  # dict: name -> list
+    zone_groups = config["mga_parameters"]["zone_groups"]  # dict
+
+    tech_group_names = list(tech_groups.keys())
+    zone_group_names = list(zone_groups.keys())
+
 # -------------- Preamble --------------
 
 # TODO: worry about zones vs regions later this only works for all aggregated
@@ -120,7 +130,16 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials),
+        expand(
+            modelpath / config["target"],
+            psys_scenario=psys_scenarios, 
+            year=years, 
+            spatial=spatials,
+            slack=slacks, 
+            objective=objectives,
+            tech_group = tech_group_names,
+            zone_group = zone_group_names,
+            ),
 
 
 rule build_cplex_opt:
@@ -634,3 +653,6 @@ rule convert_results_db_parquet:
         "envs/build_vre_parquet.yml"
     script:
         "scripts/convert_results_sqlite_parquet.py"
+
+if mga_run == True:
+    include: "rules/mga.smk"
