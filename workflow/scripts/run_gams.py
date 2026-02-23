@@ -23,6 +23,7 @@ args = [
     "--emis_price=" + str(snakemake.params.emis_price),
     "--trans_inv=" + str(snakemake.params.trans_inv),
     "--trans_cap_lim=" + str(snakemake.params.trans_cap_lim),
+    "--sensitivity=" + str(snakemake.params.sensitivity)
 ]
 
 process = subprocess.Popen(

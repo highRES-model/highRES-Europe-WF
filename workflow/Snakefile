@@ -108,7 +108,7 @@ run_name=["psys_scenario","year","spatial","social","environmental"]
 
 scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
 
-scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=False,header=False)
+scenarios.loc[:,["year","run_name","psys_scenario"]].to_csv(resultspath / "scens.csv",index=False,header=False)
 
 # Relative path to workdir
 
@@ -137,7 +137,12 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials, socials=socials, environmentals=environmentals),
+        expand(modelpath / config["target"], zip, 
+                                             psys_scenario=psys_scenarios, 
+                                             year=years, 
+                                             spatial=spatials,
+                                             socials=socials, 
+                                             environmentals=environmentals),
 
 
 rule build_cplex_opt:
@@ -340,6 +345,7 @@ rule build_technoeconomic_inputs:
         "resources/highres_technoeconomic_database.ods",
         europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
         co2_targets_db="resources/TIMES_250513_co2_targets.csv",
+        sensitivity_db="resources/highres_sensitivities.xls",
         #co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
@@ -350,6 +356,7 @@ rule build_technoeconomic_inputs:
         modelpath / "{psys_scenario}_gen.dd",
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
+        modelpath / "{psys_scenario}_sensitivity.dd",
         co2_target=modelpath / "BASE_co2_target.dd",
         demandfile=modelpath / "BASE_demand_{year}.dd",
     params:
@@ -558,7 +565,7 @@ rule compress_vre_gdx:
 # not have it automatically run the model as well, in case this is not desired.
 rule build_inputs:
     input:
-        # unpack(inputfilelist)
+        # # unpack(inputfilelist)
         modelpath / "_regions.dd",
         modelpath / "zones.dd",
         modelpath / "{year}_temporal.dd",
@@ -571,6 +578,7 @@ rule build_inputs:
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
+        modelpath / "{psys_scenario}_sensitivity.dd",
     output:
         touch(modelpath / "inputs.finished"),
 
@@ -606,6 +614,7 @@ rule run_gams:
         emis_price=config["parameters"]["emis_price"],
         trans_inv=config["parameters"]["trans_inv"],
         trans_cap_lim=config["parameters"]["trans_cap_lim"],
+        sensitivity="ON",
     resources:
         mem_mb=50000,
     log:

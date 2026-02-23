@@ -4,8 +4,10 @@ import pathlib
 
 import pandas as pd
 
-from data2dd_funcs import (euro_demand2dd, scen2dd, temporal2dd, trans_links,
-                           co2target2dd, add_vre_connection_costs)
+from data2dd_funcs import (euro_demand2dd, 
+                           scen2dd, temporal2dd, trans_links,
+                           co2target2dd, add_vre_connection_costs,
+                           sensitivity)
                            
 
 root = pathlib.Path(snakemake.output[0]).parent
@@ -114,6 +116,12 @@ add_vre_connection_costs(
     snakemake.input.vre_connection_dists
     )
     
+sensitivity(
+    snakemake.input.sensitivity_db,
+    root / out,
+    psys_scen,
+    snakemake.params.aggregated_regions
+    )
 
 years = [snakemake.wildcards.year]
 date_range = snakemake.params.date_range

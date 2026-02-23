@@ -598,3 +598,78 @@ def euro_demand2dd(
         "parameter",
         outfile=opath / (esys_scen + "_demand_" + str(yr) + ".dd"),
     )
+
+def sensitivity(f,
+                out,
+                psys_scen,
+                aggregated_regions): 
+    
+    sense_run=(pd.read_excel(f,
+                             sheet_name="sensitivity_scenario_names",
+                             skiprows=0,
+                             engine="calamine")
+                .query("Name == @psys_scen"))
+
+    
+    
+    if not sense_run.empty:
+        outdd=[]
+
+        s=list(map(str.strip,sense_run["Sensitivities"].values[0].split(",")))   
+        
+        # parameter sensitivities          
+        
+        sense_par=(pd.read_excel(f,sheet_name="sensitivity_param",skiprows=0)
+                        .query("Sensitivity in @s \
+                               and (z == @aggregated_regions or z.isnull())")
+                                    )
+                               
+        pars=sense_par["Parameter"].unique()
+        
+        for p in pars:
+            sense=sense_par.query("Parameter == @p")
+            
+            if sense.z.isnull().all():
+                outdd.append(
+                    wrapdd(data2dd(sense.Value.values,[sense.Technology.values]),p,"parameter")
+                    ) 
+                
+            else:
+                
+                outdd.append(
+                    wrapdd(data2dd(sense.Value.values,
+                                       [sense.z.values,
+                                        sense.Technology.values,
+                                        sense.LimType.values]
+                                  ),p,"parameter")
+                    ) 
+                
+        # transmission sensitivities 
+        
+        sense_trans=(pd.read_excel(f,sheet_name="sensitivity_transmission",skiprows=0)
+                        .query("Sensitivity in @s \
+                                and (Zone1 == @aggregated_regions \
+                                and Zone2 == @aggregated_regions)"))
+                   
+        pars=np.unique(sense_trans["Parameter"].values)
+        
+        for p in pars:
+  
+             sense=sense_trans.query("Parameter == @p")
+
+             links_out = np.array(
+                  sense["Zone1"]
+                  + "."
+                  + sense["Zone2"]
+                  + "."
+                  + sense["Tech"]
+              )
+
+             outdd.append(
+                 wrapdd(data2dd(sense.Value.values, [links_out]), p, "parameter")
+                 )
+ 
+        np.savetxt(out / (psys_scen+"_sensitivity.dd"),np.concatenate(outdd),fmt="%s")
+        
+    else:
+        np.savetxt(out / (psys_scen+"_sensitivity.dd"),np.array([]),fmt="%s")
