@@ -18,7 +18,8 @@ co2target2dd(
     snakemake.output.co2_target,
     snakemake.params.co2_target_scenario,
     snakemake.params.co2_target_type,
-    snakemake.params.co2_target_extent)
+    snakemake.params.co2_target_extent,
+    snakemake.params.aggregated_regions)
 
 psys_scen = snakemake.wildcards.psys_scenario
 esys_scen = "BASE"

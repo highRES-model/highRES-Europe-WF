@@ -232,17 +232,20 @@ def co2target2dd(co2targets_db,
                  co2target_out, 
                  esys_scen, 
                  co2_target_type,
-                 co2_target_extent):
+                 co2_target_extent,
+                 zones):
     
     dout = (pd.read_csv(co2targets_db)
             .query("(case == @esys_scen) \
                    and (type == @co2_target_type) \
-                   and (extent == @co2_target_extent)"))
+                   and (extent == @co2_target_extent) \
+                   "))
 
                    
     if co2_target_extent == "all":
         wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
     if co2_target_extent == "zonal":
+        dout=dout.query("zone in @zones")
         wrapdd(data2dd(dout["target"].values,
                        [dout["zone"].values])
                ,"co2_target", "parameter", outfile=co2target_out)
