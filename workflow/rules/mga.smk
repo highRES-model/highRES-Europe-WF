@@ -22,7 +22,6 @@ rule create_mga_parameters:
         cost_optimal=rules.set_cost_optimal.output.cost_opt,
     output:
         mga_params=mgapath / "mga_parameters.dd",
-        mgaMode=mgapath / "mgaMode.gms"
     params:
         techs = lambda wc: mga_tech_groups[wc.mga_tech_group],
         zones = lambda wc: mga_zone_groups[wc.mga_zone_group],
@@ -42,7 +41,6 @@ rule run_mga:
         modelpath / "inputs.finished",
         modelpath / "vre_{year}_.gdx",
         rules.create_mga_parameters.output.mga_params,
-        rules.create_mga_parameters.output.mgaMode,
     params:
         gamspath=gamspath,
         modelpath=str(modelpath),

@@ -28,6 +28,7 @@ args = [
     "--UC=" + str(snakemake.params.unit_commitment),
     "--f_res=" + str(snakemake.params.frequency_response),
     "--store_uc=" + str(snakemake.params.store_uc),
+    "--mode=" +str(snakemake.wildcards.mga_objective),
 ]
 
 process = subprocess.Popen(

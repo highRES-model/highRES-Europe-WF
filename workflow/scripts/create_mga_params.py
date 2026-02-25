@@ -4,10 +4,8 @@ from pathlib import Path
 ALL_ZONES = snakemake.params.all_zones # Only necessary to declare the focus zones. 
 cost_opt_file = snakemake.input.cost_optimal
 mga_params_file = Path(snakemake.output.mga_params)
-mga_mode_file = Path(snakemake.output.mgaMode)
 
 slack_level = snakemake.wildcards.slack
-objective = snakemake.wildcards.objective
 mga_techs = snakemake.params.techs 
 mga_zones = snakemake.params.zones
 
@@ -44,7 +42,3 @@ par_slack /
 
 mga_params_file.parent.mkdir(parents=True, exist_ok=True)
 mga_params_file.write_text(content_dd, encoding="utf-8", newline="\n")
-
-# 2) mgaMode.gms: compile-time macro for minimizing/maximizing
-content_mode = f"$setglobal mode {objective}\n"
-mga_mode_file.write_text(content_mode, encoding="utf-8", newline="\n")
