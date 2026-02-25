@@ -46,12 +46,12 @@ psys_scenarios = config["parameters"]["power_system_scenario"]
 # MGA parameters
 if mga_run == True:
     slacks = config["mga_parameters"]["slacks"]
-    objectives = config["mga_parameters"]["objectives"]
-    tech_groups = config["mga_parameters"]["tech_groups"]  # dict: name -> list
-    zone_groups = config["mga_parameters"]["zone_groups"]  # dict
+    mga_objectives = config["mga_parameters"]["mga_objectives"]
+    mga_tech_groups = config["mga_parameters"]["mga_tech_groups"]  
+    mga_zone_groups = config["mga_parameters"]["mga_zone_groups"]  
 
-    tech_group_names = list(tech_groups.keys())
-    zone_group_names = list(zone_groups.keys())
+    mga_tech_group_names = list(mga_tech_groups.keys())
+    mga_zone_group_names = list(mga_zone_groups.keys())
 
 # -------------- Preamble --------------
 
@@ -136,9 +136,9 @@ rule all:
             year=years, 
             spatial=spatials,
             slack=slacks, 
-            objective=objectives,
-            tech_group = tech_group_names,
-            zone_group = zone_group_names,
+            mga_objective=mga_objectives,
+            mga_tech_group = mga_tech_group_names,
+            mga_zone_group = mga_zone_group_names,
             ),
 
 

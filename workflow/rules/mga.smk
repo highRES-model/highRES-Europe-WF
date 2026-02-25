@@ -7,7 +7,7 @@ localrules:
     mga_finished,
     run_mga, # only temporarily
 
-mgapath= modelpath / "mga/{slack}_{objective}_{tech_group}_{zone_group}/"
+mgapath= modelpath / "mga/{slack}_{mga_objective}_{mga_tech_group}_{mga_zone_group}/"
 
 rule set_cost_optimal:
     input:
@@ -24,8 +24,8 @@ rule create_mga_parameters:
         mga_params=mgapath / "mga_parameters.dd",
         mgaMode=mgapath / "mgaMode.gms"
     params:
-        techs = lambda wc: tech_groups[wc.tech_group],
-        zones = lambda wc: zone_groups[wc.zone_group],
+        techs = lambda wc: mga_tech_groups[wc.mga_tech_group],
+        zones = lambda wc: mga_zone_groups[wc.mga_zone_group],
         all_zones = aggregated_regions,
     script:
         "../scripts/create_mga_params.py"
