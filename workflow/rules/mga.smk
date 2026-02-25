@@ -1,5 +1,12 @@
 # MGA rules start here
 
+localrules:
+    set_cost_optimal,
+    create_mga_parameters,
+    convert_MGAresults,
+    mga_finished,
+    run_mga, # only temporarily
+
 mgapath= modelpath / "mga/{slack}_{objective}_{tech_group}_{zone_group}/"
 
 rule set_cost_optimal:
