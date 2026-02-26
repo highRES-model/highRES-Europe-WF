@@ -1,5 +1,5 @@
-#target: "inputs.finished"
-target: "results.gdx"
+target: "inputs.finished"
+#target: "results.gdx"
 
 paths:
   gams: D:\utils\GAMS\43\
@@ -22,17 +22,17 @@ parameters:
     "nuts2",
   ]
   environmental: [
-   #"low",
-   #"medium",
+   "low",
+   "medium",
    "high",
   ]
   social: [
-   #"low",
-   #"medium",
+   "low",
+   "medium",
    "high",
   ]
   
-  windoff_floating: True
+  windoff_floating: False
   
   power_system_scenario: ["BASE"]
   
@@ -67,7 +67,7 @@ parameters:
   cutoff_solar: 0.09
   cutoff_onwind: 0.00
   cutoff_offwind: 0.00
-  date_range: ["01-01", "01-31"]
+  date_range: ["01-01", "12-31"]
   aggregated_regions: [
     "AT",
     "BE",
