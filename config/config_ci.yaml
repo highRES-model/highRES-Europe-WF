@@ -61,7 +61,7 @@ parameters:
   EV_scenario: ["BASE"]
   EV_flex: 100
   V2G: "OFF"
-  EV_pcap: 0.022
+  EV_pcap: 0.011
   EV_soc_min: 0.2
   EV_soc_max: 0.8
 

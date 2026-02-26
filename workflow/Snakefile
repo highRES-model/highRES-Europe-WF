@@ -524,8 +524,7 @@ rule build_ev_inputs:
         "resources/ev_data/EV_grid_connected_power_kW.csv",
         "resources/ev_data/EV_driving_demand_kWh.csv",
         "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
-        "resources/ev_data/ev_scalars.dd",
-        ev_scenarios = "resources/ev_data/ev_scenarios.csv",
+        ev_scenarios="resources/ev_data/ev_scenarios.csv",
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         euroshape=rules.build_shapes.output.onshoreshape,
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
@@ -537,6 +536,7 @@ rule build_ev_inputs:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
         ev_scenario=ev_scenario,
+        ev_pcap=config["parameters"]["EV_pcap"],
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
