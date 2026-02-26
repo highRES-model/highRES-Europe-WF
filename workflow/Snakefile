@@ -344,7 +344,7 @@ rule build_technoeconomic_inputs:
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
         europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
-        co2_targets_db="resources/TIMES_250513_co2_targets.csv",
+        co2_targets_db="resources/TIMES_260224_co2_targets.csv",
         sensitivity_db="resources/highres_sensitivities.xls",
         #co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
@@ -579,6 +579,7 @@ rule build_inputs:
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
         modelpath / "{psys_scenario}_sensitivity.dd",
+        modelpath / "BASE_co2_target.dd",
     output:
         touch(modelpath / "inputs.finished"),
 
