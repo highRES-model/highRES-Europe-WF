@@ -6,6 +6,25 @@ paths:
   abs_shared_code: /home/runner/work/highRES-Europe-WF/highRES-Europe-WF/resources/highRES-Europe-GAMS/
   results: work
 
+mga_parameters:
+  slacks: [
+    0.01,
+  ]
+
+  mga_objectives: [
+    'minimizing',
+    'maximizing',
+  ]
+
+  mga_tech_groups:
+    windOn:        ['Windonshore']
+    windOff:       ['Windoffshore']
+    solar:         ['Solar']
+
+  mga_zone_groups:
+    germany:    ['DE']
+    all:  ['*']
+
 parameters:
   mode: [
     "normal", 
@@ -20,7 +39,8 @@ parameters:
     "region",
     # "nuts2",
   ]
-
+  
+  mga_workflow: False
   windoff_floating: True
   power_system_scenario: ["BASE"]
 
