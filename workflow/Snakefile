@@ -11,7 +11,7 @@ mga_run=config["parameters"]["mga_workflow"]
 
 # TODO: make grid_regions work
 grid_regions = []
-aggregated_regions = config["parameters"]["test_regions"]
+aggregated_regions = config["parameters"]["aggregated_regions"]
 
 spatials = config["parameters"]["spatials"]
 psys_scenarios = config["parameters"]["power_system_scenario"]
@@ -130,16 +130,7 @@ localrules:
 
 rule all:
     input:
-        expand(
-            modelpath / config["target"],
-            psys_scenario=psys_scenarios, 
-            year=years, 
-            spatial=spatials,
-            slack=slacks, 
-            mga_objective=mga_objectives,
-            mga_tech_group = mga_tech_group_names,
-            mga_zone_group = mga_zone_group_names,
-            ),
+        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials),
 
 
 rule build_cplex_opt:
