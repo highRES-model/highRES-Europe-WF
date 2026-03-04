@@ -29,10 +29,6 @@ highRES has been used in a number of publications. An occasionally updated list 
     **Sustainable astronomy: A comparative life cycle assessment of off-grid hybrid energy systems to supply large telescopes**.
     The International Journal of Life Cycle Assessment. https://doi.org/10.1007/s11367-024-02288-9
 
-    Valenzuela-Venegas, G., Lode, M. L., Viole, I., Felice, A., Martinez Alonso, A., Ramirez Camargo, L., Sartori, S., & Zeyringer, M. (2024).
-    **A renewable and socially accepted energy system for astronomical telescopes**.
-    Nature Sustainability, 1–9. https://doi.org/10.1038/s41893-024-01442-3 
-
     Viole, I., Valenzuela-Venegas, G., Zeyringer, M., & Sartori, S. (2023).
     **A renewable power system for an off-grid sustainable telescope fueled by solar power, batteries and green hydrogen**.
     Energy, 128570. https://doi.org/10.1016/j.energy.2023.128570
