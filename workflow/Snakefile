@@ -19,12 +19,15 @@ inputyears = config["parameters"]["years"]
 grid_regions = []
 aggregated_regions = config["parameters"]["aggregated_regions"]
 
-# TODO: worry about zones vs regions later this only works for all aggregated
-pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
-    "resources/zones.csv", index=None
-)
-
 spatials = config["parameters"]["spatials"]
+
+if "focus" in spatials and "focus_countries" not in config["parameters"]:
+    raise KeyError("Missing focus_countries")
+elif "focus" in spatials:
+    focus_countries = config["parameters"]["focus_countries"]
+elif "focus" not in spatials:
+    focus_countries=None
+    
 psys_scenarios = config["parameters"]["power_system_scenario"]
 
 cutoff_values = {
@@ -139,14 +142,18 @@ rule build_cplex_opt:
 
 rule build_zones_file:
     input:
-        "resources/zones.csv",
         "workflow/scripts/build_zones.py",
     output:
         modelpath / "zones.dd",
+    params:
+        aggregated_regions=aggregated_regions,
+        focus_countries=(
+            focus_countries
+            if focus_countries 
+            else []
+        ),
     script:
         "scripts/build_zones.py"
-
-
 
 
 rule build_shapes:
@@ -155,11 +162,21 @@ rule build_shapes:
         / "geodata/onshore/shapes/NUTS_RG_01M_2021_4326.geojson",
         eurooffshoreshape=shared_input_path
         / ("geodata/offshore/europe_eez_nuts0_depth_class.gpkg"),
+        focus_onshore_shape=(
+            shared_input_path/ "geodata/onshore/shapes/uk_onshore.geojson"
+            if focus_countries
+            else []
+        ),
     output:
         onshoreshape="intermediate_data/{spatial}/shapes/europe_onshore.geojson",
         offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
     params:
         aggregated_regions=aggregated_regions,
+        focus_countries=(
+            focus_countries
+            if focus_countries
+            else []
+        ),
     notebook:
         "notebooks/highRES-build_shapes.ipynb"
 
@@ -200,8 +217,8 @@ rule build_vre_land_avail:
         solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
-        social_excl=shared_input_path / "geodata/onshore/social_low.tif",
-        env_excl=shared_input_path / "geodata/onshore/environmental_low.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_medium.tif",
+        env_excl=shared_input_path / "geodata/onshore/environmental_medium.tif",
         techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
@@ -315,11 +332,16 @@ rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
-        "resources/highres_technoeconomic_database.ods",
+        "resources/highres_technoeconomic_database_uk.ods",
         europedemandcsvlocation="resources/europe_demand.csv",
         co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
+        focus_dem_shares=(
+            "resources/uk_zonal_shares.csv"
+            if focus_countries
+            else []
+        ),            
     conda:
         "envs/build_technoeconomic.yml"
     output:
@@ -336,6 +358,11 @@ rule build_technoeconomic_inputs:
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
         co2_target_scenario="BASE",
+        focus_countries=(
+            focus_countries
+            if focus_countries
+            else []
+        ),
     script:
         "scripts/data2dd.py"
 
@@ -391,7 +418,7 @@ rule build_vre_areas_file:
             else []
         ),
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
-        technoeconomic_database="resources/highres_technoeconomic_database.ods",
+        technoeconomic_database="resources/highres_technoeconomic_database_uk.ods",
     output:
         modelpath / "vre_areas_{year}_.dd",
         regionsdd=modelpath / "_regions.dd",

@@ -3,6 +3,7 @@ import datetime
 import pathlib
 
 import pandas as pd
+import numpy as np
 
 from data2dd_funcs import (euro_demand2dd, scen2dd, temporal2dd, trans_links,
                            co2target2dd, add_vre_connection_costs)
@@ -81,7 +82,17 @@ params_to_write["store"]["parameter"]["all"] = [
     "max ramp",
 ]
 
-zones = pd.read_csv(snakemake.input[0]).loc[:, "zone"]
+
+if snakemake.wildcards.spatial == "focus":
+    
+    zones=np.array(snakemake.params.aggregated_regions)
+    for (key,z) in snakemake.params.focus_countries.items():
+        zones=np.append(zones[zones!=key],z)
+    
+    zones=zones.tolist()
+    
+else:
+    zones=snakemake.params.aggregated_regions
 
 scen2dd(
     snakemake.output[1],
@@ -101,7 +112,7 @@ scen2dd(
 trans_links(
     root,
     f_techno,
-    aggregated_regions=snakemake.params.aggregated_regions,
+    aggregated_regions=zones,
     out=out,
 )
 
@@ -117,6 +128,11 @@ add_vre_connection_costs(
 years = [snakemake.wildcards.year]
 date_range = snakemake.params.date_range
 
+if snakemake.wildcards.spatial == "focus":
+    focus_dem_shares=snakemake.input.focus_dem_shares
+else:
+    focus_dem_shares=""
+
 for yr in years:
     date_range = [yr + "-" + date for date in date_range]
     yr = int(yr)
@@ -131,7 +147,6 @@ for yr in years:
     else:
         rleap = True
 
-    print(rleap)
     temporal2dd(dstart, dstop, root / out, snakemake.output[0])
 
     euro_demand2dd(
@@ -144,4 +159,6 @@ for yr in years:
         scen_db,
         esys_scen,
         yr,
+        focus_dem_shares=focus_dem_shares,
+        focus_countries=snakemake.params.focus_countries
     )
