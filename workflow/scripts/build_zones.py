@@ -1,6 +1,12 @@
-with open(snakemake.input[0], "r") as f:
-    list_of_lines = f.readlines()
-    list_of_lines.pop(0)
+import numpy as np
 
-with open(snakemake.output[0], "w") as f:
-    f.writelines(sorted(list_of_lines))
+
+zones=np.array(snakemake.params.aggregated_regions)
+
+if snakemake.params.focus_countries:
+ 
+    for (key,z) in snakemake.params.focus_countries.items():
+    
+        zones=np.append(zones[zones!=key],z)
+        
+np.savetxt(snakemake.output[0],zones,fmt="%s")

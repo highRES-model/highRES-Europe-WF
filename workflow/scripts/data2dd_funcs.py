@@ -127,7 +127,7 @@ def temporal2dd(dstart, dend, opath, temporaloutputpath):
 
 def trans_links(root, f, aggregated_regions, out="work"):
     tech_type = "trans"
-
+    
     links_allowed = pd.read_excel(
         f, sheet_name="transmission_allowed", skiprows=1, engine="calamine"
     ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
@@ -317,7 +317,7 @@ def getrlims(lim, techs, zones, exist_agg):
                 ],
             )
 
-        if exist_agg == "region":
+        if exist_agg == "region" or exist_agg == "focus":
             #limval = limval.groupby(["zone"], as_index=False).agg(
             # to consider the other technologies
             limval = limval.groupby(["Technology","zone"], as_index=False).agg(
@@ -557,6 +557,8 @@ def euro_demand2dd(
     scen_db,
     esys_scen,
     yr,
+    focus_dem_shares="",
+    focus_countries=""
 ):
     d = pd.read_csv(europedemandcsvlocation)
 
@@ -585,6 +587,26 @@ def euro_demand2dd(
             print(d.loc[pd.isnull(d[c]), c])
 
         print("Zero demands for: ", d.columns[pd.isnull(d).any(axis=0)])
+        
+    if focus_dem_shares!="":
+        
+        focus_dem_shares=(pd.read_csv(focus_dem_shares)
+                          .set_index(["zone"])
+                          .T
+                          .div(100))
+          
+        for (cntr,z) in focus_countries.items():
+            
+            # TODO splitting demand for multiple countries has not been
+            # tested
+            
+            shares=focus_dem_shares[z].values[0]
+            
+            d_z=pd.DataFrame(d[cntr].values.reshape(-1,1)*shares,
+                             columns=z,
+                             index=d.index)
+            
+            d=pd.concat((d.loc[:,d.columns[d.columns!=cntr]],d_z),axis=1)
 
     t = np.arange(d.shape[0])
     z = d.columns.values
