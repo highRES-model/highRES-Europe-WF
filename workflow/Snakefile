@@ -525,8 +525,6 @@ rule build_ev_inputs:
         "resources/ev_data/EV_driving_demand_kWh.csv",
         "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
         ev_scenarios="resources/ev_data/ev_scenarios.csv",
-        weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
-        euroshape=rules.build_shapes.output.onshoreshape,
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
         modelpath / "ev_data.dd",
