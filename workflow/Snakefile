@@ -532,7 +532,7 @@ rule build_ev_inputs:
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
         euroshape=rules.build_shapes.output.onshoreshape,
     output:
-        modelpath / "ev_data" / "grid_connected_vehicles_MW.tsv",
+        modelpath / "ev_data" / "grid_connected_vehicles.tsv",
         modelpath / "ev_data" / "demand_driving_MWh.tsv",
         modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
         modelpath / "ev_data" / "ev_scalars.tsv",
@@ -564,7 +564,7 @@ rule build_inputs:
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
-        modelpath / "ev_data" / "grid_connected_vehicles_MW.tsv",
+        modelpath / "ev_data" / "grid_connected_vehicles.tsv",
         modelpath / "ev_data" / "demand_driving_MWh.tsv",
         modelpath / "ev_data" / "demand_ev_charging_MWh.tsv",
         modelpath / "ev_data" / "ev_scalars.tsv",
