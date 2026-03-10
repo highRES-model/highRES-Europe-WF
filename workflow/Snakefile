@@ -573,6 +573,9 @@ rule run_gams:
         unit_commitment=config["parameters"]["unit_commitment"],
         frequency_response=config["parameters"]["frequency_response"],
         store_uc=config["parameters"]["store_uc"],
+        EV=config["parameters"]["EV"],
+        EV_flex = config["parameters"]["EV_flex"],
+        V2G=config["parameters"]["V2G"],
     resources:
         mem_mb=50000,
     log:
