@@ -51,13 +51,13 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
 # Generate all combinations of years, spatials, social, and environmental scenarios
-#combinations = list(itertools.product(psys_scenarios,inputyears, spatials, social_scenario, environmental_scenario))
+combinations = list(itertools.product(psys_scenarios,inputyears, spatials, social_scenario, environmental_scenario))
 
-combinations = list(zip(psys_scenarios*len(social_scenario),
-                        inputyears*len(social_scenario),
-                        spatials*len(social_scenario), 
-                        social_scenario, 
-                        environmental_scenario))
+# combinations = list(zip(psys_scenarios*len(social_scenario),
+                        # inputyears*len(social_scenario),
+                        # spatials*len(social_scenario), 
+                        # social_scenario, 
+                        # environmental_scenario))
 
 scenarios = pd.DataFrame(combinations, columns=["psys_scenario","year", "spatial", "social", "environmental"])
 
@@ -343,7 +343,7 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/demand_wimby/{socials}_{environmentals}_demand_{year}.csv",
+        europedemandcsvlocation="resources/demand_wimby/demand_{year}.csv",
         co2_targets_db="resources/TIMES_260224_co2_targets.csv",
         sensitivity_db="resources/highres_sensitivities.xls",
         #co2_targets_db="resources/europe_co2_targets.csv",
