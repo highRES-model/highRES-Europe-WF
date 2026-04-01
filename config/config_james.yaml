@@ -1,5 +1,5 @@
-target: "inputs.finished"
-#target: "results.gdx"
+#target: "inputs.finished"
+target: "results.gdx"
 
 paths:
   gams: D:\utils\GAMS\43\
