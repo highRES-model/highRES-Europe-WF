@@ -1,0 +1,179 @@
+#target: "inputs.finished"
+target: "results.gdx"
+
+paths:
+  gams: D:\utils\GAMS\43\ # Update to your GAMS installation path
+  shared_input: shared_input
+  abs_shared_code: resources/highRES-Europe-GAMS/
+  results: work
+  
+parameters:
+  mode: [
+    "normal", 
+    #"developer", # Use this mode to run the model in developer mode
+  ]
+  years: [
+    "1995",
+    #"2010",
+  ]
+  spatials: [
+    # "grid",
+    # "region",
+    "nuts2",
+  ]
+  environmental: [
+   "low",
+   #"medium",
+   #"high",
+  ]
+  social: [
+   "low",
+   #"medium",
+   #"high",
+  ]
+  
+  windoff_floating: False
+  
+  power_system_scenario: ["BASE"]
+  
+  # Options: "intensity", "budget"
+  co2_target_type: "budget"
+  
+  # Options: "all"
+  co2_target_extent: "zonal"
+  
+  # Options: "OFF","TYNDP","USER"
+  trans_inv: "TYNDP"
+  
+  # Only used if trans_inv set to USER
+  trans_cap_lim: 15
+  
+  wimby_outputs: False
+  wimby_outputs_hourly: False
+ 
+  bias_correction: True
+
+  elevation_excl: False
+  onshore_slope_excl: True
+  include_rooftop: True
+  
+  emis_price: 0
+  store_initial_level: 0.5
+  store_final_level: 0.5
+  hydro_res_initial_fill: 0.8
+  hydro_res_min: 0.5
+  pgen: 20.0
+  
+  cutoff_solar: 0.09
+  cutoff_onwind: 0.00
+  cutoff_offwind: 0.00
+  date_range: ["01-01", "01-31"]
+  aggregated_regions: [
+    "AT",
+    "BE",
+    "BG",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "UK",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK",
+  ]
+  solar_clc : [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    23,
+    24,
+    25,
+    30,
+    31,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+  ]
+  onwind_clc_no_buffer : [
+    3,
+    4,
+    5,
+    7,
+    8,
+    9,
+    10,
+    11,
+    23,
+    24,
+    25,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+  ]
+  onwind_clc_buffer : {
+    1 : 1000,
+    2 : 1000,
+    6 : 5000,
+  }
+  windturbines : {
+    "onshore" : "Vestas_V112_3MW",
+    "offshore_bottom" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
+    "offshore_float" : "NREL_ReferenceTurbine_2020ATB_15MW_offshore",
+  }
+  
+  wind_smooth: False
+  windon_af: 0.95
+  windoff_bottom_af: 0.95
+  windoff_floating_af: 0.95
+  
+  
+  co2target : [
+    2 # gCO2/kWh
+  ]
+
+cplex_options:
+  lpmethod: 4
+  solutiontype: 2
+  threads: 10
+  predual: 0
+  BarOrder: 0
+  barepcomp: 1E-7
