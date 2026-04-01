@@ -18,7 +18,7 @@ Transmission grid network and net transfer capacities
 
 One of the components of the technoeconomic input is the transmission infrastructure that connects zones and allows for the flow of electricity between them. Different models represent transmission differently. Models like PyPSA-Eur employ a power flow model, whereas highRES models transmission through a transhipment formulation. 
 
-The currently most comprehensive publicly available dataset of the European high-voltage grid is a `representation of the European high-voltage grid based on OpenStreetMap <https://doi.org/10.5281/zenodo.12799201>`_ processed and described by `Xiong et al. (2025) <https://www.nature.com/articles/s41597-025-04550-7>`_. The dataset covers AC lines from 220 to 750 kV and all DC lines. Power capacity data is in nominal apparent power capacity (S_nom) [MV A], and represents the maximum technical capacity of a line. However, when representing the transmission grid through a transhipment formulation, we need to consider how much net power can be safely transferred accross borders, taking into account security constraints and internal bottlenecks. This is often referred to as Net Transfer Capacities (NTCs), which can be acquired from ENTSO-E's Transparency platform between bidding zones at different time horizons. However, there is no European-wide high-resolution dataset on NTCs at higher spatial resolution. 
+The currently most comprehensive publicly available dataset of the European high-voltage grid is a `representation of the European high-voltage grid based on OpenStreetMap <https://doi.org/10.5281/zenodo.12799201>`_ processed and described by `Xiong et al. (2025) <https://www.nature.com/articles/s41597-025-04550-7>`_. The dataset covers AC lines from 220 to 750 kV and all DC lines of the ENTSO-E member states. Power capacity data is in nominal apparent power capacity (S_nom) [MV A], and represents the maximum technical capacity of a line. However, when representing the transmission grid through a transhipment formulation, we need to consider how much net power can be safely transferred accross borders, taking into account security constraints and internal bottlenecks. This is often referred to as Net Transfer Capacities (NTCs), which can be acquired from ENTSO-E's Transparency platform between bidding zones at different time horizons. However, there is no European-wide high-resolution dataset on NTCs at higher spatial resolution. 
 
 To go from the nominal apparent power capacity data in the European high-voltage grid, we need to make approximations. 
 
@@ -34,7 +34,7 @@ AT             DE-LU       4900
 AT             HU          300
 ==========  ==========  ==========
 
-The data acquired on NTCs from ENTSO-E could a bit like Table 1. 
+The data acquired on NTCs from ENTSO-E could look like Table 1. 
 
 Table 2. Raw data snippet from Xiong et al. 
 ========  ========  ========  ========

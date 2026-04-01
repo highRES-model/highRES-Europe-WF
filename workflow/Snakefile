@@ -1,4 +1,4 @@
-# Load packages
+#  -------------- Load packages  --------------
 import itertools
 import pandas as pd
 import pathlib
@@ -37,6 +37,8 @@ windoff_floating_af = config["parameters"]["windoff_floating_af"]
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
 onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
+
+transmission_alpha = config["parameters"]["transmission_alpha"]
 
 # -------------- Get wildcards from config --------------
 inputyears = config["parameters"]["years"]
