@@ -75,36 +75,51 @@ parameters:
             "UK9"
         ]
     }
+    
+  aggregated_countries: {
+    "BNL":
+        [
+            "BE",
+            "NL",
+            "LU"
+        ],
+    "IBE":
+        [
+            "ES",
+            "PT"
+        ]
+    }
+     
   
   aggregated_regions: [
-    # "AT",
+    #"AT",
     "BE",
-    # "BG",
-    # "CH",
-    # "CZ",
-    # "DE",
-    "DK",
-    # "EE",
-    # "ES",
-    # "FI",
+    #"BG",
+    #"CH",
+    #"CZ",
+    #"DE",
+    #"DK",
+    #"EE",
+    "ES",
+    #"FI",
     "FR",
     "UK",
-    # "GR",
-    # "HR",
-    # "HU",
+    #"GR",
+    #"HR",
+    #"HU",
     "IE",
-    # "IT",
-    # "LT",
-    # "LU",
-    # "LV",
+    #"IT",
+    #"LT",
+    "LU",
+    #"LV",
     "NL",
-    "NO",
-    # "PL",
-    # "PT",
-    # "RO",
-    # "SE",
-    # "SI",
-    # "SK",
+    #"NO",
+    #"PL",
+    "PT",
+    #"RO",
+    #"SE",
+    #"SI",
+    #"SK",
   ]
   solar_clc : [
     1,
