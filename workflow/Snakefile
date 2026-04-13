@@ -22,12 +22,18 @@ aggregated_regions = config["parameters"]["aggregated_regions"]
 spatials = config["parameters"]["spatials"]
 
 if "focus" in spatials and "focus_countries" not in config["parameters"]:
-    raise KeyError("Missing focus_countries")
+    raise KeyError("Missing focus_countries")  
 elif "focus" in spatials:
     focus_countries = config["parameters"]["focus_countries"]
+    if "aggregated_countries" in config["parameters"]:
+        aggregated_countries = config["parameters"]["aggregated_countries"]
+    else:
+        aggregated_countries=None
 elif "focus" not in spatials:
     focus_countries=None
+    aggregated_countries=None
     
+
 psys_scenarios = config["parameters"]["power_system_scenario"]
 
 cutoff_values = {
@@ -147,11 +153,8 @@ rule build_zones_file:
         modelpath / "zones.dd",
     params:
         aggregated_regions=aggregated_regions,
-        focus_countries=(
-            focus_countries
-            if focus_countries 
-            else []
-        ),
+        focus_countries=focus_countries,
+        aggregated_countries=aggregated_countries,
     script:
         "scripts/build_zones.py"
 
@@ -172,11 +175,8 @@ rule build_shapes:
         offshoreshape="intermediate_data/{spatial}/shapes/europe_offshore.geojson",
     params:
         aggregated_regions=aggregated_regions,
-        focus_countries=(
-            focus_countries
-            if focus_countries
-            else []
-        ),
+        focus_countries=focus_countries,
+        aggregated_countries=aggregated_countries,
     notebook:
         "notebooks/highRES-build_shapes.ipynb"
 
@@ -358,11 +358,8 @@ rule build_technoeconomic_inputs:
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
         co2_target_scenario="BASE",
-        focus_countries=(
-            focus_countries
-            if focus_countries
-            else []
-        ),
+        focus_countries=focus_countries,
+        aggregated_countries=aggregated_countries
     script:
         "scripts/data2dd.py"
 

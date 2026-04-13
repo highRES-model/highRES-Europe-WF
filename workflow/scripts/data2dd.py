@@ -88,12 +88,20 @@ if snakemake.wildcards.spatial == "focus":
     zones=np.array(snakemake.params.aggregated_regions)
     for (key,z) in snakemake.params.focus_countries.items():
         zones=np.append(zones[zones!=key],z)
+        
+    if snakemake.params.aggregated_countries is not None:
+        for key,z in snakemake.params.aggregated_countries.items():
+            zones=np.append(zones[np.isin(zones,z,invert=True)],key)
+            
+    agg_countries=snakemake.params.aggregated_countries
     
     zones=zones.tolist()
     
 else:
     zones=snakemake.params.aggregated_regions
-
+    agg_countries=None
+    
+    
 scen2dd(
     snakemake.output[1],
     root,
@@ -107,6 +115,7 @@ scen2dd(
     esys_cap=False,
     exist_cap=True,
     exist_agg=snakemake.wildcards.spatial,
+    agg_countries=agg_countries
 )
 
 trans_links(
@@ -114,6 +123,7 @@ trans_links(
     f_techno,
     aggregated_regions=zones,
     out=out,
+    agg_countries=agg_countries
 )
 
 add_vre_connection_costs(
@@ -131,7 +141,7 @@ date_range = snakemake.params.date_range
 if snakemake.wildcards.spatial == "focus":
     focus_dem_shares=snakemake.input.focus_dem_shares
 else:
-    focus_dem_shares=""
+    focus_dem_shares=None
 
 for yr in years:
     date_range = [yr + "-" + date for date in date_range]
@@ -160,5 +170,6 @@ for yr in years:
         esys_scen,
         yr,
         focus_dem_shares=focus_dem_shares,
-        focus_countries=snakemake.params.focus_countries
+        focus_countries=snakemake.params.focus_countries,
+        agg_countries=agg_countries
     )
