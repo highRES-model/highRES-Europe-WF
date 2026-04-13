@@ -125,12 +125,43 @@ def temporal2dd(dstart, dend, opath, temporaloutputpath):
     np.savetxt(temporaloutputpath, np.concatenate(out, axis=0), fmt="%s")
 
 
-def trans_links(root, f, aggregated_regions, out="work"):
+def trans_links(root, 
+                f, 
+                aggregated_regions,
+                out="work",
+                agg_countries=None):
+    
     tech_type = "trans"
     
     links_allowed = pd.read_excel(
         f, sheet_name="transmission_allowed", skiprows=1, engine="calamine"
-    ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
+    )
+    
+    if agg_countries is not None:
+        
+        to_rep={val: key for key,v in agg_countries.items() for val in v}
+        
+        links_allowed["Zone1"]=links_allowed["Zone1"].replace(to_rep)
+        links_allowed["Zone2"]=links_allowed["Zone2"].replace(to_rep)
+        
+        links_allowed=links_allowed.loc[~(links_allowed.Zone1 == links_allowed.Zone2),:]
+        links_allowed[["Zone1","Zone2"]]=np.sort(links_allowed[["Zone1","Zone2"]].values, axis=1)
+        
+        # TODO here line length from aggregated countries to other nodes is the 
+        # average of the lines being aggregated. Could improve by re-computing
+        # centroids between aggregated country groups and other nodes.
+        
+        links_allowed=(links_allowed
+                       .groupby(["Zone1",
+                                 "Zone2",
+                                 "Tech"], as_index=False)
+                           .agg({
+                               "links_cap": "sum",
+                               "links_lim_cap": "sum",
+                               "links_dist": "mean"
+                               }))
+                    
+    links_allowed=links_allowed.query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
 
     links_out = np.array(
         links_allowed["Zone1"]
@@ -248,7 +279,10 @@ def co2target2dd(co2targets_db,
                ,"co2_target", "parameter", outfile=co2target_out)
         
 
-def getzlims(lim, techs, zones):
+def getzlims(lim, 
+             techs, 
+             zones,
+             agg_countries=None):
     lim = lim.loc[(lim["Year"] == 2050) & (lim["Technology"].isin(techs)), :]
 
     if lim.empty:
@@ -264,12 +298,20 @@ def getzlims(lim, techs, zones):
 
     lim = lim.loc[have_lim, :]
     para_lim = lim["parameter"].drop_duplicates()
-
+    
+    if agg_countries is not None:
+    
+        for agg,z in agg_countries.items():
+            lim[agg]=lim[z].sum(axis=1)
+            
+            lim=lim.loc[:,~lim.columns.isin(z)]
+            
     outlims = []
-
+    
     for p_lim in para_lim:
         nl = []
         for _, row in lim.loc[lim["parameter"] == p_lim, :].iterrows():
+            
             zones = row[zones].index.values
             limval = row[zones].values.astype(float) / 1e3
             limval[np.isnan(limval)] = 0.0
@@ -280,18 +322,17 @@ def getzlims(lim, techs, zones):
             nl.append(data2dd(limval.T, [zones, tech, limtype]))
 
         outlims.append(wrapdd(np.concatenate(nl, axis=0), p_lim, "parameter"))
-
+        
     return np.concatenate(outlims, axis=0)
 
 
-def getrlims(lim, techs, zones, exist_agg):
+def getrlims(lim, techs, zones, exist_agg, agg_countries=None):
     # TODO capcity units are fixed to GW here, need to add flexibility
 
     lim = lim.loc[
         (lim["Year"] == 2050)
-        & (lim["Technology"].isin(techs))
-        & (lim["zone"].isin(zones)),
-        :,
+        & (lim["Technology"].isin(techs)),
+        :
     ]
 
     if lim.empty:
@@ -300,7 +341,22 @@ def getrlims(lim, techs, zones, exist_agg):
     have_lim = ~lim.loc[:, "limtype"].isnull()
     lim = lim.loc[have_lim, :]
     para_lim = lim["parameter"].drop_duplicates()
-
+    
+    if agg_countries is not None:
+        
+        to_rep={val: key for key,v in agg_countries.items() for val in v}
+        
+        lim["zone"]=lim["zone"].replace(to_rep)
+    
+        lim=(lim.groupby(["Technology",
+                         "zone",
+                         "Year",
+                         "parameter",
+                         "limtype"], as_index=False).sum()
+                 .drop("region",axis=1))
+        
+    lim=lim.loc[lim["zone"].isin(zones),:]
+        
     outlims = []
 
     for p_lim in para_lim:
@@ -339,7 +395,7 @@ def getrlims(lim, techs, zones, exist_agg):
                     limval["limtype"],
                 ],
             )
-
+            
         outlims.append(wrapdd(nl, p_lim, "parameter"))
 
     return np.concatenate(outlims, axis=0)
@@ -358,6 +414,7 @@ def scen2dd(
     esys_cap=False,
     exist_cap=False,
     exist_agg="region",
+    agg_countries=None
 ):
     # co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
@@ -392,6 +449,7 @@ def scen2dd(
                 ),
                 techs,
                 zones,
+                agg_countries=agg_countries
             )
         )
 
@@ -405,6 +463,7 @@ def scen2dd(
                 ),
                 techs,
                 zones,
+                agg_countries=agg_countries
             )
 
             if zlims.size != 0:
@@ -421,6 +480,7 @@ def scen2dd(
                     techs,
                     zones,
                     exist_agg,
+                    agg_countries=agg_countries
                 )
 
                 if rlims.size != 0:
@@ -557,8 +617,9 @@ def euro_demand2dd(
     scen_db,
     esys_scen,
     yr,
-    focus_dem_shares="",
-    focus_countries=""
+    focus_dem_shares=None,
+    focus_countries="",
+    agg_countries=None
 ):
     d = pd.read_csv(europedemandcsvlocation)
 
@@ -588,7 +649,7 @@ def euro_demand2dd(
 
         print("Zero demands for: ", d.columns[pd.isnull(d).any(axis=0)])
         
-    if focus_dem_shares!="":
+    if focus_countries is not None:
         
         focus_dem_shares=(pd.read_csv(focus_dem_shares)
                           .set_index(["zone"])
@@ -607,6 +668,14 @@ def euro_demand2dd(
                              index=d.index)
             
             d=pd.concat((d.loc[:,d.columns[d.columns!=cntr]],d_z),axis=1)
+            
+    if agg_countries is not None:
+        
+        for agg,z in agg_countries.items():
+            d[agg]=d[z].sum(axis=1)
+                
+            d=d.loc[:,~d.columns.isin(z)]
+
 
     t = np.arange(d.shape[0])
     z = d.columns.values
