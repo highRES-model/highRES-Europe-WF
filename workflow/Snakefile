@@ -280,13 +280,32 @@ rule build_vre_land_avail:
         windoff_floating=windoff_floating,
     notebook:
         "notebooks/highRES-build_vre_land_avail.ipynb"
-
-
+        
+if include_rooftop:
+        
+    rule build_rooftop_areas:
+        input:
+            country_rooftop_areas="resources/roof_area_useable_highres_europe.csv",
+            euroshape=rules.build_shapes.output.onshoreshape,
+            corine=shared_input_path / "geodata/onshore/corine.tif",
+        output:
+            rooftop_areas=(
+            modelpath / "rooftop_pv_km2.csv"
+            if user_mode == "developer"
+            else temp(modelpath / "rooftop_pv_km2.csv")
+            ),
+        notebook:
+            "notebooks/highRES-build_rooftop_pv_areas.ipynb"
+    
 rule build_vre_cf_inputs:
     input:
         cf_file=rules.build_vre_cf_grid.output.cf_file,
         grid_areas=rules.build_vre_land_avail.output.grid_areas,
-        rooftop_areas="resources/rooftop_pv_km2.csv",
+        rooftop_areas=(
+            modelpath / "rooftop_pv_km2.csv"
+            if include_rooftop
+            else []
+            ),
     output:
         capfacfile=(
             modelpath / "capacity-factors_solar_{year}.csv"

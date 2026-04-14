@@ -43,7 +43,7 @@ parameters:
 
   elevation_excl: False
   onshore_slope_excl: True
-  include_rooftop: False
+  include_rooftop: True
   
   unit_commitment: "OFF"
   frequency_response: "OFF"
