@@ -329,6 +329,26 @@ The storage balance equation (``eq_store_balance(h,s_lim(z,s))``) models the sto
 
 The storage level is constrained (``eq_store_level(s_lim(z,s),h)``) to always be lower or equal to the maximum storage capacity. Furthermore, the storage technologies are set to be cyclical (``eq_store_end_level``), meaning that they are not necessarily empty in the first hour of the model, but that they need to end at the same level as they started. 
 
+**Extension for electric vehicle (EV) flexibility**
+
+The extension for EV flexibility allows modelling EVs in the storage module by passing ``EV: "ON"`` in the config. EVs can be modelled with three distinct charging modes: immediate, flexible and bidirectional charging. The following switches in the config file adjust the EV charging behavior:
+
+* EV (ON/OFF) = Whether to enable (ON) or disable (OFF) modelling of EV charging through the storage module. 
+
+* EV_scenario = Specifies which EV scenario to consider. The scenario defines the number of cars and their average battery storage energy capacity for each modelled region.
+
+* EV_flex (%) = The switch allows specifying the participation rate (as percentage) of EVs in flexible charging.
+
+* V2G (ON/OFF) = Whether bidirectional charging (vehicle-to-grid (V2G)) is enabled (ON) or disabled (OFF).
+
+* EV_pcap = EV charging power capacity.
+
+* EV_soc_min = Minimum EV battery state-of-charge (SOC).
+
+* EV_soc_max = Maximum EV battery state-of-charge (SOC).
+
+The Snakemake rule 'build_ev_inputs' prepares input data for the EV modelling.
+
 .. _reservoir-hydropower-label:
 
 Module for reservoir hydropower
@@ -348,10 +368,6 @@ Additional equations ensure that the level of the reservoir does not exceed the 
 
 highRES does not include any cascading effects, meaning that the outflow of one reservoir is not the inflow of another. Rather, the model sees one large reservoir at the zonal or regional level, depending on the setup. However, the hydro power inflow is normalised, based on historical production data, to ensure that the total electricity available corresponds with reality. See the :ref:`workflow <workflow-label>` for more details. 
 
-Module for EV flexibility
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Upcoming work.
 
 References
 -------------

@@ -54,6 +54,8 @@ years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
 
+ev_scenario = config["parameters"]["EV_scenario"]
+
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
 onshore_slope_excl = config["parameters"]["onshore_slope_excl"]
@@ -517,6 +519,26 @@ rule compress_vre_gdx:
     return returndict """
 
 
+rule build_ev_inputs:
+    input:
+        "resources/ev_data/EV_grid_connected_power_kW.csv",
+        "resources/ev_data/EV_driving_demand_kWh.csv",
+        "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
+        ev_scenarios="resources/ev_data/ev_scenarios.csv",
+        data2dd=pathlib.Path(workflow.basedir) / "scripts",
+    output:
+        modelpath / "ev_data.dd",
+    conda:
+        "envs/build_ev_inputs.yml"
+    params:
+        date_range=date_range,
+        aggregated_regions=aggregated_regions,
+        ev_scenario=ev_scenario,
+        ev_pcap=config["parameters"]["EV_pcap"],
+    notebook:
+        "notebooks/highRES_build_ev_inputs.ipynb"
+
+
 # This rule exists so users can stop the workflow after the input creation, to
 # not have it automatically run the model as well, in case this is not desired.
 rule build_inputs:
@@ -535,6 +557,7 @@ rule build_inputs:
         modelpath / "{psys_scenario}_store.dd",
         modelpath / "trans.dd",
         modelpath / "cplex.opt",
+        modelpath / "ev_data.dd",
     output:
         touch(modelpath / "inputs.finished"),
 
@@ -573,6 +596,12 @@ rule run_gams:
         unit_commitment=config["parameters"]["unit_commitment"],
         frequency_response=config["parameters"]["frequency_response"],
         store_uc=config["parameters"]["store_uc"],
+        EV=config["parameters"]["EV"],
+        EV_flex = config["parameters"]["EV_flex"],
+        V2G=config["parameters"]["V2G"],
+        EV_pcap=config["parameters"]["EV_pcap"],
+        EV_soc_min=config["parameters"]["EV_soc_min"],
+        EV_soc_max=config["parameters"]["EV_soc_max"],
     resources:
         mem_mb=50000,
     log:
