@@ -528,8 +528,6 @@ rule build_ev_inputs:
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
         modelpath / "ev_data.dd",
-    conda:
-        "envs/build_ev_inputs.yml"
     params:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
