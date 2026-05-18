@@ -569,6 +569,11 @@ rule build_ev_inputs:
         "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
         ev_scenarios="resources/ev_data/ev_scenarios.csv",
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
+        focus_dem_shares=(
+            "resources/uk_zonal_shares.csv"
+            if focus_countries
+            else []
+        ),
     output:
         modelpath / "ev_data.dd",
     conda:
@@ -578,6 +583,8 @@ rule build_ev_inputs:
         aggregated_regions=aggregated_regions,
         ev_scenario=ev_scenario,
         ev_pcap=config["parameters"]["EV_pcap"],
+        focus_countries=focus_countries,
+        aggregated_countries=aggregated_countries
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
