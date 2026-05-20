@@ -532,7 +532,6 @@ rule build_ev_inputs:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
         ev_scenario=ev_scenario,
-        ev_pcap=config["parameters"]["EV_pcap"],
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
@@ -597,7 +596,6 @@ rule run_gams:
         EV=config["parameters"]["EV"],
         EV_flex = config["parameters"]["EV_flex"],
         V2G=config["parameters"]["V2G"],
-        EV_pcap=config["parameters"]["EV_pcap"],
         EV_soc_min=config["parameters"]["EV_soc_min"],
         EV_soc_max=config["parameters"]["EV_soc_max"],
     resources:
