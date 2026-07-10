@@ -1,0 +1,36 @@
+name: highres_v2
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - conda # added here since some people might install using micromamba, but
+#             snakemake seems to require conda specifically.
+  - python
+  - jupyter
+  - jupyterlab_code_formatter
+  - black
+  - isort
+  - odfpy
+  - numpy
+  - pandas
+  - pyarrow
+  - rioxarray
+  - xlrd
+  - odfpy
+  - numpy-financial
+  - fastparquet
+  - snakemake-minimal
+  - zstd
+  - pycountry
+  - xarray
+  - shapely
+  - matplotlib
+  - git
+  - rasterio
+  - python-calamine
+  - zenodo_get
+  - pip
+  - setuptools=81.0.0
+  - pip:
+    - cdsapi
+    - git+https://github.com/pypsa/atlite.git
