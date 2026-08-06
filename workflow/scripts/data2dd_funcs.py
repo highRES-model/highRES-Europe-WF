@@ -232,12 +232,16 @@ def co2target2dd(co2targets_db,
                  co2target_out, 
                  esys_scen, 
                  co2_target_type,
-                 co2_target_extent):
+                 co2_target_extent,
+                 planning_horizon):
     
-    dout = (pd.read_csv(co2targets_db)
+    d = pd.read_csv(co2targets_db)
+    d["year"] = d["year"].astype(str).str.strip()
+    dout = (d
             .query("(case == @esys_scen) \
                    and (type == @co2_target_type) \
-                   and (extent == @co2_target_extent)"))
+                   and (extent == @co2_target_extent) \
+                   and (year == @planning_horizon)"))
 
                    
     if co2_target_extent == "all":

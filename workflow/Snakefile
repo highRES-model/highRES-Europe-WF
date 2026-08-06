@@ -315,8 +315,8 @@ rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
-        "resources/highres_technoeconomic_database.ods",
-        europedemandcsvlocation="resources/europe_demand.csv",
+        f"resources/highres_technoeconomic_database_{config['parameters']['planning_horizons'][0]}.ods",
+        europedemandcsvlocation=f"resources/europe_demand_{config['parameters']['energy_system_scenario']}_{config['parameters']['planning_horizons'][0]}.csv",
         co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
@@ -335,7 +335,8 @@ rule build_technoeconomic_inputs:
         user_mode=user_mode,
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
-        co2_target_scenario="BASE",
+        energy_system_scenario=config["parameters"]["energy_system_scenario"],
+        planning_horizon=config["parameters"]["planning_horizons"][0],
     script:
         "scripts/data2dd.py"
 
@@ -391,7 +392,7 @@ rule build_vre_areas_file:
             else []
         ),
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
-        technoeconomic_database="resources/highres_technoeconomic_database.ods",
+        technoeconomic_database=f"resources/highres_technoeconomic_database_{config['parameters']['planning_horizons'][0]}.ods",
     output:
         modelpath / "vre_areas_{year}_.dd",
         regionsdd=modelpath / "_regions.dd",
@@ -583,6 +584,7 @@ rule run_gams:
         #co2intensity=config["parameters"]["co2target"],
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
+        energy_system_scenario=config["parameters"]["energy_system_scenario"],
         sharedcodepath=abs_gams_code_path,
         outname="results",
         store_initial_level=config["parameters"]["store_initial_level"],
