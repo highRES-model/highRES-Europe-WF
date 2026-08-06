@@ -149,12 +149,19 @@ rule build_cplex_opt:
 rule build_zones_file:
     input:
         "workflow/scripts/build_zones.py",
+        data2dd="workflow/scripts/data2dd_funcs.py",
     output:
         modelpath / "zones.dd",
     params:
         aggregated_regions=aggregated_regions,
         focus_countries=focus_countries,
         aggregated_countries=aggregated_countries,
+        unit_commitment=config["parameters"]["unit_commitment"],
+        unit_commitment_zones=(
+            config["parameters"]["unit_commitment_zones"]
+            if config["parameters"]["unit_commitment"]=="ON"
+            else []
+        ),
     script:
         "scripts/build_zones.py"
 
@@ -217,7 +224,7 @@ rule build_vre_land_avail:
         solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
-        social_excl=shared_input_path / "geodata/onshore/social_medium.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_high.tif",
         env_excl=shared_input_path / "geodata/onshore/environmental_medium.tif",
         techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
