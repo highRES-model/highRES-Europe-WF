@@ -29,7 +29,7 @@ parameters:
   pathway_mode: "OFF"
 
   # Planning years
-  planning_horizons: ["2050"]
+  planning_horizons: ["2030"]
 
   # Only relvent if pathway_mode set to "ON"
   foresight_mode: "myopic"
