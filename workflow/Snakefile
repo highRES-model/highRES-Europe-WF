@@ -29,9 +29,15 @@ elif "focus" in spatials:
         aggregated_countries = config["parameters"]["aggregated_countries"]
     else:
         aggregated_countries=None
+
 elif "focus" not in spatials:
     focus_countries=None
     aggregated_countries=None
+    
+if "co2_target_aggregation" in config["parameters"]:
+    co2_target_aggregation = config["parameters"]["co2_target_aggregation"]
+else:
+    co2_target_aggregation=None
     
 
 psys_scenarios = config["parameters"]["power_system_scenario"]
@@ -359,8 +365,8 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database_uk.ods",
-        europedemandcsvlocation="resources/demand_edrc/shift_high_cp_demand_1995.csv",
-        co2_targets_db="resources/europe_co2_targets.csv",
+        europedemandcsvlocation="resources/demand_edrc/{psys_scenario}_demand_1995.csv",
+        co2_targets_db="resources/edrc_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
         focus_dem_shares=(
@@ -383,9 +389,10 @@ rule build_technoeconomic_inputs:
         user_mode=user_mode,
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
-        co2_target_scenario="BASE",
+        co2_target_scenario="{psys_scenario}",
         focus_countries=focus_countries,
-        aggregated_countries=aggregated_countries
+        aggregated_countries=aggregated_countries,
+        co2_target_aggregation=co2_target_aggregation
     script:
         "scripts/data2dd.py"
 

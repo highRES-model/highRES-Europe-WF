@@ -15,11 +15,13 @@ out = pathlib.Path(".")
 
 
 co2target2dd(
-    snakemake.input.co2_targets_db,
-    snakemake.output.co2_target,
-    snakemake.params.co2_target_scenario,
-    snakemake.params.co2_target_type,
-    snakemake.params.co2_target_extent)
+        snakemake.input.co2_targets_db,
+        snakemake.output.co2_target,
+        snakemake.params.co2_target_scenario,
+        snakemake.params.co2_target_type,
+        snakemake.params.co2_target_extent,
+        snakemake.params.co2_target_aggregation)
+
 
 psys_scen = snakemake.wildcards.psys_scenario
 esys_scen = "BASE"
