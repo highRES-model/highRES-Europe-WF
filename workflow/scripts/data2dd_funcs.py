@@ -263,20 +263,55 @@ def co2target2dd(co2targets_db,
                  co2target_out, 
                  esys_scen, 
                  co2_target_type,
-                 co2_target_extent):
+                 co2_target_extent,
+                 agg_co2):
     
     dout = (pd.read_csv(co2targets_db)
             .query("(case == @esys_scen) \
                    and (type == @co2_target_type) \
                    and (extent == @co2_target_extent)"))
-
-                   
+         
     if co2_target_extent == "all":
-        wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
-    if co2_target_extent == "zonal":
-        wrapdd(data2dd(dout["target"].values,
+            wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
+        
+    elif co2_target_extent == "user":
+        
+        agg_co2_map=[agg+"."+z for agg,zones in agg_co2.items() for z in zones]
+        agg_co2_set=[agg for agg,zones in agg_co2.items()]
+                                
+        agg_co2_set=np.insert(
+                        wrapdd(data2dd(agg_co2_set,[]),
+                               "agg_co2",
+                               "set"),
+                        1,
+                        "",
+                        axis=1)
+            
+        agg_co2_map=np.insert(
+                        wrapdd(data2dd(agg_co2_map,[]),
+                               "agg_co2_map",
+                               "set"),
+                        1,
+                        "",
+                        axis=1)
+                              
+        vals=wrapdd(data2dd(dout["target"].values,
                        [dout["zone"].values])
-               ,"co2_target", "parameter", outfile=co2target_out)
+               ,"co2_target", "parameter")
+    
+
+        out=np.concatenate((agg_co2_set,agg_co2_map,vals),axis=0)
+        
+        np.savetxt(
+            co2target_out, out, delimiter=" ", fmt="%s"
+        )
+            
+            
+    elif co2_target_extent == "zonal":
+            wrapdd(data2dd(dout["target"].values,
+                           [dout["zone"].values])
+                   ,"co2_target", "parameter", outfile=co2target_out)
+
         
 
 def getzlims(lim, 
