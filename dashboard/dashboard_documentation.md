@@ -187,21 +187,36 @@ renders tables and charts"]
 
 The landing tab for any scenario. Shows total system cost (raw GBP, inflation-adjusted, converted to user-selected currency via live Frankfurter API), a cost breakdown by category (Generation / Storage / Transmission) using a segmented control, and headline capacity metrics. Works offline with a manual rate input fallback.
 
+![Overview tab](assets/overview.png)
+
 ### Map
 
 Choropleth map of installed capacity coloured by the selected technology. Users pick a technology from the controls panel on the left. Clicking a country opens a detail view showing installed capacity per tech for that country. The map validates that GDX zone codes match the GeoJSON index before rendering, and shows a clear warning if they don't (e.g. when a regional scenario is loaded but the country-level GeoJSON is configured).
+
+![Map view](assets/map_map_view.png)
+![Country detail view](assets/map_country_view.png)
 
 ### Explore Capacity
 
 Shows installed capacity (total or new) broken down by technology and country. Includes pie charts per country with a country filter. Filters for 'All technologies' or 'Renewables only'.
 
+![Capacity breakdown, top](assets/capacity_top.png)
+![Capacity breakdown, bottom](assets/capacity_bottom.png)
+
 ### VRE Deployment
 
 Compares newly installed VRE capacity against available potential. Toggle between Power (GW) and Area (km²). The area view optionally shows how much of each country's total land area is occupied by VRE. Uses `calculate_utilization()` and `calculate_country_land_use()` from `data/utilization.py`. HydroRoR is always excluded because its potential is stored as `+INF` in the GDX.
 
+![VRE overview](assets/vre_overview.png)
+![VRE land area view](assets/vre_land_area.png)
+
 ### Scenarios
 
 Loads all available scenarios and builds a comparison table with total capacity, VRE capacity, and cost columns. A base scenario can be selected, then all other rows then show deltas ($\Delta$) against the base. The base scenario row is highlighted. A technology comparison chart below the table shows installed capacity for a selected technology across all scenarios, with a dashed reference line at the base scenario value. Scenario data is cached with `@st.cache_data` to avoid reloading large GDX files on every interaction.
+
+![Scenarios overview](assets/scenarios_overview.png)
+![Scenario cost category mix](assets/scenario_category_mix.png)
+![Scenario technology breakdown](assets/scenario_breakdown.png)
 
 ---
 
