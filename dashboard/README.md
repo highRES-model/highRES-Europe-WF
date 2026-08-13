@@ -2,7 +2,7 @@
 
 This dashboard is designed for users of the highRES model to provide an overview of one or more model results. It's primary objective is to facilitate the communication of key variables from model-generated scenarios to various stakeholders.
 
-The **highRES Dashboard** is a Streamlit-based web application for visualising and exploring results from the highRES energy system model. It was developed as a summer research project at SINTEF/University of Oslo and is designed to work with results created by the `highRES-Europe-WF` workflow.
+The **highRES Dashboard** is a Streamlit-based web application for visualising and exploring results from the highRES energy system model. It was developed as a summer research project at University of Oslo and is designed to work with results created by the `highRES-Europe-WF` workflow.
 
 The dashboard loads scenario results directly from GDX files produced by the GAMS optimisation model. It is intentionally decoupled from the model run itself, researchers run the model first, then point the dashboard at the results folder.
 
@@ -60,7 +60,7 @@ _Alternatively open `GAMS Studio` and navigate to `Help` then select `GAMS Licen
 
 You don't need your own `results.gdx` files to see the dashboard in action.
 As long as you've completed the steps above, activated the dashboard
-environment, have GAMS installed and licensed, and set `gams_path` in
+environment, have GAMS installed and set `gams_path` in
 `dashboard/dashboard_config.yaml`, you can run the dashboard right away:
 
 ```bash
