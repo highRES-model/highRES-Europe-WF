@@ -16,7 +16,7 @@ SCALAR_METRICS = {
     ("vre", "new_vre"): "New VRE (GW)",
     ("storage", "tot_storage"): "Total Storage (GW)",
     ("cost", "cost_raw"): "Total System Cost",
-    ("demand", "by_demand"): "Normalized by Demand",
+    ("demand", "by_demand"): "Normalized by Demand (EUR/MWh)",
 }
 
 
