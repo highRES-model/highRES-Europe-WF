@@ -416,7 +416,7 @@ importing pandas, but not necessary for functionality.
 
 ## 10. Ideas for Further Work
 
-- **Improve Map tab** - this could be improved to be more dynamic, not only using capacity data, but also other tables like costs or storage and let users start by selecting a dimension to focus on
 - **Transmission tab** — visualise `var_tot_trans_pcap` as lines on the map, thickness proportional to capacity, coloured by transmission type (HVAC/HVDC).
 - **Scenario comparison charts** — extend the Scenarios tab with VRE utilisation comparison, country-level diffs or other relevant tables
-- **Split-view for two scenarios side by side** — could useful for direct visual comparison without the table.
+- **Split-view for two scenarios side by side** — could be useful for direct visual comparison without the table.
+- **Summary Tab (to stakeholders)** - a dedicated tab for presenting results to stakeholders. Users choose what to display (e.g., costs across different scenarios), and it's shown in a clear, visual format rather than a technical one.
