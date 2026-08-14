@@ -6,6 +6,8 @@ The **highRES Dashboard** is a Streamlit-based web application for visualising a
 
 The dashboard loads scenario results directly from GDX files produced by the GAMS optimisation model. It is intentionally decoupled from the model run itself, researchers run the model first, then point the dashboard at the results folder.
 
+> For in-depth documentation, architecture notes, and guidance for new contributors, see [`dashboard_documentation.md`](./dashboard_documentation.md).
+
 ## 1. Getting Started
 
 ### 1.1 Prerequisites
