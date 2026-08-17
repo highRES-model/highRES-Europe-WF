@@ -6,6 +6,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import pathlib
 
 
 def wrapdd(d, out_par, otype, outfile=""):
@@ -348,6 +349,104 @@ def getrlims(lim, techs, zones, exist_agg):
 
     return np.concatenate(outlims, axis=0)
 
+
+def read_dd_blocks(f):
+    lines = pathlib.Path(f).read_text().splitlines()
+    blocks, order = {}, []
+    i, n = 0, len(lines)
+    while i < n:
+        line = lines[i].strip()
+        if line in ("parameter", "set", "scalar"):
+            block_type = line
+            i += 1
+            name = lines[i].strip().split("/")[0].strip()
+            i += 1
+            rows = []
+            while i < n and lines[i].strip() != "/":
+                parts = lines[i].split()
+                if len(parts) == 2:
+                    rows.append((parts[0], parts[1]))
+                elif len(parts) == 1:
+                    rows.append((parts[0], None))
+                i += 1
+            i += 1
+            blocks[name] = {"type": block_type, "rows": rows}
+            order.append(name)
+        else:
+            i += 1
+    return blocks, order
+
+def write_dd_blocks(blocks, order, outfile):
+    lines = []
+    for name in order:
+        block = blocks[name]
+        lines.append(block["type"])
+        lines.append(name + " /")
+        for key, value in block["rows"]:
+            lines.append(key if value is None else f"{key} {value}")
+        lines.append("/")
+    pathlib.Path(outfile).write_text("\n".join(lines) + "\n")
+
+
+def patch_exist_block(blocks, block_name, ledger_slice, key_cols):
+    original_rows = blocks[block_name]["rows"]
+    tech_pos = key_cols.index("Technology")
+    limtype_lookup = {}
+    for key, _ in original_rows:
+        parts = key.split(".")
+        limtype_lookup[parts[tech_pos]] = parts[-1]
+
+    if ledger_slice.empty:
+        blocks[block_name]["rows"] = []
+        return
+
+    agg = ledger_slice.groupby(key_cols, as_index=False)["capacity_mw"].sum()
+    new_rows = []
+    for _, row in agg.iterrows():
+        key_parts = [str(row[c]) for c in key_cols]
+        limtype = limtype_lookup.get(row["Technology"], "FX")
+        key = ".".join(key_parts) + "." + limtype
+        value = row["capacity_mw"] / 1000
+        new_rows.append((key, str(value)))
+    blocks[block_name]["rows"] = new_rows
+
+def apply_capacity_retirement(gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials):
+    ledger = pd.read_csv(ledger_path)
+    survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+
+    gen_techs = set(pd.read_excel(f_techno, sheet_name="gen", skiprows=1, engine="calamine")["Technology Name (highRES)"])
+    store_techs = set(pd.read_excel(f_techno, sheet_name="store", skiprows=1, engine="calamine")["Technology Name (highRES)"])
+
+    gen_pcap = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(gen_techs), :]
+    gen_pcap_z_direct = gen_pcap.loc[gen_pcap["region"].isna(), :]
+    gen_pcap_r_native = gen_pcap.loc[gen_pcap["region"].notna(), :]
+
+    gen_pcap_z_from_r = gen_pcap_r_native.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].sum()
+    gen_pcap_z = pd.concat([gen_pcap_z_direct, gen_pcap_z_from_r], ignore_index=True)
+
+    if spatials == "region":
+        gen_pcap_r = gen_pcap_r_native.groupby(["Technology", "zone"], as_index=False)["capacity_mw"].sum()
+        gen_pcap_r["region"] = gen_pcap_r["zone"]
+    else:
+        gen_pcap_r = gen_pcap_r_native
+
+    gen_ecap_z = survivors.loc[
+        (survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(gen_techs) & survivors["region"].isna(), :
+    ]
+
+    store_pcap_z = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(store_techs), :]
+    store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
+
+    gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
+    patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"])
+    patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"])
+    patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"])
+    write_dd_blocks(gen_blocks, gen_order, gen_ddfile)
+
+    store_blocks, store_order = read_dd_blocks(store_ddfile)
+    patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"])
+    patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"])
+    write_dd_blocks(store_blocks, store_order, store_ddfile)
 
 def scen2dd(
     co2budgetddlocation,

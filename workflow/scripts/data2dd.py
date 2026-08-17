@@ -5,10 +5,10 @@ import pathlib
 import pandas as pd
 
 from data2dd_funcs import (euro_demand2dd, scen2dd, temporal2dd, trans_links,
-                           co2target2dd, add_vre_connection_costs)
+                           co2target2dd, add_vre_connection_costs, apply_capacity_retirement)
                            
 
-root = pathlib.Path(snakemake.output[0]).parent
+root = pathlib.Path(snakemake.output[1]).parent
 data_root = root
 out = pathlib.Path(".")
 
@@ -101,7 +101,6 @@ scen2dd(
     esys_cap=False,
     exist_cap=True,
     exist_agg=snakemake.wildcards.spatial,
-    planning_horizon
 )
 
 trans_links(
@@ -150,4 +149,10 @@ for yr in years:
         scen_db,
         esys_scen,
         yr,
+    )
+
+if snakemake.input.prior_ledger:
+    apply_capacity_retirement(
+        snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,
+        int(planning_horizon), snakemake.wildcards.spatial,
     )

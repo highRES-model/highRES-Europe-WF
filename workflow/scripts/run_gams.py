@@ -39,7 +39,7 @@ process = subprocess.Popen(
     args,
     stdout=subprocess.PIPE,
     stderr=subprocess.STDOUT,
-    cwd=snakemake.params.modelpath,
+    cwd=snakemake.params.horizonpath,
 )
 
 # Below writes gams output to terminal in realtime and log
