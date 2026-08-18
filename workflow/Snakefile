@@ -613,6 +613,22 @@ rule all_inputs_ready: # Generate all the inputs
     output:
         touch(modelpath / "inputs.finished"),
 
+def previous_gams_result(wildcards):
+    year = int(wildcards.model_year)
+    i_year = model_years.index(year)
+    prev_year = model_years[i_year - 1]
+    return modelpath / f"results_{prev_year}.gdx"
+
+def gams_inputs(wildcards):
+    year = int(wildcards.model_year)
+    i_year = model_years.index(year)
+ 
+    inputs = {
+        "all_inputs_ready": rules.all_inputs_ready.output,
+    }
+    if i_year > 0: # if more than one year is considered
+        inputs["prev_result"] = modelpath / f"updated_{year}.finished"
+    return inputs
 
 # Files that are marked temporary upon creation, but can only be deleted after
 # the model has run, need to be listed as an input both here and in the rule
@@ -627,7 +643,7 @@ rule run_gams:
         shared_code_path + "highres_storage_setup.gms",
         shared_code_path + "highres_storage_uc_setup.gms",
         shared_code_path + "highres_uc_setup.gms",
-        modelpath / "inputs.finished",
+        unpack(gams_inputs), # path to existing pcap from previous run
         modelpath / "vre_{year}_.gdx",
     params:
         gamspath=gamspath,
@@ -665,6 +681,22 @@ rule run_gams:
         # modelresultsdd=protected(modelpath / "results.db"),
     script:
         "scripts/run_gams.py"
+
+rule update_inputs:
+    input:
+        modelresults = previous_gams_result,
+        gen_comm_decomm_path = rules.build_commissioning_decommissioning_plans.output.gen_comm_decomm_path,
+        store_comm_decomm_path = rules.build_commissioning_decommissioning_plans.output.store_comm_decomm_path,
+        gen_dd_path = modelpath / "{psys_scenario}_gen_{model_year}.dd",
+        store_dd_path = modelpath / "{psys_scenario}_store_{model_year}.dd",
+        data2dd=pathlib.Path(workflow.basedir) / "scripts",
+    output:
+        exist_pcap_path = touch(modelpath / "updated_{model_year}.finished"),
+    params:
+        gamspath=gamspath,
+        model_years=model_years,
+    notebook:
+        "notebooks/highRES_update_inputs_myopic.ipynb"
 
 rule all_model_years_ready: # Generate all the outputs
     input:
