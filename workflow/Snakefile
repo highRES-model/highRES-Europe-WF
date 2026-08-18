@@ -15,6 +15,12 @@ include_rooftop=config["parameters"]["include_rooftop"]
 
 inputyears = config["parameters"]["years"]
 
+model_years = config["parameters"]["model_years"]
+
+esys_scenarios = config["parameters"]["energy_system_scenario"]
+
+pathway_mode = config["parameters"]["pathway_mode"]
+
 # TODO: make grid_regions work
 grid_regions = []
 aggregated_regions = config["parameters"]["aggregated_regions"]
@@ -47,12 +53,21 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
 # Generate all combinations of years, spatials
-combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
-scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario"])
+combinations = list(itertools.product(inputyears, spatials, psys_scenarios, esys_scenarios, model_years))
+scenarios = pd.DataFrame(combinations, columns=[
+    "year", 
+    "spatial", 
+    "psys_scenario", 
+    "esys_scenario", 
+    "model_year"
+    ])
+
 
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
+model_years_full = scenarios.model_year.to_list()
+esys_scenarios = scenarios.esys_scenario.to_list()
 
 ev_scenario = config["parameters"]["EV_scenario"]
 
@@ -97,7 +112,7 @@ scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=Fals
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{year}_{spatial}"
+modelpath=resultspath / "{psys_scenario}_{year}_{spatial}_{esys_scenario}"
 
 
 localrules:
@@ -121,7 +136,14 @@ localrules:
 
 rule all:
     input:
-        expand(modelpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials),
+        expand(modelpath / config["target"], 
+        zip, 
+        psys_scenario=psys_scenarios, 
+        esys_scenario=esys_scenarios, 
+        year=years, 
+        spatial=spatials, 
+        model_year=model_years_full,
+        ),
 
 
 rule build_cplex_opt:
@@ -323,19 +345,20 @@ rule build_technoeconomic_inputs:
     conda:
         "envs/build_technoeconomic.yml"
     output:
-        modelpath / "{year}_temporal.dd",
-        modelpath / "{psys_scenario}_gen.dd",
-        modelpath / "{psys_scenario}_store.dd",
-        modelpath / "trans.dd",
-        co2_target=modelpath / "BASE_co2_target.dd",
-        demandfile=modelpath / "BASE_demand_{year}.dd",
+        modelpath / "{model_year}_temporal.dd",
+        modelpath / "{psys_scenario}_gen_{model_year}.dd",
+        modelpath / "{psys_scenario}_store_{model_year}.dd",
+        modelpath / "trans_{model_year}.dd",
+        co2_target=modelpath / "BASE_co2_target_{model_year}.dd",
+        demandfile=modelpath / "BASE_demand_{model_year}.dd",
     params:
         aggregated_regions=aggregated_regions,
         date_range=date_range,
         user_mode=user_mode,
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
-        co2_target_scenario="BASE",
+        co2_target_scenario="{esys_scenario}",
+        model_years=model_years,
     script:
         "scripts/data2dd.py"
 
@@ -546,18 +569,28 @@ rule build_inputs:
         # unpack(inputfilelist)
         modelpath / "_regions.dd",
         modelpath / "zones.dd",
-        modelpath / "{year}_temporal.dd",
+        modelpath / "{model_year}_temporal.dd",
         modelpath / "vre_areas_{year}_.dd",
         rules.build_technoeconomic_inputs.output.demandfile,
         modelpath / "vre_gdx.compressed",
         modelpath / "vre_{year}_.gdx",
         modelpath / "hydro_res_inflow_{year}.gdx",
         rules.compress_hydrores_inflow.output.compressdone,
-        modelpath / "{psys_scenario}_gen.dd",
-        modelpath / "{psys_scenario}_store.dd",
-        modelpath / "trans.dd",
+        modelpath / "{psys_scenario}_gen_{model_year}.dd",
+        modelpath / "{psys_scenario}_store_{model_year}.dd",
+        modelpath / "trans_{model_year}.dd",
         modelpath / "cplex.opt",
         modelpath / "ev_data.dd",
+    output:
+        touch(modelpath / "inputs_{model_year}.finished"),
+
+rule all_inputs_ready: # Generate all the inputs
+    input:
+        expand(
+            modelpath / "inputs_{model_year}.finished",
+            model_year=model_years,
+            allow_missing=True,
+        ),
     output:
         touch(modelpath / "inputs.finished"),
 

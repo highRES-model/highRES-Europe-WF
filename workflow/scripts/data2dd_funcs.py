@@ -125,7 +125,7 @@ def temporal2dd(dstart, dend, opath, temporaloutputpath):
     np.savetxt(temporaloutputpath, np.concatenate(out, axis=0), fmt="%s")
 
 
-def trans_links(root, f, aggregated_regions, out="work"):
+def trans_links(root, f, aggregated_regions, out="work", model_year=2050):
     tech_type = "trans"
 
     links_allowed = pd.read_excel(
@@ -190,14 +190,15 @@ def trans_links(root, f, aggregated_regions, out="work"):
 
     #    outdd=np.concatenate(outdd,axis=0)
 
-    np.savetxt(root / out / (tech_type + ".dd"), outdd, delimiter=" ", fmt="%s")
+    np.savetxt(root / out / (tech_type + f"_{model_year}.dd"), outdd, delimiter=" ", fmt="%s")
     
 def add_vre_connection_costs(
             root,
             out,
             f_techno,
             psys_scen,
-            vre_connection_dists
+            vre_connection_dists,
+            model_year
             ):
     
     dists=pd.read_csv(vre_connection_dists,index_col=0)
@@ -217,7 +218,7 @@ def add_vre_connection_costs(
     
     conn_costs["out"]=conn_costs[0]+" "+conn_costs[1].astype(str)
     
-    d=pd.read_csv(root / out / (psys_scen+"_gen.dd"),skip_blank_lines=False,header=None)
+    d=pd.read_csv(root / out / (psys_scen+f"_gen_{model_year}.dd"),skip_blank_lines=False,header=None)
     
     d_out=np.concatenate(
         (d.values,
@@ -225,20 +226,21 @@ def add_vre_connection_costs(
         axis=0)
     
     np.savetxt(
-            root / out / (psys_scen+"_gen.dd"), d_out, delimiter=" ", fmt="%s"
+            root / out / (psys_scen+f"_gen_{model_year}.dd"), d_out, delimiter=" ", fmt="%s"
         )
 
 def co2target2dd(co2targets_db, 
                  co2target_out, 
                  esys_scen, 
                  co2_target_type,
-                 co2_target_extent):
+                 co2_target_extent,
+                 model_year):
     
     dout = (pd.read_csv(co2targets_db)
             .query("(case == @esys_scen) \
                    and (type == @co2_target_type) \
-                   and (extent == @co2_target_extent)"))
-
+                   and (extent == @co2_target_extent) \
+                   and (year == @model_year)"))
                    
     if co2_target_extent == "all":
         wrapdd(dout["target"].values[0], "co2_target", "scalar", outfile=co2target_out)
@@ -248,8 +250,8 @@ def co2target2dd(co2targets_db,
                ,"co2_target", "parameter", outfile=co2target_out)
         
 
-def getzlims(lim, techs, zones):
-    lim = lim.loc[(lim["Year"] == 2050) & (lim["Technology"].isin(techs)), :]
+def getzlims(lim, techs, zones, model_year):
+    lim = lim.loc[(lim["Year"] == model_year) & (lim["Technology"].isin(techs)), :]
 
     if lim.empty:
         return np.array([])
@@ -284,11 +286,11 @@ def getzlims(lim, techs, zones):
     return np.concatenate(outlims, axis=0)
 
 
-def getrlims(lim, techs, zones, exist_agg):
+def getrlims(lim, techs, zones, exist_agg, model_year):
     # TODO capcity units are fixed to GW here, need to add flexibility
 
     lim = lim.loc[
-        (lim["Year"] == 2050)
+        (lim["Year"] == model_year)
         & (lim["Technology"].isin(techs))
         & (lim["zone"].isin(zones)),
         :,
@@ -358,6 +360,8 @@ def scen2dd(
     esys_cap=False,
     exist_cap=False,
     exist_agg="region",
+    model_year="2050",
+    model_years=[2050,2050],
 ):
     # co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
@@ -392,39 +396,43 @@ def scen2dd(
                 ),
                 techs,
                 zones,
+                model_year,
             )
         )
 
         if exist_cap:
-            zlims = getzlims(
-                pd.read_excel(
-                    fin,
-                    sheet_name=tech_type + "_exist_z",
-                    skiprows=0,
-                    engine="calamine",
-                ),
-                techs,
-                zones,
-            )
-
-            if zlims.size != 0:
-                param_outdd.append(zlims)
-
-            if tech_type == "gen":
-                rlims = getrlims(
+            if model_year==model_years[0]: # only the first iteration
+                zlims = getzlims(
                     pd.read_excel(
                         fin,
-                        sheet_name=tech_type + "_exist_r",
+                        sheet_name=tech_type + "_exist_z",
                         skiprows=0,
                         engine="calamine",
                     ),
                     techs,
                     zones,
-                    exist_agg,
+                    model_year,
                 )
 
-                if rlims.size != 0:
-                    param_outdd.append(rlims)
+                if zlims.size != 0:
+                    param_outdd.append(zlims)
+
+                if tech_type == "gen":
+                    rlims = getrlims(
+                        pd.read_excel(
+                            fin,
+                            sheet_name=tech_type + "_exist_r",
+                            skiprows=0,
+                            engine="calamine",
+                        ),
+                        techs,
+                        zones,
+                        exist_agg,
+                        model_year,
+                    )
+
+                    if rlims.size != 0:
+                        param_outdd.append(rlims)
 
         # if exist_cap:
         #     lims = getzlims(
@@ -531,7 +539,7 @@ def scen2dd(
         outdd = np.concatenate((np.hstack((set_outdd, pad)), param_outdd), axis=0)
 
         np.savetxt(
-            root / out / (run + "_" + tech_type + ".dd"), outdd, delimiter=" ", fmt="%s"
+            root / out / (run + "_" + tech_type + f"_{model_year}.dd"), outdd, delimiter=" ", fmt="%s"
         )
 
         # param_outdd=np.concatenate(param_outdd,axis=0)

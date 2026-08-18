@@ -12,16 +12,17 @@ root = pathlib.Path(snakemake.output[0]).parent
 data_root = root
 out = pathlib.Path(".")
 
-
+model_year = int(snakemake.wildcards.model_year)
 co2target2dd(
     snakemake.input.co2_targets_db,
     snakemake.output.co2_target,
-    snakemake.params.co2_target_scenario,
+    snakemake.wildcards.esys_scenario, # snakemake.params.co2_target_scenario
     snakemake.params.co2_target_type,
-    snakemake.params.co2_target_extent)
+    snakemake.params.co2_target_extent,
+    model_year)
 
 psys_scen = snakemake.wildcards.psys_scenario
-esys_scen = "BASE"
+esys_scen = snakemake.wildcards.esys_scenario
 
 scen_db = snakemake.input[1]
 f_techno = snakemake.input[2]
@@ -47,10 +48,10 @@ params_to_write["gen"]["parameter"]["all"] = [
     "startup cost",
     "inertia",
     "unit size",
-    "capex2050",
+    f"capex{model_year}",
     "varom",
     "fom",
-    "fuelcost2050",
+    f"fuelcost{model_year}",
     "cap2area",
     "af",
     "min gen",
@@ -68,8 +69,8 @@ params_to_write["store"]["parameter"]["all"] = [
     "loss_per_hr",
     "p_to_e",
     "varom",
-    "e capex2050",
-    "p capex2050",
+    f"e capex{model_year}",
+    f"p capex{model_year}",
     "fom",
     "af",
     "min down",
@@ -96,6 +97,8 @@ scen2dd(
     esys_cap=False,
     exist_cap=True,
     exist_agg=snakemake.wildcards.spatial,
+    model_year=model_year,
+    model_years=snakemake.params.model_years,
 )
 
 trans_links(
@@ -103,6 +106,7 @@ trans_links(
     f_techno,
     aggregated_regions=snakemake.params.aggregated_regions,
     out=out,
+    model_year=model_year,
 )
 
 add_vre_connection_costs(
@@ -110,7 +114,8 @@ add_vre_connection_costs(
     out,
     f_techno,
     psys_scen,
-    snakemake.input.vre_connection_dists
+    snakemake.input.vre_connection_dists,
+    model_year
     )
     
 
@@ -143,5 +148,5 @@ for yr in years:
         dstop,
         scen_db,
         esys_scen,
-        yr,
+        model_year,
     )
