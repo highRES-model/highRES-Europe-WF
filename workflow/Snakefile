@@ -7,6 +7,26 @@ import itertools
 import pandas as pd
 import pathlib
 
+# For now here, but it could be retrieved from technoeconomic database
+lifetime_tech = {
+    "NuclearEPR": 40,
+    "Windonshore": 25,
+    "Windoffshore": 25,
+    "WindoffshoreFloat": 25,
+    "Solar": 25,
+    "PumpedHydro": 30,
+    "Li-ion-8": 13,
+    "H2-Tanks-OCGT": 25,
+    "H2-Tanks-CCGT": 25,
+    "NaturalgasCCGTwithCCSnewOT": 30,
+    "NaturalgasOCGTnew": 25,
+    "BiomassCCS": 30,
+    "Biomass": 25,
+    "HydroRoR": 41,
+    "HydroRes": 41,
+    "SynCon": 25,
+}
+
 date_range = config["parameters"]["date_range"]
 
 user_mode = config["parameters"]["mode"][0]
@@ -613,7 +633,7 @@ rule all_inputs_ready: # Generate all the inputs
     output:
         touch(modelpath / "inputs.finished"),
 
-def previous_gams_result(wildcards):
+def previous_gams_result(wildcards): ## There is a warning in this part, but it works
     year = int(wildcards.model_year)
     i_year = model_years.index(year)
     prev_year = model_years[i_year - 1]
@@ -627,7 +647,7 @@ def gams_inputs(wildcards):
         "all_inputs_ready": rules.all_inputs_ready.output,
     }
     if i_year > 0: # if more than one year is considered
-        inputs["prev_result"] = modelpath / f"updated_{year}.finished"
+        inputs["prev_result"] = modelpath / f"{year}_updated.finished"
     return inputs
 
 # Files that are marked temporary upon creation, but can only be deleted after
@@ -682,6 +702,19 @@ rule run_gams:
     script:
         "scripts/run_gams.py"
 
+rule update_comm_decomm_plans:
+    input:
+        modelresults = modelpath / "results_{model_year}.gdx",
+        gen_comm_decomm_path = modelpath / "gen_comm_decomm_plan.csv",
+        store_comm_decomm_path = modelpath / "store_comm_decomm_plan.csv",
+    output:
+        temp(touch(modelpath / "{model_year}_plan_updated.finished"))
+    params:
+        gamspath=gamspath,
+        lifetime_tech=lifetime_tech,
+    notebook:
+        "notebooks/highRES_update_comm_decomm_plans.ipynb"
+
 rule update_inputs:
     input:
         modelresults = previous_gams_result,
@@ -691,20 +724,23 @@ rule update_inputs:
         store_dd_path = modelpath / "{psys_scenario}_store_{model_year}.dd",
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
-        exist_pcap_path = touch(modelpath / "updated_{model_year}.finished"),
+        touch(modelpath / "{model_year}_updated.finished"),
     params:
         gamspath=gamspath,
         model_years=model_years,
     notebook:
         "notebooks/highRES_update_inputs_myopic.ipynb"
 
-rule all_model_years_ready: # Generate all the outputs
+rule all_model_years_ready:
     input:
-        expand(
-            modelpath / "results_{model_year}.gdx",
-            model_year=model_years_full, 
-            allow_missing=True,
-        ),
+        (
+            expand(
+                modelpath / "{model_year}_plan_updated.finished" if pathway_mode!="OFF" 
+                else modelpath / "results_{model_year}.gdx",
+                model_year=model_years_full,
+                allow_missing=True
+            ) 
+        )
     output:
         touch(modelpath / "results.finished"),
 
