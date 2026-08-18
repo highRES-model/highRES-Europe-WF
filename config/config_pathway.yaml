@@ -1,6 +1,5 @@
 # target: "inputs.finished"
-# target: "results.finished"
-target: "results_2050.gdx"
+target: "results.finished"
 
 paths:
   gams: /Library/Frameworks/GAMS.framework/Versions/53/Resources/  # slash at the end is required

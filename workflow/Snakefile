@@ -588,7 +588,7 @@ rule all_inputs_ready: # Generate all the inputs
     input:
         expand(
             modelpath / "inputs_{model_year}.finished",
-            model_year=model_years,
+            model_year=model_years_full,
             allow_missing=True,
         ),
     output:
@@ -647,6 +647,15 @@ rule run_gams:
     script:
         "scripts/run_gams.py"
 
+rule all_model_years_ready: # Generate all the outputs
+    input:
+        expand(
+            modelpath / "results_{model_year}.gdx",
+            model_year=model_years_full, 
+            allow_missing=True,
+        ),
+    output:
+        touch(modelpath / "results.finished"),
 
 rule convert_results:
     input:
