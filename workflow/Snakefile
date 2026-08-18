@@ -616,8 +616,9 @@ rule run_gams:
         #co2intensity=config["parameters"]["co2target"],
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
+        energy_system_scenario="{esys_scenario}",
         sharedcodepath=abs_gams_code_path,
-        outname="results",
+        outname="results_{model_year}",
         store_initial_level=config["parameters"]["store_initial_level"],
         store_final_level=config["parameters"]["store_final_level"],
         hydro_res_initial_fill=config["parameters"]["hydro_res_initial_fill"],
@@ -638,10 +639,10 @@ rule run_gams:
     resources:
         mem_mb=50000,
     log:
-        str(modelpath) + "/highres.lst",
-        str(modelpath) + "/highres.log",
+        str(modelpath) + "/highres_{model_year}.lst",
+        str(modelpath) + "/highres_{model_year}.log",
     output:
-        modelresults=protected(modelpath / "results.gdx"),
+        modelresults=protected(modelpath / "results_{model_year}.gdx"),
         # modelresultsdd=protected(modelpath / "results.db"),
     script:
         "scripts/run_gams.py"
