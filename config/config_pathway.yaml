@@ -1,5 +1,5 @@
-# target: "inputs.finished"
-target: "results.finished"
+target: "inputs.finished"
+# target: "results.finished"
 
 paths:
   gams: /Library/Frameworks/GAMS.framework/Versions/53/Resources/  # slash at the end is required
@@ -27,10 +27,10 @@ parameters:
   energy_system_scenario: ["BASE"]
 
   # Options: "myopic", "OFF",
-  pathway_mode: "OFF"
+  pathway_mode: "myopic"
 
   # Modelling years
-  model_years: [2050]
+  model_years: [2040, 2050]
 
   # Options: "intensity", "budget"
   co2_target_type: "intensity"

@@ -362,6 +362,17 @@ rule build_technoeconomic_inputs:
     script:
         "scripts/data2dd.py"
 
+rule build_commissioning_decommissioning_plans:
+    input:
+        gen_database_path = "resources/gen_database.csv",
+        store_database_path = "resources/store_database.csv",
+    output:
+        gen_comm_decomm_path = modelpath / "gen_comm_decomm_plan.csv",
+        store_comm_decomm_path = modelpath / "store_comm_decomm_plan.csv",
+    params:
+        model_years=model_years,
+    notebook:
+        "notebooks/highRES_build_comm_decomm_plans.ipynb"
 
 rule build_hydro_capfac:
     input:
@@ -590,6 +601,14 @@ rule all_inputs_ready: # Generate all the inputs
             modelpath / "inputs_{model_year}.finished",
             model_year=model_years_full,
             allow_missing=True,
+        ),
+        (
+            [
+                rules.build_commissioning_decommissioning_plans.output.gen_comm_decomm_path,
+                rules.build_commissioning_decommissioning_plans.output.store_comm_decomm_path,
+            ]
+            if pathway_mode!="OFF" and len(model_years)>1 # is it needed the second cond?
+            else "."
         ),
     output:
         touch(modelpath / "inputs.finished"),
