@@ -119,7 +119,7 @@ add_vre_connection_costs(
     )
     
 
-years = [snakemake.wildcards.year]
+years = [str(model_year)]
 date_range = snakemake.params.date_range
 
 for yr in years:

@@ -31,6 +31,10 @@ parameters:
 
   # Modelling years
   model_years: [2030, 2040, 2050]
+  # Weather years - options: [] or array same dim as model_years
+  # this could be merged with years 
+  weather_years: ["2010", "2011", "2012"]
+  # weather_years: []
 
   # Options: "intensity", "budget"
   co2_target_type: "intensity"
