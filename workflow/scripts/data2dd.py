@@ -5,7 +5,8 @@ import pathlib
 import pandas as pd
 
 from data2dd_funcs import (euro_demand2dd, scen2dd, temporal2dd, trans_links,
-                           co2target2dd, add_vre_connection_costs, apply_capacity_retirement)
+                           co2target2dd, add_vre_connection_costs, apply_capacity_retirement,
+                           apply_transmission_carryforward)
                            
 
 root = pathlib.Path(snakemake.output[1]).parent
@@ -152,7 +153,16 @@ for yr in years:
     )
 
 if snakemake.input.prior_ledger:
-    apply_capacity_retirement(
-        snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,
-        int(planning_horizon), snakemake.wildcards.spatial,
+    prior_horizon = pathlib.Path(str(snakemake.input.prior_ledger)).parent.name.split("_")[0]
+    apply_transmission_carryforward(
+        snakemake.output[3], snakemake.input.prior_ledger, f_techno, int(planning_horizon),
     )
+else:
+    prior_horizon = None
+
+apply_capacity_retirement(
+    snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,
+    int(planning_horizon), snakemake.wildcards.spatial,
+    snakemake.input.gen_database, zones, snakemake.params.baseline_year, prior_horizon,
+    scen_db, psys_scen,
+)

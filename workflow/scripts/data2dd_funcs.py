@@ -410,17 +410,46 @@ def patch_exist_block(blocks, block_name, ledger_slice, key_cols):
         new_rows.append((key, str(value)))
     blocks[block_name]["rows"] = new_rows
 
-def apply_capacity_retirement(gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials):
-    ledger = pd.read_csv(ledger_path)
-    survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols):
 
-    gen_techs = set(pd.read_excel(f_techno, sheet_name="gen", skiprows=1, engine="calamine")["Technology Name (highRES)"])
+    rows = dict(blocks[block_name]["rows"])
+
+    if not ledger_slice.empty:
+        agg = ledger_slice.groupby(key_cols, as_index=False)["capacity_mw"].sum()
+        for _, row in agg.iterrows():
+            key = ".".join(str(row[c]) for c in key_cols)
+            rows[key] = str(row["capacity_mw"])
+
+    blocks[block_name]["rows"] = list(rows.items())
+
+def apply_capacity_retirement(
+    gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials,
+    gen_database_path, zones, baseline_year, prior_horizon, scen_db, psys_scen,
+):
+
+    scen = pd.read_excel(scen_db, sheet_name="scenario_tech_definition", skiprows=0)
+    scen = scen.loc[scen["Psys Scenario"] == psys_scen, :]
+    techs = scen["Technology Name (highRES)"]
+
+    gen_sheet = pd.read_excel(f_techno, sheet_name="gen", skiprows=1, engine="calamine")
+    gen_techs = set(gen_sheet["Technology Name (highRES)"])
+    vre_techs = list(gen_sheet.loc[gen_sheet["set"] == "vre", "Technology Name (highRES)"])
     store_techs = set(pd.read_excel(f_techno, sheet_name="store", skiprows=1, engine="calamine")["Technology Name (highRES)"])
+
+    if ledger_path:
+        ledger = pd.read_csv(ledger_path)
+        survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+        patch_store = True
+    else:
+        # gen_database.csv has no storeage data.
+        survivors = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
+        patch_store = False
+
+    survivors = survivors.loc[survivors["Technology"].isin(techs), :]
 
     gen_pcap = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(gen_techs), :]
     gen_pcap_z_direct = gen_pcap.loc[gen_pcap["region"].isna(), :]
     gen_pcap_r_native = gen_pcap.loc[gen_pcap["region"].notna(), :]
-
     gen_pcap_z_from_r = gen_pcap_r_native.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].sum()
     gen_pcap_z = pd.concat([gen_pcap_z_direct, gen_pcap_z_from_r], ignore_index=True)
 
@@ -429,24 +458,110 @@ def apply_capacity_retirement(gen_ddfile, store_ddfile, ledger_path, f_techno, p
         gen_pcap_r["region"] = gen_pcap_r["zone"]
     else:
         gen_pcap_r = gen_pcap_r_native
-
     gen_ecap_z = survivors.loc[
         (survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(gen_techs) & survivors["region"].isna(), :
     ]
-
-    store_pcap_z = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(store_techs), :]
-    store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
 
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
     patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"])
     patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"])
     patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"])
+
+    year_lo = int(prior_horizon) if prior_horizon else baseline_year
+    mandate = read_gen_database(gen_database_path, zones, vre_techs, year_lo, planning_horizon)
+    mandate = mandate.loc[mandate["Technology"].isin(techs), :]
+
+    mandate_pcap = mandate.loc[mandate["capacity_type"] == "pcap", :]
+    mandate_pcap_direct = mandate_pcap.loc[mandate_pcap["region"].isna(), :]
+    mandate_pcap_from_r = mandate_pcap.loc[mandate_pcap["region"].notna(), :].groupby(
+        ["zone", "Technology"], as_index=False
+    )["capacity_mw"].sum()
+    mandate_pcap_z = pd.concat([mandate_pcap_direct, mandate_pcap_from_r], ignore_index=True)
+    patch_gen_database_mandate(gen_blocks, "gen_lim_pcap_z", gen_pcap_z, mandate_pcap_z)
+
+    # There is no ecap planned capacities in gen database but for future use, if any
+    mandate_ecap = mandate.loc[mandate["capacity_type"] == "ecap", :]
+    mandate_ecap_direct = mandate_ecap.loc[mandate_ecap["region"].isna(), :]
+    mandate_ecap_from_r = mandate_ecap.loc[mandate_ecap["region"].notna(), :].groupby(
+        ["zone", "Technology"], as_index=False
+    )["capacity_mw"].sum()
+    mandate_ecap_z = pd.concat([mandate_ecap_direct, mandate_ecap_from_r], ignore_index=True)
+    patch_gen_database_mandate(gen_blocks, "gen_lim_ecap_z", gen_ecap_z, mandate_ecap_z)
+
     write_dd_blocks(gen_blocks, gen_order, gen_ddfile)
 
-    store_blocks, store_order = read_dd_blocks(store_ddfile)
-    patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"])
-    patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"])
-    write_dd_blocks(store_blocks, store_order, store_ddfile)
+    if patch_store:
+        store_pcap_z = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(store_techs), :]
+        store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
+
+        store_blocks, store_order = read_dd_blocks(store_ddfile)
+        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"])
+        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"])
+        write_dd_blocks(store_blocks, store_order, store_ddfile)
+
+
+def apply_transmission_carryforward(trans_ddfile, ledger_path, f_techno, planning_horizon):
+    ledger = pd.read_csv(ledger_path)
+    survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+
+    trans_techs = set(
+        pd.read_excel(f_techno, sheet_name="transmission", skiprows=1, engine="calamine")["Technology Name (highRES)"]
+    )
+
+    trans_cap = survivors.loc[
+        (survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(trans_techs), :
+    ]
+
+    trans_blocks, trans_order = read_dd_blocks(trans_ddfile)
+    patch_trans_cap_block(trans_blocks, "trans_links_cap", trans_cap, ["zone", "region", "Technology"])
+    write_dd_blocks(trans_blocks, trans_order, trans_ddfile)
+
+def read_gen_database(gen_database_path, zones, vre_techs, year_lo, year_hi):
+    gdb = pd.read_csv(gen_database_path)
+    gdb = gdb[gdb["value"].notna()]               
+    gdb = gdb[gdb["limtype"] == "FX"]
+    gdb = gdb[gdb["zone"].isin(zones)]
+
+    if year_lo is None:
+        gdb = gdb[gdb["commissioning_year"] <= year_hi]
+    else:
+        gdb = gdb[(gdb["commissioning_year"] > year_lo) & (gdb["commissioning_year"] <= year_hi)]
+
+    gdb = gdb.rename(columns={"value": "capacity_mw", "parameter": "capacity_type"})
+
+    gdb["region"] = gdb["region"].where(gdb["Technology"].isin(vre_techs), other=pd.NA)
+
+    agg = gdb.groupby(
+        ["Technology", "zone", "region", "capacity_type"], as_index=False, dropna=False
+    )["capacity_mw"].sum()
+
+    return agg[["Technology", "zone", "region", "capacity_type", "capacity_mw"]]
+
+def patch_gen_database_mandate(blocks, lim_block_name, existing_z, mandate_z):
+    if mandate_z.empty:
+        return
+    existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict()
+    rows = dict(blocks[lim_block_name]["rows"])
+    up_lookup = {}
+    for key, value in rows.items():
+        zone, tech, limtype = key.split(".")
+        if limtype == "UP":
+            up_lookup[(zone, tech)] = float(value)
+
+    for _, row in mandate_z.iterrows():
+        zone, tech, mandate_mw = row["zone"], row["Technology"], row["capacity_mw"]
+        existing_mw = existing_lookup.get((zone, tech), 0.0)
+        lo_final = (existing_mw + mandate_mw) / 1000
+
+        up_value = up_lookup.get((zone, tech))
+        if up_value is not None and lo_final > up_value:
+            lo_final = up_value     # option to choose: UP=LO or LO=UP
+
+        for lt in ("FX", "LO"):          # need to remove FX to must build planned capacity
+            rows.pop(f"{zone}.{tech}.{lt}", None)
+        rows[f"{zone}.{tech}.LO"] = str(lo_final)
+
+    blocks[lim_block_name]["rows"] = list(rows.items())  
 
 def scen2dd(
     co2budgetddlocation,
