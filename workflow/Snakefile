@@ -372,6 +372,7 @@ rule build_technoeconomic_inputs:
         energy_system_scenario=lambda wildcards: wildcards.esys_scenario,
         planning_horizon=lambda wildcards: wildcards.horizon,
         baseline_year=config["parameters"]["baseline_year"],
+        growth_seed=config["parameters"]["gen_growth_seed_mw"],
     script:
         "scripts/data2dd.py"
 
