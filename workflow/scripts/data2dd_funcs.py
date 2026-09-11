@@ -477,15 +477,14 @@ def historical_max_new_build(ledger, baseline_year, capacity_type):
 
 def patch_growth_rate_ceiling(
     blocks, lim_block_name, growth_block_name, existing_z, base_z, seed_lookup,
-    delta_t, is_first_horizon,
+    delta_t, is_first_horizon, vre_techs,
 ):
-    if growth_block_name not in blocks or not blocks[growth_block_name]["rows"]:
-        return
 
     rate_lookup = {}
-    for key, value in blocks[growth_block_name]["rows"]:
-        zone, tech, _limtype = key.split(".")
-        rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
+    if growth_block_name in blocks:
+        for key, value in blocks[growth_block_name]["rows"]:
+            zone, tech, _limtype = key.split(".")
+            rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
 
     base_lookup = base_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not base_z.empty else {}
     existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not existing_z.empty else {}
@@ -501,27 +500,58 @@ def patch_growth_rate_ceiling(
         elif limtype == "FX":
             fx_keys.add((zone, tech))
 
-    for (zone, tech), rate in rate_lookup.items():
+    curtailment = {}
+
+    for (zone, tech), static_up in static_up_lookup.items():
         if (zone, tech) in fx_keys:
             continue        #if technology has not build freedom and defined with FX.
-        base_mw = base_lookup.get((zone, tech), 0.0)
-        seed_mw = seed_lookup.get(tech, 0.0)
-
-        if is_first_horizon:
-            growth_mw = max(seed_mw, base_mw * delta_t)
-        else:
-            growth_mw = max(seed_mw, (rate ** delta_t) * base_mw)
 
         existing_mw = existing_lookup.get((zone, tech), 0.0)
-        computed_up = (existing_mw + growth_mw) / 1000
+        rate = rate_lookup.get((zone, tech))
 
-        static_up = static_up_lookup.get((zone, tech))
-        if static_up is not None and computed_up > static_up:
+        if rate is not None:
+            base_mw = base_lookup.get((zone, tech), 0.0)
+            seed_mw = seed_lookup.get(tech, 0.0)
+            if is_first_horizon:
+                growth_mw = max(seed_mw, base_mw * delta_t)
+            else:
+                growth_mw = max(seed_mw, (rate ** delta_t) * base_mw)
+            computed_up = min((existing_mw + growth_mw) / 1000, static_up)
+        else:
             computed_up = static_up
 
-        rows[f"{zone}.{tech}.UP"] = str(computed_up)
+        if existing_mw / 1000 > computed_up:
+            if tech in vre_techs:
+                # Region-level techs can't have existing curtailed without
+                # breaking eq_exist_vre_pcap_z's z=sum(r) equality.
+                rows[f"{zone}.{tech}.UP"] = str(existing_mw / 1000)
+            else:
+                # existing down to the ceiling instead of relaxing it.
+                curtailment[(zone, tech)] = computed_up
+        elif rate is not None:
+            rows[f"{zone}.{tech}.UP"] = str(computed_up)    
 
     blocks[lim_block_name]["rows"] = list(rows.items())
+    return curtailment
+
+def apply_capacity_curtailment(df, curtailment):
+    if not curtailment or df.empty:
+        return df
+    df = df.copy()
+    for (zone, tech), capped_gw in curtailment.items():
+        mask = (df["zone"] == zone) & (df["Technology"] == tech)
+        total_mw = df.loc[mask, "capacity_mw"].sum()
+        to_remove = total_mw - capped_gw * 1000
+        if to_remove <= 0:
+            continue
+        for idx in df.loc[mask, :].sort_values("installed_year").index:
+            if to_remove <= 0:
+                break
+            cut = min(df.loc[idx, "capacity_mw"], to_remove)
+            df.loc[idx, "capacity_mw"] -= cut
+            to_remove -= cut
+    return df
+
 
 def apply_capacity_retirement(
     gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials,
@@ -550,12 +580,15 @@ def apply_capacity_retirement(
     else:
         # gen_database.csv has no storeage data.
         ledger = pd.DataFrame(columns=["Technology"])
-        survivors = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
+        seed_all = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
         patch_store = False
         is_first_horizon = True
-        gen_base_pcap = historical_max_annual_build(survivors, "pcap")
-        gen_base_ecap = historical_max_annual_build(survivors, "ecap")
+        gen_base_pcap = historical_max_annual_build(seed_all, "pcap")
+        gen_base_ecap = historical_max_annual_build(seed_all, "ecap")
         delta_t = int(planning_horizon) - int(baseline_year)
+        survivors = seed_all.loc[seed_all["decommissioning_year"] > int(planning_horizon), :].rename(
+            columns={"commissioning_year": "installed_year"}
+        )
 
     survivors = survivors.loc[survivors["Technology"].isin(techs), :]
 
@@ -577,12 +610,18 @@ def apply_capacity_retirement(
     ]
 
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
+
+    pcap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z,
+                                                 gen_base_pcap, growth_seed, delta_t, is_first_horizon, vre_techs)
+    ecap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z,
+                                                 gen_base_ecap, growth_seed, delta_t, is_first_horizon, vre_techs)
+
+    gen_pcap_z = apply_capacity_curtailment(gen_pcap_z, pcap_curtailment)
+    gen_ecap_z = apply_capacity_curtailment(gen_ecap_z, ecap_curtailment)
+
     patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"], covered_techs)
     patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"], covered_techs)
     patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"], covered_techs)
-
-    patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z, gen_base_pcap, growth_seed, delta_t, is_first_horizon)
-    patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z, gen_base_ecap, growth_seed, delta_t, is_first_horizon)
 
     year_lo = int(prior_horizon) if prior_horizon else baseline_year
     mandate = read_gen_database(gen_database_path, zones, vre_techs, year_lo, planning_horizon)
@@ -614,14 +653,19 @@ def apply_capacity_retirement(
         store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
 
         store_blocks, store_order = read_dd_blocks(store_ddfile)
-        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"], covered_techs)
-        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"], covered_techs)
 
         store_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
         store_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
-        patch_growth_rate_ceiling(store_blocks, "store_lim_pcap_z", "store_growth_pcap_z", store_pcap_z, store_base_pcap, growth_seed, delta_t, False)
-        patch_growth_rate_ceiling(store_blocks, "store_lim_ecap_z", "store_growth_ecap_z", store_ecap_z, store_base_ecap, growth_seed, delta_t, False)
+        store_pcap_curtailment = patch_growth_rate_ceiling(store_blocks, "store_lim_pcap_z","store_growth_pcap_z",
+                                                           store_pcap_z, store_base_pcap, growth_seed, delta_t, False, vre_techs)
+        store_ecap_curtailment = patch_growth_rate_ceiling(store_blocks, "store_lim_ecap_z", "store_growth_ecap_z",
+                                                           store_ecap_z, store_base_ecap, growth_seed, delta_t, False, vre_techs)
 
+        store_pcap_z = apply_capacity_curtailment(store_pcap_z, store_pcap_curtailment)
+        store_ecap_z = apply_capacity_curtailment(store_ecap_z, store_ecap_curtailment)
+
+        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"], covered_techs)
+        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"], covered_techs)
         write_dd_blocks(store_blocks, store_order, store_ddfile)
 
 
