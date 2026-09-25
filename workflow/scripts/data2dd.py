@@ -157,11 +157,12 @@ for yr in years:
 
 if snakemake.input.prior_ledger:
     prior_horizon = pathlib.Path(str(snakemake.input.prior_ledger)).parent.name.split("_")[0]
-    apply_transmission_carryforward(
-        snakemake.output[3], snakemake.input.prior_ledger, f_techno, int(planning_horizon),
-    )
 else:
     prior_horizon = None
+
+apply_transmission_carryforward(
+    snakemake.output[3], snakemake.input.prior_ledger, f_techno, int(planning_horizon),
+)
 
 apply_capacity_retirement(
     snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,

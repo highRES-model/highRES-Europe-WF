@@ -462,22 +462,9 @@ def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols, covered_ke
 
     blocks[block_name]["rows"] = list(rows.items())
 
-def historical_max_annual_build(seed_data, capacity_type):
-    seed = seed_data.loc[seed_data["capacity_type"] == capacity_type, :]
-    per_year = seed.groupby(["zone", "Technology", "commissioning_year"], as_index=False)["capacity_mw"].sum()
-    return per_year.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].max()
-
-
-def historical_max_new_build(ledger, baseline_year, capacity_type):
-    history = ledger.loc[
-        (ledger["installed_year"] > baseline_year) & (ledger["capacity_type"] == capacity_type), :
-    ]
-    per_horizon = history.groupby(["zone", "Technology", "installed_year"], as_index=False)["capacity_mw"].sum()
-    return per_horizon.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].max()
-
 def patch_growth_rate_ceiling(
-    blocks, lim_block_name, growth_block_name, existing_z, base_z, seed_lookup,
-    delta_t, is_first_horizon, vre_techs,
+    blocks, lim_block_name, growth_block_name, existing_z, seed_lookup,
+    delta_t, vre_techs,
 ):
 
     rate_lookup = {}
@@ -486,12 +473,11 @@ def patch_growth_rate_ceiling(
             zone, tech, _limtype = key.split(".")
             rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
 
-    base_lookup = base_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not base_z.empty else {}
     existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not existing_z.empty else {}
 
     rows = dict(blocks[lim_block_name]["rows"])
 
-    # A pre-existing UP coming from ODS sheet is an inviolable outer ceiling
+    # Absolute capacity UPper limit coming from ODS sheet is an inviolable outer ceiling
     static_up_lookup, fx_keys = {}, set()
     for key, value in rows.items():
         zone, tech, limtype = key.split(".")
@@ -502,7 +488,8 @@ def patch_growth_rate_ceiling(
 
     curtailment = {}
 
-    for (zone, tech), static_up in static_up_lookup.items():
+    for (zone, tech) in (set(static_up_lookup) | set(rate_lookup)):
+        static_up = static_up_lookup.get((zone, tech), float("inf"))
         if (zone, tech) in fx_keys:
             continue        #if technology has not build freedom and defined with FX.
 
@@ -510,13 +497,9 @@ def patch_growth_rate_ceiling(
         rate = rate_lookup.get((zone, tech))
 
         if rate is not None:
-            base_mw = base_lookup.get((zone, tech), 0.0)
             seed_mw = seed_lookup.get(tech, 0.0)
-            if is_first_horizon:
-                growth_mw = max(seed_mw, base_mw * delta_t)
-            else:
-                growth_mw = max(seed_mw, (rate ** delta_t) * base_mw)
-            computed_up = min((existing_mw + growth_mw) / 1000, static_up)
+            growth_mw = max(seed_mw, (rate ** delta_t) * existing_mw)
+            computed_up = min(growth_mw / 1000, static_up)
         else:
             computed_up = static_up
 
@@ -573,18 +556,12 @@ def apply_capacity_retirement(
         ledger = pd.read_csv(ledger_path)
         survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
         patch_store = True
-        is_first_horizon = False
-        gen_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
-        gen_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
         delta_t = int(planning_horizon) - int(prior_horizon)
     else:
         # gen_database.csv has no storeage data.
         ledger = pd.DataFrame(columns=["Technology"])
         seed_all = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
         patch_store = False
-        is_first_horizon = True
-        gen_base_pcap = historical_max_annual_build(seed_all, "pcap")
-        gen_base_ecap = historical_max_annual_build(seed_all, "ecap")
         delta_t = int(planning_horizon) - int(baseline_year)
         survivors = seed_all.loc[seed_all["decommissioning_year"] > int(planning_horizon), :].rename(
             columns={"commissioning_year": "installed_year"}
@@ -612,9 +589,9 @@ def apply_capacity_retirement(
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
 
     pcap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z,
-                                                 gen_base_pcap, growth_seed, delta_t, is_first_horizon, vre_techs)
+                                                 growth_seed, delta_t, vre_techs)
     ecap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z,
-                                                 gen_base_ecap, growth_seed, delta_t, is_first_horizon, vre_techs)
+                                                  growth_seed, delta_t, vre_techs)
 
     gen_pcap_z = apply_capacity_curtailment(gen_pcap_z, pcap_curtailment)
     gen_ecap_z = apply_capacity_curtailment(gen_ecap_z, ecap_curtailment)
@@ -654,12 +631,10 @@ def apply_capacity_retirement(
 
         store_blocks, store_order = read_dd_blocks(store_ddfile)
 
-        store_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
-        store_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
         store_pcap_curtailment = patch_growth_rate_ceiling(store_blocks, "store_lim_pcap_z","store_growth_pcap_z",
-                                                           store_pcap_z, store_base_pcap, growth_seed, delta_t, False, vre_techs)
+                                                           store_pcap_z, growth_seed, delta_t, vre_techs)
         store_ecap_curtailment = patch_growth_rate_ceiling(store_blocks, "store_lim_ecap_z", "store_growth_ecap_z",
-                                                           store_ecap_z, store_base_ecap, growth_seed, delta_t, False, vre_techs)
+                                                           store_ecap_z, growth_seed, delta_t, vre_techs)
 
         store_pcap_z = apply_capacity_curtailment(store_pcap_z, store_pcap_curtailment)
         store_ecap_z = apply_capacity_curtailment(store_ecap_z, store_ecap_curtailment)
@@ -670,25 +645,49 @@ def apply_capacity_retirement(
 
 
 def apply_transmission_carryforward(trans_ddfile, ledger_path, f_techno, planning_horizon):
-    ledger = pd.read_csv(ledger_path)
-    survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
 
     trans_techs = set(
         pd.read_excel(f_techno, sheet_name="transmission", skiprows=1, engine="calamine")["Technology Name (highRES)"]
     )
-
-    trans_cap = survivors.loc[
-        (survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(trans_techs), :
-    ]
-
-    covered_keys = set(
-        ledger.loc[ledger["Technology"].isin(trans_techs), ["zone", "region", "Technology"]]
-        .astype(str)
-        .itertuples(index=False, name=None)
-    )
-
     trans_blocks, trans_order = read_dd_blocks(trans_ddfile)
-    patch_trans_cap_block(trans_blocks, "trans_links_cap", trans_cap, ["zone", "region", "Technology"], covered_keys)
+    if ledger_path:
+        ledger = pd.read_csv(ledger_path)
+        survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+
+        trans_cap = survivors.loc[
+            (survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(trans_techs), :
+        ]
+
+        covered_keys = set(
+            ledger.loc[ledger["Technology"].isin(trans_techs), ["zone", "region", "Technology"]]
+            .astype(str)
+            .itertuples(index=False, name=None)
+        )
+
+    
+        existing_by_key = {
+            ".".join(key): value
+            for key, value in trans_cap.groupby(["zone", "region", "Technology"])["capacity_mw"].sum().items()
+        }
+        patch_trans_cap_block(trans_blocks, "trans_links_cap", trans_cap, ["zone", "region", "Technology"], covered_keys)        
+
+    else:
+        # Horizon 1: no ledger yet. trans_links() has already seeded trans_links_cap
+        # straight from the ODS baseline (links_cap) into trans_blocks
+        existing_by_key = {key: float(value) for key, value in trans_blocks["trans_links_cap"]["rows"]}
+
+    absolute_cap = {key: float(value) for key, value in trans_blocks["trans_links_lim_cap"]["rows"]} #absolute maximum buildable trans capacity
+    remaining = {key: max(0.0, cap - existing_by_key.get(key, 0.0)) for key, cap in absolute_cap.items()}
+    remaining_df = pd.DataFrame(
+        [(*key.split("."), value) for key, value in remaining.items()],
+        columns=["zone", "region", "Technology", "capacity_mw"],
+    )
+   
+    patch_trans_cap_block(
+        trans_blocks, "trans_links_lim_cap", remaining_df, ["zone", "region", "Technology"],
+        covered_keys={tuple(key.split(".")) for key in remaining},
+    )    
+
     write_dd_blocks(trans_blocks, trans_order, trans_ddfile)
 
 def read_gen_database(gen_database_path, zones, vre_techs, year_lo, year_hi):
