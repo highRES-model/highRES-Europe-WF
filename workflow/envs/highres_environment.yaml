@@ -6,7 +6,7 @@ dependencies:
   - conda # added here since some people might install using micromamba, but
 #             snakemake seems to require conda specifically.
   - python
-  - atlite
+  - atlite=0.6.1
   - jupyter
   - jupyterlab_code_formatter
   - black
