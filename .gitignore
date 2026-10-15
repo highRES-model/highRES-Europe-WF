@@ -1,0 +1,12 @@
+shared_input
+intermediate_data
+resources
+*.sh
+.snakemake
+dashboard/test.py
+test_logs
+.vscode
+__pycache__/
+*.pyc
+.DS_Store
+config/config_gjermund.yaml
