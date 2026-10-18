@@ -112,6 +112,7 @@ trans_links(
     f_techno,
     aggregated_regions=snakemake.params.aggregated_regions,
     planning_horizon=planning_horizon,
+    trans_cap_scenario=snakemake.params.trans_cap_scenario,
     out=out,
 )
 
