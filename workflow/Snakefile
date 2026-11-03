@@ -528,13 +528,11 @@ rule build_ev_inputs:
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
         modelpath / "ev_data.dd",
-    conda:
-        "envs/build_ev_inputs.yml"
     params:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
         ev_scenario=ev_scenario,
-        ev_pcap=config["parameters"]["EV_pcap"],
+        EV_soc_min=config["parameters"]["EV_soc_min"],
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
@@ -599,8 +597,6 @@ rule run_gams:
         EV=config["parameters"]["EV"],
         EV_flex = config["parameters"]["EV_flex"],
         V2G=config["parameters"]["V2G"],
-        EV_pcap=config["parameters"]["EV_pcap"],
-        EV_soc_min=config["parameters"]["EV_soc_min"],
         EV_soc_max=config["parameters"]["EV_soc_max"],
     resources:
         mem_mb=50000,
