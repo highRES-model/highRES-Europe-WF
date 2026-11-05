@@ -50,8 +50,6 @@ cutoff_values = {
 
 corine_codes = {
     "solar": config["parameters"]["solar_clc"],
-    "onwind_no_buffer": config["parameters"]["onwind_clc_no_buffer"],
-    "onwind_buffer": config["parameters"]["onwind_clc_buffer"],
 }
 
 windoff_floating = config["parameters"]["windoff_floating"]
@@ -62,15 +60,18 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 solarpv_af = config["parameters"]["solarpv_af"]
 
-# Generate all combinations of years, spatials
+# Generate all combinations
 combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
 scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario"])
+
+#scenarios["ev_flex"]=[0 if "low" in s else 20 for s in scenarios.psys_scenario]
+scenarios["ev_flex"]=0
 
 years = scenarios.year.to_list()
 spatials = scenarios.spatial.to_list()
 psys_scenarios = scenarios.psys_scenario.to_list()
 
-ev_scenario = config["parameters"]["EV_scenario"]
+#ev_scenario = config["parameters"]["EV_scenario"]
 
 bias_correction = config["parameters"]["bias_correction"]
 elevation_excl = config["parameters"]["elevation_excl"]
@@ -96,20 +97,17 @@ abs_gams_code_path = cwd / pathlib.Path(config["paths"]["abs_shared_code"])
 scenario_exclusions_path = "resources/scenario_exclusions/"
 
 # Relative path to the results
-# TODO: Vetle: --directory, flag for å sette results directory?
-# resultspath = "results/"
+
 resultspath = cwd / pathlib.Path(config["paths"]["results"])
 pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 
-# Write scenarios to file, so results analysis script can check if they are all
-# available.
-#scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
 run_name=["psys_scenario","year","spatial"]
 
 scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
+scenarios["blank"]="0"
 
-scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=False,header=False)
+scenarios.loc[:,["year","run_name","psys_scenario","ev_flex","blank"]].to_csv(resultspath / "scens.csv",index=False,header=False)
 
 # Relative path to workdir
 
@@ -232,7 +230,7 @@ rule build_vre_land_avail:
         solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
-        social_excl=shared_input_path / "geodata/onshore/social_high.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_medium.tif",
         env_excl=shared_input_path / "geodata/onshore/environmental_medium.tif",
         techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
@@ -367,7 +365,7 @@ rule build_technoeconomic_inputs:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database_uk.ods",
-        europedemandcsvlocation="resources/demand_edrc/{psys_scenario}_demand_1995.csv",
+        europedemandcsvlocation="resources/demand_edrc/{psys_scenario}_demand_{year}.csv",
         co2_targets_db="resources/edrc_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
@@ -401,7 +399,7 @@ rule build_technoeconomic_inputs:
 
 rule build_hydro_capfac:
     input:
-        eiahydrogen="resources/EIA_hydro_generation_1995_2000_2014.csv",
+        eiahydrogen="resources/eia_hydro_normalised_1993-2024.csv",
         jrchydro="resources/jrc-hydro-power-plant-database.csv",
         euroshape=rules.build_shapes.output.onshoreshape,
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
@@ -583,7 +581,7 @@ rule build_ev_inputs:
         "resources/ev_data/EV_grid_connected_power_kW.csv",
         "resources/ev_data/EV_driving_demand_kWh.csv",
         "resources/ev_data/EV_charging_demand_to_EV_kWh.csv",
-        ev_scenarios="resources/ev_data/ev_scenarios.csv",
+        ev_scenarios="resources/ev_data/edrc_bev_scenarios.csv",
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
         focus_dem_shares=(
             "resources/uk_zonal_shares.csv"
@@ -597,7 +595,7 @@ rule build_ev_inputs:
     params:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
-        ev_scenario=ev_scenario,
+        ev_scenario="{psys_scenario}",
         ev_pcap=config["parameters"]["EV_pcap"],
         focus_countries=focus_countries,
         aggregated_countries=aggregated_countries
