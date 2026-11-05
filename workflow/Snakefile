@@ -60,6 +60,7 @@ wind_smooth = config["parameters"]["wind_smooth"]
 windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
+solarpv_af = config["parameters"]["solarpv_af"]
 
 # Generate all combinations of years, spatials
 combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
@@ -95,7 +96,7 @@ abs_gams_code_path = cwd / pathlib.Path(config["paths"]["abs_shared_code"])
 scenario_exclusions_path = "resources/scenario_exclusions/"
 
 # Relative path to the results
-# TODO: Vetle: --directory, flag for Ã¥ sette results directory?
+# TODO: Vetle: --directory, flag for å sette results directory?
 # resultspath = "results/"
 resultspath = cwd / pathlib.Path(config["paths"]["results"])
 pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
@@ -200,7 +201,7 @@ rule build_vre_cf_grid:
         euroshape=rules.build_shapes.output.onshoreshape,
         eurooffshoreshape=rules.build_shapes.output.offshoreshape,
         biaswinddata=(
-            shared_input_path / "weatherdata/ratio_gwa2_era5.nc"
+            shared_input_path / "weatherdata/bias_correction_gwa4_era5.nc"
             if bias_correction
             else []
         ),
@@ -220,6 +221,7 @@ rule build_vre_cf_grid:
         windon_af=windon_af,
         windoff_bottom_af=windoff_bottom_af,
         windoff_floating_af=windoff_floating_af,
+        solarpv_af=solarpv_af,
     notebook:
         "notebooks/highRES-build_vre_cf_grid.ipynb"
 

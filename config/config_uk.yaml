@@ -265,6 +265,7 @@ parameters:
   windon_af: 0.95
   windoff_bottom_af: 0.95
   windoff_floating_af: 0.95
+  solarpv_af: 0.9
 
 cplex_options:
   lpmethod: 4
