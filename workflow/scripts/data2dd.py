@@ -16,12 +16,13 @@ out = pathlib.Path(".")
 co2target2dd(
     snakemake.input.co2_targets_db,
     snakemake.output.co2_target,
-    snakemake.params.co2_target_scenario,
+    snakemake.params.energy_system_scenario,
     snakemake.params.co2_target_type,
-    snakemake.params.co2_target_extent)
+    snakemake.params.co2_target_extent,
+    snakemake.params.planning_horizon)
 
 psys_scen = snakemake.wildcards.psys_scenario
-esys_scen = "BASE"
+esys_scen = snakemake.params.energy_system_scenario
 
 scen_db = snakemake.input[1]
 f_techno = snakemake.input[2]
