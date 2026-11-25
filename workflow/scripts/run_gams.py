@@ -44,11 +44,11 @@ process = subprocess.Popen(
 
 # Below writes gams output to terminal in realtime and log
 
-with open(snakemake.log[0], "w") as f:
+with open(snakemake.log[1], "w") as f:
     while True:
         line = process.stdout.readline()
 
         if not line and process.poll() is not None:
             break
         print(line.decode(), end="")
-        f.write(line.decode().rstrip("\n"))
+        f.write(line.decode())

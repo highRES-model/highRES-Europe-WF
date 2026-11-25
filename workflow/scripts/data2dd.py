@@ -25,6 +25,7 @@ co2target2dd(
 psys_scen = snakemake.wildcards.psys_scenario
 esys_scen = snakemake.params.energy_system_scenario
 planning_horizon = snakemake.params.planning_horizon
+growth_seed = snakemake.params.growth_seed
 
 scen_db = snakemake.input[1]
 f_techno = snakemake.input[2]
@@ -164,5 +165,5 @@ apply_capacity_retirement(
     snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,
     int(planning_horizon), snakemake.wildcards.spatial,
     snakemake.input.gen_database, zones, snakemake.params.baseline_year, prior_horizon,
-    scen_db, psys_scen,
+    scen_db, psys_scen, growth_seed,
 )

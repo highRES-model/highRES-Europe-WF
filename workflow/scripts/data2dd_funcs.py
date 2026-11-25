@@ -388,7 +388,7 @@ def write_dd_blocks(blocks, order, outfile):
     pathlib.Path(outfile).write_text("\n".join(lines) + "\n")
 
 
-def patch_exist_block(blocks, block_name, ledger_slice, key_cols):
+def patch_exist_block(blocks, block_name, ledger_slice, key_cols,  covered_techs=frozenset()):
     original_rows = blocks[block_name]["rows"]
     tech_pos = key_cols.index("Technology")
     limtype_lookup = {}
@@ -396,19 +396,24 @@ def patch_exist_block(blocks, block_name, ledger_slice, key_cols):
         parts = key.split(".")
         limtype_lookup[parts[tech_pos]] = parts[-1]
 
-    if ledger_slice.empty:
-        blocks[block_name]["rows"] = []
-        return
+    rows = dict(original_rows)
+    # gen_database.csv is considered only for covered_techs 
+    # Every other psys-scenario tech is left untouched unless the get built in previous horizon.
+    for key in list(rows):
+        if key.split(".")[tech_pos] in covered_techs:
+            del rows[key]
 
-    agg = ledger_slice.groupby(key_cols, as_index=False)["capacity_mw"].sum()
-    new_rows = []
-    for _, row in agg.iterrows():
-        key_parts = [str(row[c]) for c in key_cols]
-        limtype = limtype_lookup.get(row["Technology"], "FX")
-        key = ".".join(key_parts) + "." + limtype
-        value = row["capacity_mw"] / 1000
-        new_rows.append((key, str(value)))
-    blocks[block_name]["rows"] = new_rows
+    if not ledger_slice.empty:
+        agg = ledger_slice.groupby(key_cols, as_index=False)["capacity_mw"].sum()
+        for _, row in agg.iterrows():
+            key_parts = [str(row[c]) for c in key_cols]
+            limtype = limtype_lookup.get(row["Technology"], "FX")
+            prefix = ".".join(key_parts) + "."
+            for stale_key in [k for k in rows if k.startswith(prefix)]:
+                del rows[stale_key]
+            rows[prefix + limtype] = str(row["capacity_mw"] / 1000)
+
+    blocks[block_name]["rows"] = list(rows.items())
 
 def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols):
 
@@ -422,9 +427,70 @@ def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols):
 
     blocks[block_name]["rows"] = list(rows.items())
 
+def historical_max_annual_build(seed_data, capacity_type):
+    seed = seed_data.loc[seed_data["capacity_type"] == capacity_type, :]
+    per_year = seed.groupby(["zone", "Technology", "commissioning_year"], as_index=False)["capacity_mw"].sum()
+    return per_year.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].max()
+
+
+def historical_max_new_build(ledger, baseline_year, capacity_type):
+    history = ledger.loc[
+        (ledger["installed_year"] > baseline_year) & (ledger["capacity_type"] == capacity_type), :
+    ]
+    per_horizon = history.groupby(["zone", "Technology", "installed_year"], as_index=False)["capacity_mw"].sum()
+    return per_horizon.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].max()
+
+def patch_growth_rate_ceiling(
+    blocks, lim_block_name, growth_block_name, existing_z, base_z, seed_lookup,
+    delta_t, is_first_horizon,
+):
+    if growth_block_name not in blocks or not blocks[growth_block_name]["rows"]:
+        return
+
+    rate_lookup = {}
+    for key, value in blocks[growth_block_name]["rows"]:
+        zone, tech, _limtype = key.split(".")
+        rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
+
+    base_lookup = base_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not base_z.empty else {}
+    existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not existing_z.empty else {}
+
+    rows = dict(blocks[lim_block_name]["rows"])
+
+    # A pre-existing UP coming from ODS sheet is an inviolable outer ceiling
+    static_up_lookup, fx_keys = {}, set()
+    for key, value in rows.items():
+        zone, tech, limtype = key.split(".")
+        if limtype == "UP":
+            static_up_lookup[(zone, tech)] = float(value)
+        elif limtype == "FX":
+            fx_keys.add((zone, tech))
+
+    for (zone, tech), rate in rate_lookup.items():
+        if (zone, tech) in fx_keys:
+            continue        #if technology has not build freedom and defined with FX.
+        base_mw = base_lookup.get((zone, tech), 0.0)
+        seed_mw = seed_lookup.get(tech, 0.0)
+
+        if is_first_horizon:
+            growth_mw = max(seed_mw, base_mw * delta_t)
+        else:
+            growth_mw = max(seed_mw, (rate ** delta_t) * base_mw)
+
+        existing_mw = existing_lookup.get((zone, tech), 0.0)
+        computed_up = (existing_mw + growth_mw) / 1000
+
+        static_up = static_up_lookup.get((zone, tech))
+        if static_up is not None and computed_up > static_up:
+            computed_up = static_up
+
+        rows[f"{zone}.{tech}.UP"] = str(computed_up)
+
+    blocks[lim_block_name]["rows"] = list(rows.items())
+
 def apply_capacity_retirement(
     gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials,
-    gen_database_path, zones, baseline_year, prior_horizon, scen_db, psys_scen,
+    gen_database_path, zones, baseline_year, prior_horizon, scen_db, psys_scen, growth_seed,
 ):
 
     scen = pd.read_excel(scen_db, sheet_name="scenario_tech_definition", skiprows=0)
@@ -436,14 +502,24 @@ def apply_capacity_retirement(
     vre_techs = list(gen_sheet.loc[gen_sheet["set"] == "vre", "Technology Name (highRES)"])
     store_techs = set(pd.read_excel(f_techno, sheet_name="store", skiprows=1, engine="calamine")["Technology Name (highRES)"])
 
+    gen_database_techs = set(pd.read_csv(gen_database_path)["Technology"].unique())
+
     if ledger_path:
         ledger = pd.read_csv(ledger_path)
         survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
         patch_store = True
+        is_first_horizon = False
+        gen_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
+        gen_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
+        delta_t = int(planning_horizon) - int(prior_horizon)
     else:
         # gen_database.csv has no storeage data.
         survivors = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
         patch_store = False
+        is_first_horizon = True
+        gen_base_pcap = historical_max_annual_build(survivors, "pcap")
+        gen_base_ecap = historical_max_annual_build(survivors, "ecap")
+        delta_t = int(planning_horizon) - int(baseline_year)
 
     survivors = survivors.loc[survivors["Technology"].isin(techs), :]
 
@@ -463,16 +539,21 @@ def apply_capacity_retirement(
     ]
 
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
-    patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"])
-    patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"])
-    patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"])
+    patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"], gen_database_techs)
+    patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"], gen_database_techs)
+    patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"], gen_database_techs)
+
+    patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z, gen_base_pcap, growth_seed, delta_t, is_first_horizon)
+    patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z, gen_base_ecap, growth_seed, delta_t, is_first_horizon)
 
     year_lo = int(prior_horizon) if prior_horizon else baseline_year
     mandate = read_gen_database(gen_database_path, zones, vre_techs, year_lo, planning_horizon)
+    mandate = mandate.drop(columns=["commissioning_year"])
     mandate = mandate.loc[mandate["Technology"].isin(techs), :]
 
     mandate_pcap = mandate.loc[mandate["capacity_type"] == "pcap", :]
     mandate_pcap_direct = mandate_pcap.loc[mandate_pcap["region"].isna(), :]
+    # region is discarded for any UP/LO gen_lim_pcap_z, as it only operated at zone level
     mandate_pcap_from_r = mandate_pcap.loc[mandate_pcap["region"].notna(), :].groupby(
         ["zone", "Technology"], as_index=False
     )["capacity_mw"].sum()
@@ -495,8 +576,14 @@ def apply_capacity_retirement(
         store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
 
         store_blocks, store_order = read_dd_blocks(store_ddfile)
-        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"])
-        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"])
+        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"], gen_database_techs)
+        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"], gen_database_techs)
+
+        store_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
+        store_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
+        patch_growth_rate_ceiling(store_blocks, "store_lim_pcap_z", "store_growth_pcap_z", store_pcap_z, store_base_pcap, growth_seed, delta_t, False)
+        patch_growth_rate_ceiling(store_blocks, "store_lim_ecap_z", "store_growth_ecap_z", store_ecap_z, store_base_ecap, growth_seed, delta_t, False)
+
         write_dd_blocks(store_blocks, store_order, store_ddfile)
 
 
@@ -532,15 +619,16 @@ def read_gen_database(gen_database_path, zones, vre_techs, year_lo, year_hi):
     gdb["region"] = gdb["region"].where(gdb["Technology"].isin(vre_techs), other=pd.NA)
 
     agg = gdb.groupby(
-        ["Technology", "zone", "region", "capacity_type"], as_index=False, dropna=False
+        ["Technology", "zone", "region", "capacity_type", "commissioning_year"], as_index=False, dropna=False
     )["capacity_mw"].sum()
 
-    return agg[["Technology", "zone", "region", "capacity_type", "capacity_mw"]]
+    return agg[["Technology", "zone", "region", "capacity_type", "commissioning_year", "capacity_mw"]]
 
 def patch_gen_database_mandate(blocks, lim_block_name, existing_z, mandate_z):
     if mandate_z.empty:
         return
     existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict()
+    mandate_agg = mandate_z.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].sum()
     rows = dict(blocks[lim_block_name]["rows"])
     up_lookup = {}
     for key, value in rows.items():
@@ -548,7 +636,7 @@ def patch_gen_database_mandate(blocks, lim_block_name, existing_z, mandate_z):
         if limtype == "UP":
             up_lookup[(zone, tech)] = float(value)
 
-    for _, row in mandate_z.iterrows():
+    for _, row in mandate_agg.iterrows():
         zone, tech, mandate_mw = row["zone"], row["Technology"], row["capacity_mw"]
         existing_mw = existing_lookup.get((zone, tech), 0.0)
         lo_final = (existing_mw + mandate_mw) / 1000
