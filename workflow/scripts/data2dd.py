@@ -18,7 +18,7 @@ co2target2dd(
     snakemake.input.co2_targets_db,
     snakemake.output.co2_target,
     # snakemake.params.energy_system_scenario,
-    snakemake.wildcards.emission_scenario,
+    snakemake.wildcards.emission_scenario, #esys_scen renaming requires in data2ddfuns.py to avoid confusion
     snakemake.params.co2_target_type,
     snakemake.params.co2_target_extent,
     snakemake.params.planning_horizon)

@@ -464,7 +464,7 @@ def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols, covered_ke
 
 def patch_growth_rate_ceiling(
     blocks, lim_block_name, growth_block_name, existing_z, seed_lookup,
-    delta_t, vre_techs,growth_scen=None,
+    delta_t, vre_techs,growth_scen=None,  prior_total_z=None, ratchet_lookup=None,
 ):
 
     rate_lookup = {}
@@ -474,8 +474,17 @@ def patch_growth_rate_ceiling(
             zone, tech, scen_growth = key.split(".")
             if scen_growth == growth_scen: # only get the correct growth rate scenario
                 rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
+    
+    growth_mw_lookup = {}
+    if "gen_growth_mw_z" in blocks:
+        for key, value in blocks["gen_growth_mw_z"]["rows"]:
+            zone, tech, _placeholder_limtype = key.split(".")
+            growth_mw_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3
 
     existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not existing_z.empty else {}
+    prior_total_z = prior_total_z if prior_total_z is not None else pd.DataFrame(columns=["zone", "Technology", "capacity_mw"])
+    ratchet_lookup = ratchet_lookup or {}
+    prior_total_lookup = prior_total_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not prior_total_z.empty else {}
 
     rows = dict(blocks[lim_block_name]["rows"])
 
@@ -500,7 +509,9 @@ def patch_growth_rate_ceiling(
 
         if rate is not None:
             seed_mw = seed_lookup.get(tech, 0.0)
-            growth_mw = max(seed_mw, (rate ** delta_t) * existing_mw)
+            historical_mw = max(growth_mw_lookup.get((zone, tech), 0.0), ratchet_lookup.get((zone, tech), 0.0))
+            base_mw = prior_total_lookup.get((zone, tech), 0.0)
+            growth_mw = max(seed_mw, base_mw + historical_mw * rate * delta_t)
             computed_up = min(growth_mw / 1000, static_up)
         else:
             computed_up = static_up
@@ -558,8 +569,27 @@ def apply_capacity_retirement(
     if ledger_path:
         ledger = pd.read_csv(ledger_path)
         survivors = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > planning_horizon, :]
+        prior_total = ledger.loc[ledger["installed_year"] + ledger["lifetime"] > int(prior_horizon), :]
         patch_store = True
         delta_t = int(planning_horizon) - int(prior_horizon)
+
+        new_build_only = ledger.loc[ledger["installed_year"] == ledger["planning_horizon"], :]
+        per_horizon_new = (
+            new_build_only.groupby(["zone", "Technology", "planning_horizon"])["capacity_mw"]
+            .sum()
+            .reset_index()
+        )
+        ratchet_lookup = {}
+        for (zone, tech), rows in per_horizon_new.groupby(["zone", "Technology"]):
+            rows = rows.sort_values("planning_horizon")
+            prior_h = baseline_year
+            best_pace = 0.0
+            for _, row in rows.iterrows():
+                step_dt = int(row["planning_horizon"]) - int(prior_h)
+                if step_dt > 0:
+                    best_pace = max(best_pace, row["capacity_mw"] / step_dt)
+                prior_h = row["planning_horizon"]
+            ratchet_lookup[(zone, tech)] = best_pace
     else:
         # gen_database.csv has no storeage data.
         ledger = pd.DataFrame(columns=["Technology"])
@@ -569,8 +599,13 @@ def apply_capacity_retirement(
         survivors = seed_all.loc[seed_all["decommissioning_year"] > int(planning_horizon), :].rename(
             columns={"commissioning_year": "installed_year"}
         )
+        prior_total = seed_all.loc[seed_all["decommissioning_year"] > int(baseline_year), :].rename(
+            columns={"commissioning_year": "installed_year"}
+        )
+        ratchet_lookup = {}
 
     survivors = survivors.loc[survivors["Technology"].isin(techs), :]
+    prior_total = prior_total.loc[prior_total["Technology"].isin(techs), :]
 
     covered_techs = gen_database_techs | set(ledger["Technology"].unique())
 
@@ -579,6 +614,10 @@ def apply_capacity_retirement(
     gen_pcap_r_native = gen_pcap.loc[gen_pcap["region"].notna(), :]
     gen_pcap_z_from_r = gen_pcap_r_native.groupby(["zone", "Technology"], as_index=False)["capacity_mw"].sum()
     gen_pcap_z = pd.concat([gen_pcap_z_direct, gen_pcap_z_from_r], ignore_index=True)
+    prior_total_pcap = prior_total.loc[(prior_total["capacity_type"] == "pcap") & prior_total["Technology"].isin(gen_techs), :]
+    prior_total_ecap = prior_total.loc[
+        (prior_total["capacity_type"] == "ecap") & prior_total["Technology"].isin(gen_techs) & prior_total["region"].isna(), :
+    ]
 
     if spatials == "region":
         gen_pcap_r = gen_pcap_r_native.groupby(["Technology", "zone"], as_index=False)["capacity_mw"].sum()
@@ -592,9 +631,11 @@ def apply_capacity_retirement(
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
 
     pcap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z,
-                                                 growth_seed, delta_t, vre_techs,growth_scen)
+                                                 growth_seed, delta_t, vre_techs,growth_scen,
+                                                 prior_total_z=prior_total_pcap, ratchet_lookup=ratchet_lookup)
     ecap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z,
-                                                  growth_seed, delta_t, vre_techs,growth_scen)
+                                                  growth_seed, delta_t, vre_techs,growth_scen,
+                                                   prior_total_z=prior_total_ecap, ratchet_lookup=ratchet_lookup)
 
     gen_pcap_z = apply_capacity_curtailment(gen_pcap_z, pcap_curtailment)
     gen_ecap_z = apply_capacity_curtailment(gen_ecap_z, ecap_curtailment)
