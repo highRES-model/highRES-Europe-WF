@@ -51,10 +51,10 @@ params_to_write["gen"]["parameter"]["all"] = [
     "startup cost",
     "inertia",
     "unit size",
-    f"capex{planning_horizon}",
+    "capex",
     "varom",
     "fom",
-    f"fuelcost{planning_horizon}",
+    "fuelcost",
     "cap2area",
     "af",
     "min gen",
@@ -73,8 +73,8 @@ params_to_write["store"]["parameter"]["all"] = [
     "loss_per_hr",
     "p_to_e",
     "varom",
-    f"e capex{planning_horizon}",
-    f"p capex{planning_horizon}",
+    "e capex",
+    "p capex",
     "fom",
     "af",
     "min down",
@@ -103,12 +103,14 @@ scen2dd(
     esys_cap=False,
     exist_cap=True,
     exist_agg=snakemake.wildcards.spatial,
+    planning_horizon=planning_horizon,
 )
 
 trans_links(
     root,
     f_techno,
     aggregated_regions=snakemake.params.aggregated_regions,
+    planning_horizon=planning_horizon,
     out=out,
 )
 

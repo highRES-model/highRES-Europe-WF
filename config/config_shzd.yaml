@@ -14,7 +14,7 @@ parameters:
   #Weather years either needs to be one for all horizon run or same number as planning_horizons entries
   #to be run for different weather years for different planning_horizons.  
   years: [
-    "1995",
+    #"1995",
     "2010",
   ]
   spatials: [
@@ -28,7 +28,7 @@ parameters:
   energy_system_scenario: ["BASE"]
 
   # Planning years. limit the list to one year for snapshot run
-  planning_horizons: ["2030", "2040"]
+  planning_horizons: ["2030", "2032", "2040"]
 
   # year to which exisiting capacity considered for first planning horizon
   baseline_year: 2026
@@ -79,13 +79,37 @@ parameters:
   
   date_range: ["01-01", "12-31"]
 
-  EV: "OFF"
+  EV: "ON"
   EV_scenario: ["BASE"]
   EV_flex: 0
   V2G: "OFF"
-  EV_pcap: 0.011
-  EV_soc_min: 0.2
   EV_soc_max: 0.8
+  EV_soc_min: [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.7,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+  ]
 
   aggregated_regions: [
     "AT",

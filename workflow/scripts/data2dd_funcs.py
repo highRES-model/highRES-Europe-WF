@@ -126,12 +126,18 @@ def temporal2dd(dstart, dend, opath, temporaloutputpath):
     np.savetxt(temporaloutputpath, np.concatenate(out, axis=0), fmt="%s")
 
 
-def trans_links(root, f, aggregated_regions, out="work"):
+def trans_links(root, f, aggregated_regions, planning_horizon, out="work"):
     tech_type = "trans"
 
     links_allowed = pd.read_excel(
         f, sheet_name="transmission_allowed", skiprows=1, engine="calamine"
     ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
+
+    links_allowed = (
+        links_allowed.loc[links_allowed["Installed year"] <= int(planning_horizon), :]
+        .sort_values("Installed year")
+        .drop_duplicates(subset=["Zone1", "Zone2", "Tech"], keep="last")
+    )    
 
     links_out = np.array(
         links_allowed["Zone1"]
@@ -253,11 +259,26 @@ def co2target2dd(co2targets_db,
                ,"co2_target", "parameter", outfile=co2target_out)
         
 
-def getzlims(lim, techs, zones):
-    lim = lim.loc[(lim["Year"] == 2030) & (lim["Technology"].isin(techs)), :]
+def getzlims(lim, techs, zones, planning_horizon):
+    lim = lim.loc[(lim["Year"] <= int(planning_horizon)) & (lim["Technology"].isin(techs)), :]
 
     if lim.empty:
         return np.array([])
+
+    lim = (
+        lim.sort_values("Year")
+        .drop_duplicates(subset=["Technology", "parameter", "limtype"], keep="last")
+    ) #removing duplicates and keeping only the latest year limits
+
+    # FX and LO are mutually exclusive (GAMS applies .UP, then .LO, then .FX,
+    # unconditionally -- .FX always wins if present, erasing whatever .LO set).
+    # Whichever of the two was authored at the more recent Year should take
+    # effect, regardless of which one it is. UP is untouched -- it never
+    # conflicts with either.
+    key_cols = ["Technology", "parameter"]
+    fx_lo_mask = lim["limtype"].isin(["FX", "LO"])
+    resolved = lim.loc[fx_lo_mask, :].sort_values("Year").drop_duplicates(subset=key_cols, keep="last")
+    lim = pd.concat([lim.loc[~fx_lo_mask, :], resolved], ignore_index=True)   
 
     have_lim = ~lim.loc[:, "limtype"].isnull()
 
@@ -289,11 +310,11 @@ def getzlims(lim, techs, zones):
     return np.concatenate(outlims, axis=0)
 
 
-def getrlims(lim, techs, zones, exist_agg):
+def getrlims(lim, techs, zones, exist_agg, planning_horizon):
     # TODO capcity units are fixed to GW here, need to add flexibility
 
     lim = lim.loc[
-        (lim["Year"] == 2030)
+        (lim["Year"] <= int(planning_horizon))
         & (lim["Technology"].isin(techs))
         & (lim["zone"].isin(zones)),
         :,
@@ -301,6 +322,17 @@ def getrlims(lim, techs, zones, exist_agg):
 
     if lim.empty:
         return np.array([])
+
+    lim = (
+        lim.sort_values("Year")
+        .drop_duplicates(subset=["Technology", "zone", "region", "parameter", "limtype"], keep="last")
+    ) # removing duplicates and keeping only the latest year limits
+
+    # LO versus FX
+    key_cols = ["Technology", "zone", "region", "parameter"]
+    fx_lo_mask = lim["limtype"].isin(["FX", "LO"])
+    resolved = lim.loc[fx_lo_mask, :].sort_values("Year").drop_duplicates(subset=key_cols, keep="last")
+    lim = pd.concat([lim.loc[~fx_lo_mask, :], resolved], ignore_index=True)
 
     have_lim = ~lim.loc[:, "limtype"].isnull()
     lim = lim.loc[have_lim, :]
@@ -388,7 +420,7 @@ def write_dd_blocks(blocks, order, outfile):
     pathlib.Path(outfile).write_text("\n".join(lines) + "\n")
 
 
-def patch_exist_block(blocks, block_name, ledger_slice, key_cols,  covered_techs=frozenset()):
+def patch_exist_block(blocks, block_name, ledger_slice, key_cols,  covered_techs):
     original_rows = blocks[block_name]["rows"]
     tech_pos = key_cols.index("Technology")
     limtype_lookup = {}
@@ -415,10 +447,13 @@ def patch_exist_block(blocks, block_name, ledger_slice, key_cols,  covered_techs
 
     blocks[block_name]["rows"] = list(rows.items())
 
-def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols):
-
+def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols, covered_keys):
     rows = dict(blocks[block_name]["rows"])
 
+    for key in list(rows):
+        if tuple(key.split(".")) in covered_keys:
+            del rows[key]
+    
     if not ledger_slice.empty:
         agg = ledger_slice.groupby(key_cols, as_index=False)["capacity_mw"].sum()
         for _, row in agg.iterrows():
@@ -514,6 +549,7 @@ def apply_capacity_retirement(
         delta_t = int(planning_horizon) - int(prior_horizon)
     else:
         # gen_database.csv has no storeage data.
+        ledger = pd.DataFrame(columns=["Technology"])
         survivors = read_gen_database(gen_database_path, zones, vre_techs, None, baseline_year)
         patch_store = False
         is_first_horizon = True
@@ -522,6 +558,8 @@ def apply_capacity_retirement(
         delta_t = int(planning_horizon) - int(baseline_year)
 
     survivors = survivors.loc[survivors["Technology"].isin(techs), :]
+
+    covered_techs = gen_database_techs | set(ledger["Technology"].unique())
 
     gen_pcap = survivors.loc[(survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(gen_techs), :]
     gen_pcap_z_direct = gen_pcap.loc[gen_pcap["region"].isna(), :]
@@ -539,16 +577,16 @@ def apply_capacity_retirement(
     ]
 
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
-    patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"], gen_database_techs)
-    patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"], gen_database_techs)
-    patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"], gen_database_techs)
+    patch_exist_block(gen_blocks, "gen_exist_pcap_z", gen_pcap_z, ["zone", "Technology"], covered_techs)
+    patch_exist_block(gen_blocks, "gen_exist_ecap_z", gen_ecap_z, ["zone", "Technology"], covered_techs)
+    patch_exist_block(gen_blocks, "gen_exist_pcap_r", gen_pcap_r, ["Technology", "zone", "region"], covered_techs)
 
     patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z, gen_base_pcap, growth_seed, delta_t, is_first_horizon)
     patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z, gen_base_ecap, growth_seed, delta_t, is_first_horizon)
 
     year_lo = int(prior_horizon) if prior_horizon else baseline_year
     mandate = read_gen_database(gen_database_path, zones, vre_techs, year_lo, planning_horizon)
-    mandate = mandate.drop(columns=["commissioning_year"])
+    mandate = mandate.drop(columns=["commissioning_year", "decommissioning_year"])
     mandate = mandate.loc[mandate["Technology"].isin(techs), :]
 
     mandate_pcap = mandate.loc[mandate["capacity_type"] == "pcap", :]
@@ -576,8 +614,8 @@ def apply_capacity_retirement(
         store_ecap_z = survivors.loc[(survivors["capacity_type"] == "ecap") & survivors["Technology"].isin(store_techs), :]
 
         store_blocks, store_order = read_dd_blocks(store_ddfile)
-        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"], gen_database_techs)
-        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"], gen_database_techs)
+        patch_exist_block(store_blocks, "store_exist_pcap_z", store_pcap_z, ["zone", "Technology"], covered_techs)
+        patch_exist_block(store_blocks, "store_exist_ecap_z", store_ecap_z, ["zone", "Technology"], covered_techs)
 
         store_base_pcap = historical_max_new_build(ledger, baseline_year, "pcap")
         store_base_ecap = historical_max_new_build(ledger, baseline_year, "ecap")
@@ -599,8 +637,14 @@ def apply_transmission_carryforward(trans_ddfile, ledger_path, f_techno, plannin
         (survivors["capacity_type"] == "pcap") & survivors["Technology"].isin(trans_techs), :
     ]
 
+    covered_keys = set(
+        ledger.loc[ledger["Technology"].isin(trans_techs), ["zone", "region", "Technology"]]
+        .astype(str)
+        .itertuples(index=False, name=None)
+    )
+
     trans_blocks, trans_order = read_dd_blocks(trans_ddfile)
-    patch_trans_cap_block(trans_blocks, "trans_links_cap", trans_cap, ["zone", "region", "Technology"])
+    patch_trans_cap_block(trans_blocks, "trans_links_cap", trans_cap, ["zone", "region", "Technology"], covered_keys)
     write_dd_blocks(trans_blocks, trans_order, trans_ddfile)
 
 def read_gen_database(gen_database_path, zones, vre_techs, year_lo, year_hi):
@@ -619,10 +663,10 @@ def read_gen_database(gen_database_path, zones, vre_techs, year_lo, year_hi):
     gdb["region"] = gdb["region"].where(gdb["Technology"].isin(vre_techs), other=pd.NA)
 
     agg = gdb.groupby(
-        ["Technology", "zone", "region", "capacity_type", "commissioning_year"], as_index=False, dropna=False
+        ["Technology", "zone", "region", "capacity_type", "commissioning_year", "decommissioning_year"], as_index=False, dropna=False
     )["capacity_mw"].sum()
 
-    return agg[["Technology", "zone", "region", "capacity_type", "commissioning_year", "capacity_mw"]]
+    return agg[["Technology", "zone", "region", "capacity_type", "commissioning_year", "capacity_mw", "decommissioning_year"]]
 
 def patch_gen_database_mandate(blocks, lim_block_name, existing_z, mandate_z):
     if mandate_z.empty:
@@ -649,7 +693,43 @@ def patch_gen_database_mandate(blocks, lim_block_name, existing_z, mandate_z):
             rows.pop(f"{zone}.{tech}.{lt}", None)
         rows[f"{zone}.{tech}.LO"] = str(lo_final)
 
-    blocks[lim_block_name]["rows"] = list(rows.items())  
+    blocks[lim_block_name]["rows"] = list(rows.items()) 
+
+
+def resolve_year_param(params, base_name, planning_horizon):
+    """Interpolating the costs for other planning horizon year not in ODS file"""
+    if base_name in params.columns:
+        return base_name
+
+    exact_col = f"{base_name}{planning_horizon}"
+    if exact_col in params.columns:
+        return exact_col
+
+    year_re = re.compile(r"^" + re.escape(base_name) + r"(\d{4})$")
+    year_cols = {}
+    for c in params.columns:
+        m = year_re.match(str(c))
+        if m:
+            year_cols[int(m.group(1))] = c
+
+    if not year_cols:
+        return base_name  # error if column name is missplled
+
+    target = int(planning_horizon)
+    year_lo = max((y for y in year_cols if y <= target), default=None)
+    year_hi = min((y for y in year_cols if y >= target), default=None)
+
+    if year_lo is None or year_hi is None:
+        raise ValueError(
+            f"planning_horizon={target} is outside the available '{base_name}'"
+        )
+    if year_lo == year_hi:
+        return year_cols[year_lo]
+
+    col_lo, col_hi = year_cols[year_lo], year_cols[year_hi]
+    frac = (target - year_lo) / (year_hi - year_lo)
+    params[exact_col] = params[col_lo] + (params[col_hi] - params[col_lo]) * frac
+    return exact_col
 
 def scen2dd(
     co2budgetddlocation,
@@ -664,6 +744,7 @@ def scen2dd(
     esys_cap=False,
     exist_cap=False,
     exist_agg="region",
+    planning_horizon=None,
 ):
     # co2lim2dd(co2budgetddlocation, root, run, esys, scen_db, out=out)
 
@@ -691,15 +772,17 @@ def scen2dd(
 
         # new_lim=pd.read_excel(fin,sheet_name=tech_type+"_lim_z",skiprows=0)
 
-        param_outdd.append(
-            getzlims(
-                pd.read_excel(
-                    fin, sheet_name=tech_type + "_lim_z", skiprows=0, engine="calamine"
-                ),
-                techs,
-                zones,
-            )
+        lims = getzlims(
+            pd.read_excel(
+                fin, sheet_name=tech_type + "_lim_z", skiprows=0, engine="calamine"
+            ),
+            techs,
+            zones,
+            planning_horizon,
         )
+
+        if lims.size != 0:
+            param_outdd.append(lims)
 
         if exist_cap:
             zlims = getzlims(
@@ -711,6 +794,7 @@ def scen2dd(
                 ),
                 techs,
                 zones,
+                planning_horizon,
             )
 
             if zlims.size != 0:
@@ -727,6 +811,7 @@ def scen2dd(
                     techs,
                     zones,
                     exist_agg,
+                    planning_horizon,
                 )
 
                 if rlims.size != 0:
@@ -803,6 +888,7 @@ def scen2dd(
                 
         for s in data_out:
             for p in data_out[s]:
+                p = resolve_year_param(params, p, planning_horizon)
                 if "varom" in p or "fuel" in p:
                     # rounddp=5
                     rounddp = 8

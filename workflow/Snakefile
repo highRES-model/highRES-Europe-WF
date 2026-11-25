@@ -347,7 +347,7 @@ rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
-        "resources/highres_technoeconomic_database_{horizon}.ods",
+        "resources/highres_technoeconomic_database.ods",
         europedemandcsvlocation="resources/europe_demand_{esys_scenario}_{horizon}.csv",
         co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
@@ -428,7 +428,7 @@ rule build_vre_areas_file:
             else []
         ),
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
-        technoeconomic_database=f"resources/highres_technoeconomic_database_{planning_horizons[0]}.ods", #assumes NUTS2 region set is identical across horizon runs
+        technoeconomic_database="resources/highres_technoeconomic_database.ods",
     output:
         sharedpath / "vre_areas_{year}_.dd",
         regionsdd=sharedpath / "_regions.dd",
@@ -564,12 +564,13 @@ rule build_ev_inputs:
         ev_scenarios="resources/ev_data/ev_scenarios.csv",
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
-        sharedpath / "ev_data.dd",
+        horizonpath / "ev_data.dd",
     params:
         date_range=date_range,
         aggregated_regions=aggregated_regions,
         ev_scenario=ev_scenario,
         EV_soc_min=config["parameters"]["EV_soc_min"],
+        planning_horizon=lambda wildcards: wildcards.horizon,
     notebook:
         "notebooks/highRES_build_ev_inputs.ipynb"
 
@@ -592,7 +593,7 @@ rule build_inputs:
         storedd=horizonpath / "{psys_scenario}_store.dd",
         transdd=horizonpath / "trans.dd",
         cplexopt=sharedpath / "cplex.opt",
-        evdatadd=sharedpath / "ev_data.dd",
+        evdatadd=horizonpath / "ev_data.dd",
     output:
         touch(horizonpath / "inputs.finished"),
     run:
@@ -603,7 +604,7 @@ rule build_inputs:
         for src in [
             input.regionsdd, input.zonesdd,
             input.vreareasdd, input.vregdx, input.hydroresinflowgdx,
-            input.cplexopt, input.evdatadd,
+            input.cplexopt,
         ]:
             shutil.copy(src, str(dest))
 
@@ -671,7 +672,7 @@ rule convert_results:
 
 rule build_capacity_ledger:
     input:
-        technoeconomic_database="resources/highres_technoeconomic_database_{horizon}.ods",
+        technoeconomic_database="resources/highres_technoeconomic_database.ods",
         scenario_db="resources/highres_scenarios.xls",
         zones="resources/zones.csv",
         results_gdx=rules.run_gams.output.modelresults,
