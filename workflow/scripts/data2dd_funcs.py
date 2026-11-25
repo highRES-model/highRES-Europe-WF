@@ -126,12 +126,12 @@ def temporal2dd(dstart, dend, opath, temporaloutputpath):
     np.savetxt(temporaloutputpath, np.concatenate(out, axis=0), fmt="%s")
 
 
-def trans_links(root, f, aggregated_regions, planning_horizon, out="work"):
+def trans_links(root, f, aggregated_regions, planning_horizon, trans_cap_scenario, out="work"):
     tech_type = "trans"
 
     links_allowed = pd.read_excel(
         f, sheet_name="transmission_allowed", skiprows=1, engine="calamine"
-    ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions")
+    ).query("Zone1 == @aggregated_regions and Zone2 == @aggregated_regions and Scenario == @trans_cap_scenario")
 
     links_allowed = (
         links_allowed.loc[links_allowed["Installed year"] <= int(planning_horizon), :]
