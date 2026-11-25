@@ -25,11 +25,8 @@ parameters:
   power_system_scenario: ["BASE"]
   energy_system_scenario: "BASE"
 
-  # Options: "OFF", "ON"
-  pathway_mode: "OFF"
-
-  # Planning years
-  planning_horizons: ["2030"]
+  # Planning years. limit the list to one year for snapshot run
+  planning_horizons: ["2030", "2035"]
 
   # Only relvent if pathway_mode set to "ON"
   foresight_mode: "myopic"
