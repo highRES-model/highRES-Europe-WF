@@ -11,7 +11,7 @@ parameters:
     "normal", 
     #"developer", # Use this mode to run the model in developer mode
   ]
-  #Weather years either needs to be one for all horizon run or same number as planplanning_horizons entries
+  #Weather years either needs to be one for all horizon run or same number as planning_horizons entries
   #to be run for different weather years for different planning_horizons.  
   years: [
     # "1995",
@@ -30,8 +30,8 @@ parameters:
   # Planning years. limit the list to one year for snapshot run
   planning_horizons: ["2030", "2035"]
 
-  # Only relvent if pathway_mode set to "ON"
-  foresight_mode: "myopic"
+  # year to which exisiting capacity considered for first planning horizon
+  baseline_year: 2026
 
   # Options: "intensity", "budget"
   co2_target_type: "intensity"
