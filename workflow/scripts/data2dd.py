@@ -23,6 +23,7 @@ co2target2dd(
 
 psys_scen = snakemake.wildcards.psys_scenario
 esys_scen = snakemake.params.energy_system_scenario
+planning_horizon = snakemake.params.planning_horizon
 
 scen_db = snakemake.input[1]
 f_techno = snakemake.input[2]
@@ -48,14 +49,15 @@ params_to_write["gen"]["parameter"]["all"] = [
     "startup cost",
     "inertia",
     "unit size",
-    "capex2050",
+    f"capex{planning_horizon}",
     "varom",
     "fom",
-    "fuelcost2050",
+    f"fuelcost{planning_horizon}",
     "cap2area",
     "af",
     "min gen",
     "peak af",
+    "lifetime",
 ]
 
 params_to_write["store"] = {}
@@ -69,8 +71,8 @@ params_to_write["store"]["parameter"]["all"] = [
     "loss_per_hr",
     "p_to_e",
     "varom",
-    "e capex2050",
-    "p capex2050",
+    f"e capex{planning_horizon}",
+    f"p capex{planning_horizon}",
     "fom",
     "af",
     "min down",
@@ -80,6 +82,8 @@ params_to_write["store"]["parameter"]["all"] = [
     "unit size",
     "min gen",
     "max ramp",
+    "e lifetime",
+    "p lifetime",
 ]
 
 zones = pd.read_csv(snakemake.input[0]).loc[:, "zone"]
@@ -97,6 +101,7 @@ scen2dd(
     esys_cap=False,
     exist_cap=True,
     exist_agg=snakemake.wildcards.spatial,
+    planning_horizon
 )
 
 trans_links(

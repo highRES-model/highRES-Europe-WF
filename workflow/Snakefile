@@ -340,6 +340,20 @@ rule build_technoeconomic_inputs:
     script:
         "scripts/data2dd.py"
 
+rule build_capacity_ledger:
+    input:
+        technoeconomic_database=f"resources/highres_technoeconomic_database_{config['parameters']['planning_horizons'][0]}.ods",
+        scenario_db="resources/highres_scenarios.xls",
+        zones="resources/zones.csv",
+    output:
+        ledger=modelpath / "capacity_ledger.csv",
+    conda:
+        "envs/build_technoeconomic.yml",
+    params:
+        planning_horizon=config["parameters"]["planning_horizons"][0],
+    notebook:
+        "notebooks/highRES_build_capacity_ledger.ipynb"
+
 
 rule build_hydro_capfac:
     input:

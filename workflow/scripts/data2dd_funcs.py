@@ -253,7 +253,7 @@ def co2target2dd(co2targets_db,
         
 
 def getzlims(lim, techs, zones):
-    lim = lim.loc[(lim["Year"] == 2050) & (lim["Technology"].isin(techs)), :]
+    lim = lim.loc[(lim["Year"] == 2030) & (lim["Technology"].isin(techs)), :]
 
     if lim.empty:
         return np.array([])
@@ -292,7 +292,7 @@ def getrlims(lim, techs, zones, exist_agg):
     # TODO capcity units are fixed to GW here, need to add flexibility
 
     lim = lim.loc[
-        (lim["Year"] == 2050)
+        (lim["Year"] == 2030)
         & (lim["Technology"].isin(techs))
         & (lim["zone"].isin(zones)),
         :,
