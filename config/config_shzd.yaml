@@ -11,6 +11,8 @@ parameters:
     "normal", 
     #"developer", # Use this mode to run the model in developer mode
   ]
+  #Weather years either needs to be one for all horizon run or same number as planplanning_horizons entries
+  #to be run for different weather years for different planning_horizons.  
   years: [
     # "1995",
     "2010",
@@ -23,7 +25,7 @@ parameters:
 
   windoff_floating: True
   power_system_scenario: ["BASE"]
-  energy_system_scenario: "BASE"
+  energy_system_scenario: ["BASE"]
 
   # Planning years. limit the list to one year for snapshot run
   planning_horizons: ["2030", "2035"]

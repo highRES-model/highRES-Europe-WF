@@ -26,6 +26,7 @@ pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
 
 spatials = config["parameters"]["spatials"]
 psys_scenarios = config["parameters"]["power_system_scenario"]
+esys_scenarios = config["parameters"]["energy_system_scenario"]
 
 cutoff_values = {
     "solar": config["parameters"]["cutoff_solar"],
@@ -46,17 +47,28 @@ windon_af = config["parameters"]["windon_af"]
 windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
-# Generate all combinations of years, spatials
-combinations = list(itertools.product(inputyears, spatials, psys_scenarios))
-scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario"])
+# Generate all combinations of spatials, psys/esys scenarios 
+combinations = list(itertools.product(spatials, psys_scenarios, esys_scenarios))
+# scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario", "esys_scenario"])
 
 planning_horizons = [str(h) for h in config["parameters"]["planning_horizons"]]
-pathway_combinations = [c + (h,) for c in combinations for h in planning_horizons]
-pathway_scenarios = pd.DataFrame(pathway_combinations, columns=["year", "spatial", "psys_scenario", "planning_horizon"])
+years = [str(y) for y in config["parameters"]["years"]]
+
+if len(years) == 1:
+    years = years * len(planning_horizons)
+
+
+pathway_combinations = [
+    c + (h, years[i])
+    for c in combinations
+    for i, h in enumerate(planning_horizons)
+]
+pathway_scenarios = pd.DataFrame(pathway_combinations, columns=["spatial", "psys_scenario", "esys_scenario", "planning_horizon", "year"])
 
 years = pathway_scenarios.year.to_list()
 spatials = pathway_scenarios.spatial.to_list()
 psys_scenarios = pathway_scenarios.psys_scenario.to_list()
+esys_scenarios = pathway_scenarios.esys_scenario.to_list()
 pathway_horizons = pathway_scenarios.planning_horizon.to_list()
 
 ev_scenario = config["parameters"]["EV_scenario"]
@@ -94,21 +106,21 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 # available.
 #scenarios.to_csv(resultspath / "scenarios.csv", sep="\t")
 
-run_name=["psys_scenario","year","spatial"]
+run_name=["psys_scenario","esys_scenario","spatial"]
 
-scenarios["run_name"]=scenarios[run_name].stack().groupby(level=0).agg("_".join)
-
-scenarios.loc[:,["year","run_name"]].to_csv(resultspath / "scens.csv",index=False,header=False)
-pathway_scenarios.to_csv(resultspath / "pathway_scens.csv",index=False)
+pathway_scenarios["run_name"]=pathway_scenarios[run_name].stack().groupby(level=0).agg("_".join)
+pathway_scenarios.loc[:, ["planning_horizon", "year", "run_name"]].to_csv(resultspath / "scens.csv", index=False, header=False)
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{year}_{spatial}"
-horizonpath=modelpath / "{horizon}"
+modelpath=resultspath / "{psys_scenario}_{esys_scenario}_{spatial}"
+sharedpath=resultspath / "{year}_{spatial}"
+horizonpath=modelpath / "{horizon}_{year}"
 wildcard_constraints:
     horizon="|".join(planning_horizons),
+    year="|".join(sorted(set(years))),
     psys_scenario="[^/]+",
-    year="[^/]+",
+    esys_scenario="[^/]+",
     spatial="[^/]+",
 
 localrules:
@@ -133,12 +145,12 @@ localrules:
 
 rule all:
     input:
-        expand(horizonpath / config["target"], zip, psys_scenario=psys_scenarios, year=years, spatial=spatials,
-        horizon=pathway_horizons)    
+        expand(horizonpath / config["target"], zip, psys_scenario=psys_scenarios, esys_scenario=esys_scenarios,
+        year=years, spatial=spatials, horizon=pathway_horizons)    
 
 rule build_cplex_opt:
     output:
-        modelpath / "cplex.opt",
+        sharedpath / "cplex.opt",
     params: config["cplex_options"],
     run:
         cplex_options = config["cplex_options"]
@@ -154,7 +166,7 @@ rule build_zones_file:
         "resources/zones.csv",
         "workflow/scripts/build_zones.py",
     output:
-        modelpath / "zones.dd",
+        sharedpath / "zones.dd",
     script:
         "scripts/build_zones.py"
 
@@ -227,39 +239,39 @@ rule build_vre_land_avail:
         # to an extra rule and have an input function conditional on the
         # wildcard spatial for that rule
         cf_exclusion_solar=(
-            modelpath / "cf_exclusion_solar.tif"
+            sharedpath / "cf_exclusion_solar.tif"
             if user_mode == "developer" and cutoff_values["solar"] > 0.
-            else temp(modelpath / "cf_exclusion_solar.tif")
+            else temp(sharedpath / "cf_exclusion_solar.tif")
             if cutoff_values["solar"] > 0.
             else []
         ),
         cf_exclusion_windon=(
-            modelpath / "cf_exclusion_windon.tif"
+            sharedpath / "cf_exclusion_windon.tif"
             if user_mode == "developer" and cutoff_values["onwind"] > 0.
-            else temp(modelpath / "cf_exclusion_windon.tif")
+            else temp(sharedpath / "cf_exclusion_windon.tif")
             if cutoff_values["onwind"] > 0.
             else []
         ),
         cf_exclusion_windoff=(
-            modelpath / "cf_exclusion_windoff.tif"
+            sharedpath / "cf_exclusion_windoff.tif"
             if user_mode == "developer" and cutoff_values["offwind"] > 0.
-            else temp(modelpath / "cf_exclusion_windoff.tif")
+            else temp(sharedpath / "cf_exclusion_windoff.tif")
             if cutoff_values["offwind"] > 0.
             else []
         ),
         cf_exclusion_windoff_floating=(
-            modelpath / "cf_exclusion_windoff_floating.tif"
+            sharedpath / "cf_exclusion_windoff_floating.tif"
             if user_mode == "developer" and windoff_floating and cutoff_values["offwind"] > 0.
-            else temp(modelpath / "cf_exclusion_windoff_floating.tif")
+            else temp(sharedpath / "cf_exclusion_windoff_floating.tif")
             if windoff_floating and cutoff_values["offwind"] > 0.
             else []
         ),
         indreg=(
-            modelpath / "indices_region.csv"
+            sharedpath / "indices_region.csv"
             if user_mode == "developer"
-            else temp(modelpath / "indices_region.csv")
+            else temp(sharedpath / "indices_region.csv")
         ),
-        grid_areas=modelpath / "grid_areas.csv",
+        grid_areas=sharedpath / "grid_areas.csv",
     resources:
         mem_mb=50000,  # TODO: Find out how much this rule needs,
         # should be constant (regional/grid)
@@ -284,36 +296,36 @@ rule build_vre_cf_inputs:
         rooftop_areas="resources/rooftop_pv_km2.csv",
     output:
         capfacfile=(
-            modelpath / "capacity-factors_solar_{year}.csv"
+            sharedpath / "capacity-factors_solar_{year}.csv"
             if user_mode == "developer"
-            else temp(modelpath / "capacity-factors_solar_{year}.csv")
+            else temp(sharedpath / "capacity-factors_solar_{year}.csv")
         ),
         areassolar=(
-            modelpath / "areas_solar.csv"
+            sharedpath / "areas_solar.csv"
             if user_mode == "developer"
-            else temp(modelpath / "areas_solar.csv")
+            else temp(sharedpath / "areas_solar.csv")
         ),
         areaswindonshore=(
-            modelpath / "areas_wind_onshore.csv"
+            sharedpath / "areas_wind_onshore.csv"
             if user_mode == "developer"
-            else temp(modelpath / "areas_wind_onshore.csv")
+            else temp(sharedpath / "areas_wind_onshore.csv")
         ),
         areaswindoffshore=(
-            modelpath / "areas_wind_offshore.csv"
+            sharedpath / "areas_wind_offshore.csv"
             if user_mode == "developer"
-            else temp(modelpath / "areas_wind_offshore.csv")
+            else temp(sharedpath / "areas_wind_offshore.csv")
         ),
         areaswindoffshore_floating=(
-            modelpath / "areas_wind_offshore_floating.csv"
+            sharedpath / "areas_wind_offshore_floating.csv"
             if user_mode == "developer" and windoff_floating
-            else temp(modelpath / "areas_wind_offshore_floating.csv")
+            else temp(sharedpath / "areas_wind_offshore_floating.csv")
             if windoff_floating
             else []
         ),
         vre_connection_dists=(
-            modelpath / "vre_connection_dists.csv"
+            sharedpath / "vre_connection_dists.csv"
             if user_mode == "developer"
-            else temp(modelpath / "vre_connection_dists.csv")
+            else temp(sharedpath / "vre_connection_dists.csv")
         ),
     params:
         date_range=date_range,
@@ -327,15 +339,16 @@ def resolve_prior_ledger(wildcards):
     if idx == 0:
         return []
     prior_horizon = planning_horizons[idx - 1]
-    scenario_path = resultspath / f"{wildcards.psys_scenario}_{wildcards.year}_{wildcards.spatial}"
-    return scenario_path / prior_horizon / "capacity_ledger.csv"
+    prior_year = years[idx - 1]
+    scenario_path = resultspath / f"{wildcards.psys_scenario}_{wildcards.esys_scenario}_{wildcards.spatial}"
+    return scenario_path / f"{prior_horizon}_{prior_year}" / "capacity_ledger.csv"
 
 rule build_technoeconomic_inputs:
     input:
         "resources/zones.csv",
         "resources/highres_scenarios.xls",
         "resources/highres_technoeconomic_database_{horizon}.ods",
-        europedemandcsvlocation="resources/europe_demand_" + config["parameters"]["energy_system_scenario"] + "_{horizon}.csv",
+        europedemandcsvlocation="resources/europe_demand_{esys_scenario}_{horizon}.csv",
         co2_targets_db="resources/europe_co2_targets.csv",
         vre_connection_dists=rules.build_vre_cf_inputs.output.vre_connection_dists,
         data2dd="workflow/scripts/data2dd_funcs.py",
@@ -347,15 +360,15 @@ rule build_technoeconomic_inputs:
         horizonpath / "{psys_scenario}_gen.dd",
         horizonpath / "{psys_scenario}_store.dd",
         horizonpath / "trans.dd",
-        co2_target=horizonpath / "BASE_co2_target.dd",
-        demandfile=horizonpath / "BASE_demand_{year}.dd",
+        co2_target=horizonpath / "{esys_scenario}_co2_target.dd",
+        demandfile=horizonpath / "{esys_scenario}_demand_{year}.dd",
     params:
         aggregated_regions=aggregated_regions,
         date_range=date_range,
         user_mode=user_mode,
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
-        energy_system_scenario=config["parameters"]["energy_system_scenario"],
+        energy_system_scenario=lambda wildcards: wildcards.esys_scenario,
         planning_horizon=lambda wildcards: wildcards.horizon,
     script:
         "scripts/data2dd.py"
@@ -369,19 +382,19 @@ rule build_hydro_capfac:
         weatherdata=shared_input_path / "weatherdata/europe_{year}.nc",
     output:
         hydrororcapfac=(
-            modelpath / "capacity-factors_hydro_{year}.csv"
+            sharedpath / "capacity-factors_hydro_{year}.csv"
             if user_mode == "developer"
-            else temp(modelpath / "capacity-factors_hydro_{year}.csv")
+            else temp(sharedpath / "capacity-factors_hydro_{year}.csv")
         ),
         hydroresinfl=(
-            modelpath / "inflow_hydro-res_{year}.csv"
+            sharedpath / "inflow_hydro-res_{year}.csv"
             if user_mode == "developer"
-            else temp(modelpath / "inflow_hydro-res_{year}.csv")
+            else temp(sharedpath / "inflow_hydro-res_{year}.csv")
         ),
         areashydro=(
-            modelpath / "hydro_ror_area.csv"
+            sharedpath / "hydro_ror_area.csv"
             if user_mode == "developer"
-            else temp(modelpath / "hydro_ror_area.csv")
+            else temp(sharedpath / "hydro_ror_area.csv")
         ),
     conda:
         "envs/build_hydro_capfac.yml"
@@ -412,10 +425,10 @@ rule build_vre_areas_file:
             else []
         ),
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
-        technoeconomic_database=f"resources/highres_technoeconomic_database_{config['parameters']['planning_horizons'][0]}.ods",
+        technoeconomic_database=f"resources/highres_technoeconomic_database_{planning_horizons[0]}.ods", #assumes NUTS2 region set is identical across horizon runs
     output:
-        modelpath / "vre_areas_{year}_.dd",
-        regionsdd=modelpath / "_regions.dd",
+        sharedpath / "vre_areas_{year}_.dd",
+        regionsdd=sharedpath / "_regions.dd",
     notebook:
         "notebooks/highRES_build_vre_areas_file.ipynb"
 
@@ -424,7 +437,7 @@ rule build_hydrores_inflow:
     input:
         rules.build_hydro_capfac.output.hydroresinfl,
     output:
-        inflowgdx=modelpath / "hydro_res_inflow_{year}.gdx",
+        inflowgdx=sharedpath / "hydro_res_inflow_{year}.gdx",
     shell:
         gamspath + (
             "csv2gdx {input} output={output} ID=hydro_inflow "
@@ -436,7 +449,7 @@ rule compress_hydrores_inflow:
     input:
         rules.build_hydrores_inflow.output.inflowgdx,
     output:
-        compressdone=touch(modelpath / "hydrores_inflow_gdx.compressed"),
+        compressdone=touch(sharedpath / "hydrores_inflow_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
 
@@ -448,9 +461,9 @@ rule build_vre_file:
         cfhn3=rules.build_hydro_capfac.output.hydrororcapfac,
     output:
         vrefile=(
-            modelpath / "vre_{year}_.csv"
+            sharedpath / "vre_{year}_.csv"
             if user_mode == "developer"
-            else temp(modelpath / "vre_{year}_.csv")
+            else temp(sharedpath / "vre_{year}_.csv")
         ),
     run:
         import shutil
@@ -475,7 +488,7 @@ rule build_vre_parquet:
     input:
         rules.build_vre_file.output.vrefile,
     output:
-        modelpath / "vre_{year}_.parquet",
+        sharedpath / "vre_{year}_.parquet",
     conda:
         "envs/build_vre_parquet.yml"
     script:
@@ -484,12 +497,12 @@ rule build_vre_parquet:
 
 rule build_vre_csv:
     input:
-        modelpath / "vre_{year}_.parquet",
+        sharedpath / "vre_{year}_.parquet",
     output:
         csvgdx=(
-            modelpath / "vre_{year}_tmp.csv"
+            sharedpath / "vre_{year}_tmp.csv"
             if user_mode == "developer"
-            else temp(modelpath / "vre_{year}_tmp.csv")
+            else temp(sharedpath / "vre_{year}_tmp.csv")
         ),
     conda:
         "envs/build_vre_parquet.yml"
@@ -502,9 +515,9 @@ rule build_vre_gdx:
         rules.build_vre_csv.output.csvgdx,
     output:
         bigvregdx=(
-            modelpath / "vre_{year}_.gdx"
+            sharedpath / "vre_{year}_.gdx"
             if user_mode == "developer"
-            else modelpath / "vre_{year}_.gdx"
+            else sharedpath / "vre_{year}_.gdx"
         ),
     shell:
         # TODO platform independence
@@ -518,7 +531,7 @@ rule compress_vre_gdx:
     input:
         rules.build_vre_gdx.output.bigvregdx,
     output:
-        touch(modelpath / "vre_gdx.compressed"),
+        touch(sharedpath / "vre_gdx.compressed"),
     shell:
         gamspath + "gdxcopy -V7C -Replace {input}"
 
@@ -548,7 +561,7 @@ rule build_ev_inputs:
         ev_scenarios="resources/ev_data/ev_scenarios.csv",
         data2dd=pathlib.Path(workflow.basedir) / "scripts",
     output:
-        modelpath / "ev_data.dd",
+        sharedpath / "ev_data.dd",
     conda:
         "envs/build_ev_inputs.yml"
     params:
@@ -565,20 +578,20 @@ rule build_ev_inputs:
 rule build_inputs:
     input:
         # unpack(inputfilelist)
-        regionsdd=modelpath / "_regions.dd",
-        zonesdd=modelpath / "zones.dd",
+        regionsdd=sharedpath / "_regions.dd",
+        zonesdd=sharedpath / "zones.dd",
         temporaldd=horizonpath / "{year}_temporal.dd",
-        vreareasdd=modelpath / "vre_areas_{year}_.dd",
+        vreareasdd=sharedpath / "vre_areas_{year}_.dd",
         demandfile=rules.build_technoeconomic_inputs.output.demandfile,
-        vregdxcompressed=modelpath / "vre_gdx.compressed",
-        vregdx=modelpath / "vre_{year}_.gdx",
-        hydroresinflowgdx=modelpath / "hydro_res_inflow_{year}.gdx",
+        vregdxcompressed=sharedpath / "vre_gdx.compressed",
+        vregdx=sharedpath / "vre_{year}_.gdx",
+        hydroresinflowgdx=sharedpath / "hydro_res_inflow_{year}.gdx",
         hydroresinflowcompressed=rules.compress_hydrores_inflow.output.compressdone,
         gendd=horizonpath / "{psys_scenario}_gen.dd",
         storedd=horizonpath / "{psys_scenario}_store.dd",
         transdd=horizonpath / "trans.dd",
-        cplexopt=modelpath / "cplex.opt",
-        evdatadd=modelpath / "ev_data.dd",
+        cplexopt=sharedpath / "cplex.opt",
+        evdatadd=sharedpath / "ev_data.dd",
     output:
         touch(horizonpath / "inputs.finished"),
     run:
@@ -608,14 +621,14 @@ rule run_gams:
         shared_code_path + "highres_storage_uc_setup.gms",
         shared_code_path + "highres_uc_setup.gms",
         horizonpath / "inputs.finished",
-        modelpath / "vre_{year}_.gdx",
+        sharedpath / "vre_{year}_.gdx",
     params:
         gamspath=gamspath,
         horizonpath=lambda wildcards, output: str(pathlib.Path(output.modelresults).parent),
         #co2intensity=config["parameters"]["co2target"],
         co2_target_type=config["parameters"]["co2_target_type"],
         co2_target_extent=config["parameters"]["co2_target_extent"],
-        energy_system_scenario=config["parameters"]["energy_system_scenario"],
+        energy_system_scenario=lambda wildcards: wildcards.esys_scenario,
         sharedcodepath=abs_gams_code_path,
         outname="results",
         store_initial_level=config["parameters"]["store_initial_level"],
