@@ -77,7 +77,7 @@ parameters:
   cutoff_onwind: 0.1
   cutoff_offwind: 0.20
   
-  date_range: ["01-01", "12-31"]
+  date_range: ["01-01", "01-31"]
 
   EV: "ON"
   EV_scenario: ["BASE"]
@@ -113,33 +113,33 @@ parameters:
 
   aggregated_regions: [
     "AT",
-    #"BE",
-    #"BG",
-    #"CH",
+    "BE",
+    "BG",
+    "CH",
     "CZ",
-    #"DE",
-    #"DK",
-    #"EE",
-    #"ES",
-    #"FI",
-    #"FR",
-    #"UK",
-    #"GR",
-    #"HR",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "UK",
+    "GR",
+    "HR",
     "HU",
-    #"IE",
-    #"IT",
-    #"LT",
-    #"LU",
-    #"LV",
-    #"NL",
-    #"NO",
+    "IE",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "NL",
+    "NO",
     "PL",
-    #"PT",
-    #"RO",
-    #"SE",
-    #"SI",
-    #"SK",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK",
   ]
   solar_clc : [
     1,
