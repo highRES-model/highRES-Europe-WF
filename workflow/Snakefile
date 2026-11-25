@@ -24,6 +24,13 @@ pd.DataFrame(aggregated_regions).rename(columns={0: "zone"}).to_csv(
     "resources/zones.csv", index=None
 )
 
+# Pathway scenarios
+solar_scenarios = config["parameters"]["solar_scenarios"]
+wind_scenarios = config["parameters"]["wind_scenarios"] # including social and environmental exclusions
+transmission_scenarios = config["parameters"]["trans_inv"]
+emission_scenarios = config["parameters"]["emission_scenarios"]
+growth_scenarios = config["parameters"]["growth_rate_scenarios"]
+
 spatials = config["parameters"]["spatials"]
 psys_scenarios = config["parameters"]["power_system_scenario"]
 esys_scenarios = config["parameters"]["energy_system_scenario"]
@@ -48,8 +55,12 @@ windoff_bottom_af = config["parameters"]["windoff_bottom_af"]
 windoff_floating_af = config["parameters"]["windoff_floating_af"]
 
 # Generate all combinations of spatials, psys/esys scenarios 
-combinations = list(itertools.product(spatials, psys_scenarios, esys_scenarios))
+# combinations = list(itertools.product(spatials, psys_scenarios, esys_scenarios))
 # scenarios = pd.DataFrame(combinations, columns=["year", "spatial", "psys_scenario", "esys_scenario"])
+
+# Generate all combinations of spatials, psys/esys, pathway scenarios 
+combinations = list(itertools.product(spatials, psys_scenarios, esys_scenarios, 
+        solar_scenarios, wind_scenarios, transmission_scenarios, emission_scenarios, growth_scenarios))
 
 planning_horizons = [str(h) for h in config["parameters"]["planning_horizons"]]
 years = [str(y) for y in config["parameters"]["years"]]
@@ -63,13 +74,26 @@ pathway_combinations = [
     for c in combinations
     for i, h in enumerate(planning_horizons)
 ]
-pathway_scenarios = pd.DataFrame(pathway_combinations, columns=["spatial", "psys_scenario", "esys_scenario", "planning_horizon", "year"])
+
+# pathway_scenarios = pd.DataFrame(pathway_combinations, columns=["spatial", "psys_scenario", "esys_scenario", "planning_horizon", "year"])
+pathway_scenarios = pd.DataFrame(pathway_combinations, 
+    columns=["spatial", "psys_scenario", "esys_scenario", 
+        "solar_scenario", "wind_scenario", "transmission_scenario", 
+        "emission_scenario", "growth_scenario", "planning_horizon",
+        "year",
+    ]
+)
 
 years = pathway_scenarios.year.to_list()
 spatials = pathway_scenarios.spatial.to_list()
 psys_scenarios = pathway_scenarios.psys_scenario.to_list()
 esys_scenarios = pathway_scenarios.esys_scenario.to_list()
 pathway_horizons = pathway_scenarios.planning_horizon.to_list()
+solar_scenarios = pathway_scenarios.solar_scenario.to_list()
+wind_scenarios = pathway_scenarios.wind_scenario.to_list()
+transmission_scenarios = pathway_scenarios.transmission_scenario.to_list()
+emission_scenarios = pathway_scenarios.emission_scenario.to_list()
+growth_scenarios = pathway_scenarios.growth_scenario.to_list()
 
 ev_scenario = config["parameters"]["EV_scenario"]
 
@@ -113,8 +137,11 @@ pathway_scenarios.loc[:, ["planning_horizon", "year", "run_name"]].to_csv(result
 
 # Relative path to workdir
 
-modelpath=resultspath / "{psys_scenario}_{esys_scenario}_{spatial}"
-sharedpath=resultspath / "{year}_{spatial}"
+# modelpath=resultspath / "{psys_scenario}_{esys_scenario}_{spatial}"
+# sharedpath=resultspath / "{year}_{spatial}"
+pathwaypath = "{solar_scenario}_{wind_scenario}_{transmission_scenario}_{emission_scenario}_{growth_scenario}"
+modelpath=resultspath / "{psys_scenario}_{esys_scenario}_{spatial}" / pathwaypath
+sharedpath=resultspath / "{year}_{spatial}_{solar_scenario}_{wind_scenario}" # added solar and wind scenarios for wildcards
 horizonpath=modelpath / "{horizon}_{year}"
 wildcard_constraints:
     horizon="|".join(planning_horizons),
@@ -146,7 +173,9 @@ localrules:
 rule all:
     input:
         expand(horizonpath / config["target"], zip, psys_scenario=psys_scenarios, esys_scenario=esys_scenarios,
-        year=years, spatial=spatials, horizon=pathway_horizons)    
+        year=years, spatial=spatials, horizon=pathway_horizons,
+        solar_scenario=solar_scenarios, wind_scenario=wind_scenarios, transmission_scenario=transmission_scenarios,
+        emission_scenario=emission_scenarios, growth_scenario=growth_scenarios)    
 
 rule build_cplex_opt:
     output:
@@ -222,10 +251,11 @@ rule build_vre_land_avail:
     input:
         solar_env_excl= shared_input_path / "geodata/onshore/solarpv_CDDA_IUCN_Ia-IV_Natura.tif",
         solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_med_high_intens.tif",
+        # solar_agr_excl= shared_input_path / "geodata/onshore/solar_agri_excl_{solar_scenario}_intens.tif",
         solar_slope= shared_input_path / "geodata/onshore/solar_slope_max_6.3deg.tif",
         onshore_slope=shared_input_path / "geodata/onshore/onshore_slope_max_15.0deg.tif",
-        social_excl=shared_input_path / "geodata/onshore/social_low.tif",
-        env_excl=shared_input_path / "geodata/onshore/environmental_low.tif",
+        social_excl=shared_input_path / "geodata/onshore/social_{wind_scenario}.tif",
+        env_excl=shared_input_path / "geodata/onshore/environmental_{wind_scenario}.tif",
         techn_excl=shared_input_path / "geodata/onshore/technical_exclusions.tif",
         corine=shared_input_path / "geodata/onshore/corine.tif",
         euroshape=rules.build_shapes.output.onshoreshape,
@@ -340,8 +370,10 @@ def resolve_prior_ledger(wildcards):
         return []
     prior_horizon = planning_horizons[idx - 1]
     prior_year = years[idx - 1]
-    scenario_path = resultspath / f"{wildcards.psys_scenario}_{wildcards.esys_scenario}_{wildcards.spatial}"
+    # scenario_path = resultspath / f"{wildcards.psys_scenario}_{wildcards.esys_scenario}_{wildcards.spatial}_{wildcards.solar_scenario}_{wildcards.wind_scenario}_{wildcards.transmission_scenario}_{wildcards.emission_scenario}_{wildcards.growth_scenario}"
+    scenario_path = resultspath / f"{wildcards.psys_scenario}_{wildcards.esys_scenario}_{wildcards.spatial}/{wildcards.solar_scenario}_{wildcards.wind_scenario}_{wildcards.transmission_scenario}_{wildcards.emission_scenario}_{wildcards.growth_scenario}"
     return scenario_path / f"{prior_horizon}_{prior_year}" / "capacity_ledger.csv"
+    # return modelpath / f"{prior_horizon}_{prior_year}" / "capacity_ledger.csv" # Is it better in this way?
 
 rule build_technoeconomic_inputs:
     input:
@@ -639,7 +671,8 @@ rule run_gams:
         hydro_res_min=config["parameters"]["hydro_res_min"],
         pgen=config["parameters"]["pgen"],
         emis_price=config["parameters"]["emis_price"],
-        trans_inv=config["parameters"]["trans_inv"],
+        # trans_inv=config["parameters"]["trans_inv"],
+        trans_inv="{transmission_scenario}",
         trans_cap_lim=config["parameters"]["trans_cap_lim"],
         unit_commitment=config["parameters"]["unit_commitment"],
         frequency_response=config["parameters"]["frequency_response"],

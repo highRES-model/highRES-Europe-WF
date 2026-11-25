@@ -17,7 +17,8 @@ out = pathlib.Path(".")
 co2target2dd(
     snakemake.input.co2_targets_db,
     snakemake.output.co2_target,
-    snakemake.params.energy_system_scenario,
+    # snakemake.params.energy_system_scenario,
+    snakemake.wildcards.emission_scenario,
     snakemake.params.co2_target_type,
     snakemake.params.co2_target_extent,
     snakemake.params.planning_horizon)
@@ -168,5 +169,5 @@ apply_capacity_retirement(
     snakemake.output[1], snakemake.output[2], snakemake.input.prior_ledger, f_techno,
     int(planning_horizon), snakemake.wildcards.spatial,
     snakemake.input.gen_database, zones, snakemake.params.baseline_year, prior_horizon,
-    scen_db, psys_scen, growth_seed,
+    scen_db, psys_scen, growth_seed,growth_scen=snakemake.wildcards.growth_scenario,
 )

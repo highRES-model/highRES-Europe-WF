@@ -464,14 +464,16 @@ def patch_trans_cap_block(blocks, block_name, ledger_slice, key_cols, covered_ke
 
 def patch_growth_rate_ceiling(
     blocks, lim_block_name, growth_block_name, existing_z, seed_lookup,
-    delta_t, vre_techs,
+    delta_t, vre_techs,growth_scen=None,
 ):
 
     rate_lookup = {}
     if growth_block_name in blocks:
         for key, value in blocks[growth_block_name]["rows"]:
-            zone, tech, _limtype = key.split(".")
-            rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
+            # zone, tech, _limtype = key.split(".")
+            zone, tech, scen_growth = key.split(".")
+            if scen_growth == growth_scen: # only get the correct growth rate scenario
+                rate_lookup[(zone, tech)] = float(value)*1000  # undo getzlims() MW->GW /1e3,
 
     existing_lookup = existing_z.groupby(["zone", "Technology"])["capacity_mw"].sum().to_dict() if not existing_z.empty else {}
 
@@ -539,6 +541,7 @@ def apply_capacity_curtailment(df, curtailment):
 def apply_capacity_retirement(
     gen_ddfile, store_ddfile, ledger_path, f_techno, planning_horizon, spatials,
     gen_database_path, zones, baseline_year, prior_horizon, scen_db, psys_scen, growth_seed,
+    growth_scen=None,
 ):
 
     scen = pd.read_excel(scen_db, sheet_name="scenario_tech_definition", skiprows=0)
@@ -589,9 +592,9 @@ def apply_capacity_retirement(
     gen_blocks, gen_order = read_dd_blocks(gen_ddfile)
 
     pcap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_pcap_z", "gen_growth_pcap_z", gen_pcap_z,
-                                                 growth_seed, delta_t, vre_techs)
+                                                 growth_seed, delta_t, vre_techs,growth_scen)
     ecap_curtailment = patch_growth_rate_ceiling(gen_blocks, "gen_lim_ecap_z", "gen_growth_ecap_z", gen_ecap_z,
-                                                  growth_seed, delta_t, vre_techs)
+                                                  growth_seed, delta_t, vre_techs,growth_scen)
 
     gen_pcap_z = apply_capacity_curtailment(gen_pcap_z, pcap_curtailment)
     gen_ecap_z = apply_capacity_curtailment(gen_ecap_z, ecap_curtailment)
