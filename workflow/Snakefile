@@ -133,7 +133,7 @@ pathlib.Path(resultspath).mkdir(parents=True, exist_ok=True)
 run_name=["psys_scenario","esys_scenario","spatial"]
 
 pathway_scenarios["run_name"]=pathway_scenarios[run_name].stack().groupby(level=0).agg("_".join)
-pathway_scenarios.loc[:, ["planning_horizon", "year", "run_name"]].to_csv(resultspath / "scens.csv", index=False, header=False)
+pathway_scenarios.loc[:, ["solar_scenario", "wind_scenario", "transmission_scenario", "emission_scenario", "growth_scenario", "planning_horizon", "year", "run_name"]].to_csv(resultspath / "scens.csv", index=False, header=False)
 
 # Relative path to workdir
 
@@ -155,6 +155,10 @@ localrules:
     build_cplex_opt,
     build_technoeconomic_inputs,
     build_zones_file,
+    build_shapes,
+    build_vre_cf_grid,
+    build_vre_land_avail,
+    build_vre_cf_inputs,
     build_vre_areas_file,
     build_vre_file,
     build_vre_gdx,
@@ -167,7 +171,9 @@ localrules:
     compress_hydrores_inflow,
     convert_results_db_parquet,
     build_capacity_ledger,
-    run_gams,
+    build_ev_inputs,
+    build_inputs,
+    # run_gams,
 
 
 rule all:
